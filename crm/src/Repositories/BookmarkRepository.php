@@ -1,54 +1,55 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Repositories;
 
-use Domain\Bookmark;
-
-class BookmarkRepository extends AbstractPdoRepository implements RepositoryInterface
+class BookmarkRepository extends AbstractRepository
 {
-    public function findById(int $id): ?Bookmark
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM bookmarks WHERE id = :id');
-        $stmt->execute(['id' => $id]);
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $row ? Bookmark::fromRow($row) : null;
-    }
-
-    /** @return Bookmark[] */
     public function findByPersonId(int $personId): array
     {
-        return $this->fetchAll(
-            'SELECT * FROM bookmarks WHERE personId = :personId ORDER BY name ASC',
-            ['personId' => $personId],
-            fn($row) => Bookmark::fromRow($row),
+        $rows = $this->fetchAll(
+            'SELECT * FROM bookmarks WHERE personId = :pid ORDER BY name',
+            [':pid' => $personId]
+        );
+        return array_map(
+            fn($r) => array_merge($r, ['filterState' => $this->decodeJson($r['filterState'])]),
+            $rows
         );
     }
 
-    /**
-     * INSERT only — no update (delete+create to replace).
-     * Returns Bookmark with id set.
-     */
-    public function save(object $entity): Bookmark
+    public function findById(int $id): ?array
     {
-        /** @var Bookmark $entity */
-        $data = [
-            'personId'    => $entity->personId,
-            'name'        => $entity->name,
-            'filterState' => $entity->filterState,
-        ];
-
-        $cols = implode(', ', array_keys($data));
-        $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
-        $stmt = $this->pdo->prepare("INSERT INTO bookmarks ($cols) VALUES ($vals)");
-        $stmt->execute($data);
-        $newId = $this->lastInsertId();
-        return $this->findById($newId) ?? $entity;
+        $row = $this->fetchOne('SELECT * FROM bookmarks WHERE id = :id', [':id' => $id]);
+        if ($row) {
+            $row['filterState'] = $this->decodeJson($row['filterState']);
+        }
+        return $row;
     }
 
-    /** Hard delete — personal data, no historical reference needed */
-    public function delete(int $id): void
+    public function countByPersonId(int $personId): int
     {
-        $stmt = $this->pdo->prepare("DELETE FROM bookmarks WHERE id = :id");
-        $stmt->execute(['id' => $id]);
+        $row = $this->fetchOne(
+            'SELECT COUNT(*) as cnt FROM bookmarks WHERE personId = :pid',
+            [':pid' => $personId]
+        );
+        return (int) ($row['cnt'] ?? 0);
+    }
+
+    public function create(array $data): int
+    {
+        return $this->insertRow(
+            'INSERT INTO bookmarks (personId, name, filterState) VALUES (:personId, :name, :filterState)',
+            [
+                ':personId'    => $data['personId'],
+                ':name'        => $data['name'],
+                ':filterState' => json_encode($data['filterState'], JSON_THROW_ON_ERROR),
+            ]
+        );
+    }
+
+    public function delete(int $id): int
+    {
+        return $this->execute('DELETE FROM bookmarks WHERE id = :id', [':id' => $id]);
     }
 }

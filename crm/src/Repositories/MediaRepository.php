@@ -1,63 +1,54 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Repositories;
 
-use Domain\Media;
-
-class MediaRepository extends AbstractPdoRepository implements RepositoryInterface
+class MediaRepository extends AbstractRepository
 {
-    public function findById(int $id): ?Media
+    public function findByTicketId(int $ticketId): array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM media WHERE id = :id');
-        $stmt->execute(['id' => $id]);
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $row ? Media::fromRow($row) : null;
+        return $this->fetchAll(
+            'SELECT * FROM media WHERE ticketId = :tid AND deletedAt IS NULL ORDER BY createdAt',
+            [':tid' => $ticketId]
+        );
     }
 
-    /** @return Media[] */
-    public function findByTicketId(int $ticketId, bool $includeDeleted = false): array
+    public function findById(int $id): ?array
     {
-        $sql = $includeDeleted
-            ? 'SELECT * FROM media WHERE ticketId = :ticketId ORDER BY createdAt ASC'
-            : 'SELECT * FROM media WHERE ticketId = :ticketId AND deletedAt IS NULL ORDER BY createdAt ASC';
-        return $this->fetchAll($sql, ['ticketId' => $ticketId], fn($row) => Media::fromRow($row));
+        return $this->fetchOne('SELECT * FROM media WHERE id = :id AND deletedAt IS NULL', [':id' => $id]);
     }
 
-    public function save(object $entity): Media
+    public function create(array $data): int
     {
-        /** @var Media $entity */
-        $data = [
-            'ticketId'      => $entity->ticketId,
-            'filename'      => $entity->filename,
-            'originalName'  => $entity->originalName,
-            'mimeType'      => $entity->mimeType,
-            'size'          => $entity->size,
-            'path'          => $entity->path,
-            'thumbnailPath' => $entity->thumbnailPath,
-            'sourceUrl'     => $entity->sourceUrl,
-            'label'         => $entity->label,
-        ];
-
-        if ($entity->id > 0) {
-            $set  = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
-            $stmt = $this->pdo->prepare("UPDATE media SET $set WHERE id = :id");
-            $data['id'] = $entity->id;
-            $stmt->execute($data);
-            return $this->findById($entity->id) ?? $entity;
-        } else {
-            $cols = implode(', ', array_keys($data));
-            $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
-            $stmt = $this->pdo->prepare("INSERT INTO media ($cols) VALUES ($vals)");
-            $stmt->execute($data);
-            $newId = $this->lastInsertId();
-            return $this->findById($newId) ?? $entity;
-        }
+        return $this->insertRow(
+            'INSERT INTO media (ticketId, filename, originalName, mimeType, size, path, thumbnailPath, sourceUrl, label)
+             VALUES (:ticketId, :filename, :originalName, :mimeType, :size, :path, :thumbnailPath, :sourceUrl, :label)',
+            [
+                ':ticketId'      => $data['ticketId'],
+                ':filename'      => $data['filename'],
+                ':originalName'  => $data['originalName'] ?? null,
+                ':mimeType'      => $data['mimeType'],
+                ':size'          => $data['size'] ?? 0,
+                ':path'          => $data['path'],
+                ':thumbnailPath' => $data['thumbnailPath'] ?? null,
+                ':sourceUrl'     => $data['sourceUrl'] ?? null,
+                ':label'         => $data['label'] ?? null,
+            ]
+        );
     }
 
-    /** Soft-delete */
-    public function delete(int $id): void
+    public function softDelete(int $id): int
     {
-        $stmt = $this->pdo->prepare("UPDATE media SET deletedAt = NOW() WHERE id = :id");
-        $stmt->execute(['id' => $id]);
+        return $this->execute('UPDATE media SET deletedAt = NOW() WHERE id = :id', [':id' => $id]);
+    }
+
+    public function countByTicketId(int $ticketId): int
+    {
+        $row = $this->fetchOne(
+            'SELECT COUNT(*) as cnt FROM media WHERE ticketId = :tid AND deletedAt IS NULL',
+            [':tid' => $ticketId]
+        );
+        return (int) ($row['cnt'] ?? 0);
     }
 }
