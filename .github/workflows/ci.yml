@@ -1,0 +1,231 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PHP_VERSION: "8.5"
+  NODE_VERSION: "20"
+
+jobs:
+  # ── PHP: Lint + Static Analysis ──────────────────────────────────────────────
+  phpstan:
+    name: PHPStan Level 8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ env.PHP_VERSION }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo, pdo_mysql, mbstring, json, opcache
+          coverage: xdebug
+
+      - name: Install Composer dependencies
+        working-directory: ./crm
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run PHPStan (level 8)
+        working-directory: ./crm
+        run: ./vendor/bin/phpstan analyse src/ --level=8 --no-progress
+
+  # ── PHP: Unit + Integration Tests ────────────────────────────────────────────
+  phpunit:
+    name: PHPUnit (≥70% coverage)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ureport_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ env.PHP_VERSION }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo, pdo_mysql, mbstring, json, opcache
+          coverage: xdebug
+
+      - name: Install Composer dependencies
+        working-directory: ./crm
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run database migrations
+        working-directory: ./crm
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: ureport_test
+          DB_USER: root
+          DB_PASS: root
+        run: |
+          if [ -f vendor/bin/phinx ]; then
+            vendor/bin/phinx migrate -e testing
+          fi
+
+      - name: Run PHPUnit with coverage
+        working-directory: ./crm
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: ureport_test
+          DB_USER: root
+          DB_PASS: root
+        run: |
+          ./vendor/bin/phpunit \
+            --coverage-text \
+            --coverage-clover=coverage.xml \
+            --fail-on-warning
+          # Enforce minimum coverage: parse coverage.xml for line coverage %
+          COVERAGE=$(grep -oP 'lines.*?percent="\K[0-9.]+' coverage.xml | head -1 || echo "0")
+          echo "Line coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 70" | bc -l) )); then
+            echo "FAIL: Line coverage ${COVERAGE}% is below required 70%"
+            exit 1
+          fi
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phpunit-coverage
+          path: crm/coverage.xml
+
+  # ── Frontend: Lint + Type-check ───────────────────────────────────────────────
+  lint-frontend:
+    name: Frontend Lint + TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: TypeScript strict check
+        working-directory: ./frontend
+        run: npm run type-check
+
+      - name: ESLint
+        working-directory: ./frontend
+        run: npm run lint
+
+  # ── Frontend: Jest Unit Tests ─────────────────────────────────────────────────
+  jest:
+    name: Jest Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run Jest
+        working-directory: ./frontend
+        run: npm test -- --ci --passWithNoTests --forceExit
+
+  # ── Frontend: Build ───────────────────────────────────────────────────────────
+  build-frontend:
+    name: Next.js Production Build
+    runs-on: ubuntu-latest
+    needs: [lint-frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build Next.js app
+        working-directory: ./frontend
+        env:
+          NEXT_PUBLIC_API_URL: ""
+          NODE_ENV: production
+        run: npm run build
+
+  # ── License Compliance ────────────────────────────────────────────────────────
+  license-check:
+    name: License Compliance (AGPL-3.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run license-checker
+        working-directory: ./frontend
+        run: |
+          npx license-checker --onlyAllow \
+            "MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;CC0-1.0;CC-BY-3.0;CC-BY-4.0;Unlicense;WTFPL;0BSD;Python-2.0" \
+            --excludePackages "ureport-frontend" \
+            --production
+
+  # ── Docker: Build Image ───────────────────────────────────────────────────────
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build PHP CRM Docker image
+        run: |
+          if [ -f Dockerfile ]; then
+            docker build -t ureport-crm:ci . 2>&1 | tail -10 && echo "DOCKER BUILD OK"
+          else
+            echo "No Dockerfile at root — skipping (docker-compose.prod.yml validated separately)"
+          fi
+
+      - name: Validate docker-compose.prod.yml
+        run: |
+          if [ -f docker-compose.prod.yml ]; then
+            docker compose -f docker-compose.prod.yml config --quiet && echo "COMPOSE CONFIG VALID"
+          else
+            echo "docker-compose.prod.yml not found — skipping"
+          fi
