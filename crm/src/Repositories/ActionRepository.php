@@ -24,6 +24,31 @@ class ActionRepository extends AbstractPdoRepository implements RepositoryInterf
         );
     }
 
+    /**
+     * Find actions for a ticket with pagination and optional visibility filter.
+     * Staff/admin pass $includeInternal=true; public callers pass false (external only).
+     *
+     * Returns ['rows' => Action[], 'total' => int]
+     */
+    public function findByTicketIdPaginated(
+        int  $ticketId,
+        bool $includeInternal = true,
+        int  $page = 1,
+        int  $perPage = 50,
+    ): array {
+        $where  = ['ticketId = :ticketId'];
+        $params = ['ticketId' => $ticketId];
+
+        if (!$includeInternal) {
+            $where[] = "visibility = 'external'";
+        }
+
+        $whereClause = 'WHERE ' . implode(' AND ', $where);
+        $sql = "SELECT * FROM actions $whereClause ORDER BY datetimeCreated ASC";
+
+        return $this->paginate($sql, $params, fn($row) => Action::fromRow($row), $page, $perPage);
+    }
+
     /** Insert a new action; returns the persisted Action with id set. */
     public function insert(Action $action): Action
     {

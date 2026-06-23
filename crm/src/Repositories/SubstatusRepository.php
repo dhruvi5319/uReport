@@ -92,6 +92,20 @@ class SubstatusRepository extends AbstractPdoRepository implements RepositoryInt
         }
     }
 
+    /**
+     * Find the default substatus for a given primary status ('open' or 'closed').
+     * Used by TicketService when transitioning ticket states.
+     */
+    public function findDefault(string $primaryStatus): ?Substatus
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT * FROM substatus WHERE primaryStatus = :ps AND isDefault = 1 AND active = 1 LIMIT 1"
+        );
+        $stmt->execute(['ps' => $primaryStatus]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Substatus::fromRow($row) : null;
+    }
+
     /** Soft-deactivate (tickets.substatusId ON DELETE SET NULL handles FK cascade) */
     public function delete(int $id): void
     {
