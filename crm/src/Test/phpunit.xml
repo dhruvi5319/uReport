@@ -6,6 +6,8 @@
         <include>
             <directory>../../src/Application</directory>
             <directory>../../src/Domain</directory>
+            <directory>../../src/Repositories</directory>
+            <directory>../../src/Infrastructure</directory>
         </include>
     </source>
     <testsuites>
