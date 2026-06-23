@@ -1,0 +1,33 @@
+<?php
+/**
+ * @copyright 2012-2026 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE
+ */
+use Application\Models\CategoryGroupTable;
+?>
+<section class="categoryGroupReportForm">
+    <header><h1><?= $this->template->title; ?></h1>
+    <form method="post" action="<?= BASE_URI; ?>/categoryGroups/reorder">
+        <?php
+            $helper = $this->template->getHelper('field');
+
+            $t = new CategoryGroupTable();
+            $r = $t->find();
+            foreach ($r['rows'] as $group) {
+                $id    = $group->getId();
+                $name  = self::escape($group->getName());
+                $order = (int)$group->getOrdering();
+
+                echo $helper->field([
+                    'name'  => "categoryGroups[$id]",
+                    'id'    => "categoryGroups_$id",
+                    'label' => $name,
+                    'value' => $order,
+                    'type'  => 'number'
+                ]);
+            }
+            $helper = $this->template->getHelper('saveAndCancelButtons');
+            echo $helper->saveAndCancelButtons(BASE_URI.'/categoryGroups');
+        ?>
+    </form>
+</section>

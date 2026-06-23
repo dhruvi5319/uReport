@@ -1,0 +1,40 @@
+.full-width {
+    #content-panel { }
+}
+.searchLayout {
+    #panel-one { float:left; width:300px; }
+    #content-panel { margin-left:300px; }
+
+    .hideLeft #panel-one { position:absolute; left:-280px; }
+    .hideLeft #content-panel { margin-left: 20px; }
+
+    #slideButton {
+        vertical-align:middle;
+        float:right;
+    }
+}
+
+.backend {
+    #panel-one { float:left; width:172px; }
+    #content-panel { margin-left:172px; }
+}
+
+.stackedPanels {
+    #content-panel { overflow:auto; }
+    #bottom-left { width:400px; float:left; }
+    #bottom-right { margin-left:400px; }
+}
+
+.merging {
+    #left,  .target_a { width:48%; float:left; }
+    #right, .target_b { width:48%; float:left; }
+}
+
+.tickets {
+    @media all and (min-width:960px) {
+        #content-panel { width:500px; float:left; }
+        #panel-one { margin-left:510px; }
+    }
+}
+
+footer { clear:both; }

@@ -1,0 +1,188 @@
+/**
+ * City of Bloomington Theme
+ *
+ * This stylesheet extends the default Factory Number One CSS.
+ * @see https://github.com/City-of-Bloomington/factory-number-one
+ */
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/themes/default/scss/modules/_vars-mixins';
+@import 'modules/vars';
+
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/themes/default/scss/modules/_html-elements';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/themes/default/includes/_header';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/themes/default/scss/modules/_nav1';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/themes/default/scss/modules/_main';
+
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/button/_btn';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/dropdown/_dropdown';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/event/_event';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/field/field';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/miniGallery/_miniGallery';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/table/table';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/personListing/_personListing';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/pricingTable/_pricingTable';
+@import '../../vendor/City-of-Bloomington/factory-number-one/src/components/uiBlock/_uiBlock';
+
+@import 'modules/header.scss';
+@import 'modules/table.scss';
+
+body  { margin:0; }
+table { border-collapse: collapse; border-spacing: 0; }
+
+a { color: $color-link; }
+h1, h2, h3, h4, h5, h6 { font-weight: normal; }
+footer {
+    background-color: $color-background-footer; color: $color-heading;
+    margin-top: ($size-gutter*2);
+    padding: $size-gutter;
+    p { font-size: $font-size-small; }
+}
+form dl { margin: 0; }
+fieldset { border: none; }
+
+main {
+    padding-left: $size-gutter;
+
+    .dropdown .launcher {
+        background-color:$color-calltoaction-background;
+        border-bottom: .25em solid $color-calltoaction-border;
+        color: $color-content-background;
+    }
+    header { margin-bottom: $size-gutter; }
+}
+
+.searchLayout {
+    main { padding:0; }
+
+
+    #panel-one {
+        background-color: $color-heading;
+        color:$color-content-background;
+
+        > div, > section { margin-left: $size-gutter; }
+
+        summary { font-size:$font-size-normal; margin-bottom: 0.5em; }
+        summary, legend, dt, a, h1 { color:$color-content-background; }
+        dl { background-color:$color-heading; }
+
+        .dropdown {
+            a { color:$color-link; }
+            a:hover { color:$color-content-background; }
+        }
+
+        input { color: $color-text-default; }
+    }
+
+    #content-panel {
+        h1 { margin-bottom: 0; }
+        h2 { margin: 0; }
+        dl { padding:0; }
+    }
+
+    table thead th { text-align: left; }
+}
+.icon.slide    { background-image: url('images/fa-svg/gray/angle-left.svg'); padding-left:1.7em; }
+.button.text   { background-image: url('images/fa-svg/gray/reorder.svg'   ); padding-left:1.7em; }
+.button.csv    { background-image: url('images/fa-svg/gray/download.svg'  ); padding-left:1.7em; }
+
+#ticketSearchForm {
+    margin-left: $size-gutter;
+    ul { list-style-type: none; padding:0 1rem; }
+    #display_fields {
+        dl {
+            margin:0; -webkit-column-count:2; -moz-column-count:2; column-count:2;
+        }
+        dd { margin:0; font-size:$font-size-small; }
+    }
+}
+#bookmark-updateForm {
+    label { display: block; }
+}
+#advanced-search > .button.delete { display: block; }
+#reportSearchForm {
+    ul { padding:0 1rem; }
+    dd { margin-left: 1em; }
+    select { width: 10em; }
+}
+
+.searchResults {
+    padding:0 1em;
+
+    article { border:1px solid $color-border-table; padding: $size-gutter; }
+    dl      { border: none;  display: flex; flex-direction: row; }
+    dt { margin:0; padding: 0; }
+    dd { margin-left: 1em; }
+}
+#resultFormatButtons {
+    background-color:$color-accent; text-align: center;
+    padding: $size-gutter;
+    box-sizing: border-box;
+
+    a {
+        border: 1px solid $color-heading; border-radius:0;
+        background-color: $color-accent; color: $color-content-background;
+        &:first-child { border-radius: .25em  0     0  .25em; }
+        &:last-child  { border-radius:   0  .25em .25em  0;   }
+        &.current {
+            background-color: $color-nav1;
+        }
+    }
+}
+
+tr.verified, tr.usedForNotifications {
+    td:first-child {
+        padding-left: 1.7em;
+        background-repeat: no-repeat;
+        background-position: $size-gutter center;
+        background-size: ($size-gutter*2) ($size-gutter*2);
+        background-image:url('images/fa-svg/green/check.svg');
+    }
+
+    td { background-color: $color-table-background; }
+
+    .edit   { background-image:url('images/fa-svg/white/pencil.svg'); }
+    .delete { background-image:url('images/fa-svg/white/times.svg' ); }
+}
+tr.missing td { background-color: $color-error; }
+
+.pageNavigation          { margin: $size-gutter; }
+.pageNavigation li       { display: inline; margin: $size-gutter; }
+a.current { border:2px solid $color-calltoaction-background; }
+
+.searchResultsRows header, .ticketInfo header {
+    h1 { display: block; margin-bottom:0; }
+    .status {
+        float: right;
+        &.open { color:$color-calltoaction-background; }
+    }
+    .tools { position: relative; top: -1.8em; left: 7em; }
+}
+.history article {
+    padding-left:1rem;
+
+    h1 { font-size:$font-size-normal; }
+    .sentNotification .message {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+}
+
+#location_map { margin-top:$size-gutter; }
+
+@media print {
+    body { font-size:10pt; }
+    main { padding:0; }
+
+    body > header,
+    body > footer,
+    #locationInfo .ticketList,
+    .dropdown {
+        display: none;
+    }
+
+    .tickets {
+        #content-panel { width:48%; float: left; }
+        #panel-one     { margin-left:50%; }
+    }
+
+    #location_map { width:312px; }
+}

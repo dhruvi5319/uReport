@@ -1,0 +1,9 @@
+<?php
+/**
+ * @copyright 2014 City of Bloomington, Indiana
+ * @license http://www.gnu.org/licenses/agpl.txt GNU/AGPL, see LICENSE
+ * @author Cliff Ingham <inghamn@bloomington.in.gov>
+ */
+header('Content-type: text/json; charset=utf-8');
+$this->_include('partials/errorMessages.inc');
+echo $this->includeBlocks('right');

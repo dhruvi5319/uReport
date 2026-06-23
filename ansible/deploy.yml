@@ -1,0 +1,63 @@
+---
+- hosts: "ureport"
+  become: "yes"
+  roles:
+    - "City-of-Bloomington.php"
+
+  tasks:
+    - name: "Install dependencies"
+      ansible.builtin.apt:
+        name: "{{ packages }}"
+        state: "present"
+      vars:
+        packages:
+          - "imagemagick"
+          - "php-mysql"
+          - "xsltproc"
+
+    - name: "Create directories"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: "directory"
+        owner: "www-data"
+        group: "staff"
+        mode:  "u=rwX,g=rwXs,o=rX"
+      with_items:
+        - "{{ ureport_install_path }}"
+        - "{{ ureport_backup_path  }}"
+        - "{{ ureport_site_home    }}"
+        - "{{ ureport_site_home    }}/sessions"
+
+    - name: "Extract release"
+      ansible.builtin.unarchive:
+        src:  "{{ ureport_archive_path }}"
+        dest: "{{ ureport_install_path | dirname }}"
+      register: "release"
+
+    - name: "Update site_home"
+      ansible.builtin.command: "rsync -rl {{ ureport_install_path }}/data/ {{ ureport_site_home }}/"
+      when: "release.changed"
+
+    - name: "Update apache configuration"
+      ansible.builtin.template:
+        src:   "apache.conf"
+        dest:  "/etc/apache2/sites-enabled/conf.d/ureport.conf"
+      notify:  "apache_restart"
+
+    - name: "Update uReport site_config"
+      ansible.builtin.template:
+        src: "site_config.j2"
+        dest: "{{ ureport_site_home }}/site_config.php"
+
+    - name: 'Update directory permissions'
+      ansible.builtin.file:
+        path:    "{{ item }}"
+        state:   'directory'
+        owner:   'www-data'
+        group:   'staff'
+        mode:    'u=rwX,g=rwX,o=rX'
+        recurse: 'true'
+      with_items:
+        - "{{ ureport_install_path }}"
+        - "{{ ureport_site_home    }}"
+...

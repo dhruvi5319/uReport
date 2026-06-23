@@ -1,0 +1,818 @@
+# Copyright (C) 2013-2016 City of Bloomington
+# This file is distributed under the same license as the uReport package.
+#
+# The msgid's in this file should be names of database columns and code variables.
+# Since the code is written in US English, the variable names will be en_US.
+#
+# However, we do not want to use the en_US translation as the msgid.
+# The en_US translation will change over time as we find better words for things.
+msgid ""
+msgstr ""
+"Project-Id-Version: uReport 1.11\n"
+"Report-Msgid-Bugs-To: dev@bloomington.in.gov\n"
+"POT-Creation-Date: 2013-09-20 16:33-0400\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Milo van der Linden <milo.vd.linden@eindhoven.nl>\n"
+"Language-Team: City of Bloomington <dev@bloomington.in.gov>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: nl_NL\n"
+
+msgid "add"
+msgstr "Toevoegen"
+
+msgid "edit"
+msgstr "Wijzigen"
+
+msgid "delete"
+msgstr "Verwijderen"
+
+msgid "submit"
+msgstr "Opslaan"
+
+msgid "save"
+msgstr "Opslaan"
+
+msgid "save_as"
+msgstr "%s toevoegen aan favorieten"
+
+msgid "cancel"
+msgstr "Annuleren"
+
+msgid "search"
+msgstr "Zoeken"
+
+msgid "apply"
+msgstr "Toepassen"
+
+msgid "search_results"
+msgstr "Gevonden"
+
+msgid "search_results_text"
+msgstr "Tekst resultaten"
+
+msgid "search_results_map"
+msgstr "Locatie resultaten"
+
+msgid "search_results_print"
+msgstr "Resultaten afdrukken"
+
+msgid "search_results_csv"
+msgstr "Resultaten CSV"
+
+msgid "search_current"
+msgstr "Filter"
+
+msgid "search_results_count"
+msgstr "# resultaten op basis van de zoekopdracht"
+
+msgid "upload"
+msgstr "Upload"
+
+msgid "new"
+msgstr "Nieuw"
+
+msgid "go"
+msgstr "Uitvoeren"
+
+msgid "start"
+msgstr "Start"
+
+msgid "end"
+msgstr "Eind"
+
+msgid "more"
+msgstr "Meer"
+
+msgid "top"
+msgstr "Terug naar begin"
+
+msgid "more_categories"
+msgstr "Meer categorieën"
+
+msgid "sort_by"
+msgstr "Sorteren op"
+
+#. The current sorting of a list.  Alpabetical order, Numerical order, etc.
+msgid "order"
+msgstr "Volgorde"
+
+#. To change the sorting of a list
+msgid "reorder"
+msgstr "Volgorde aanpassen"
+
+#. This is the short form for "Information".  This should be an abbreviation
+msgid "info"
+msgstr "Info"
+
+#. This is the short form for "Administrator".  This should be an abbreviation
+msgid "admin"
+msgstr "Beheer"
+
+msgid "my_account"
+msgstr "Instellingen"
+
+msgid "my_profile"
+msgstr "Profiel"
+
+msgid "my_info"
+msgstr "Persoonsgegevens"
+
+msgid "login"
+msgstr "Aanmelden"
+
+msgid "logout"
+msgstr "Afmelden"
+
+msgid "login_cas"
+msgstr "Overheidsambtenaar"
+
+msgid "login_auth0"
+msgstr "Burgers"
+
+msgid "help"
+msgstr "Help"
+
+msgid "default"
+msgstr "Standaard"
+
+msgid "contactMethod"
+msgid_plural "contactMethods"
+msgstr[0] "Contactmethode"
+msgstr[1] "Contactmethoden"
+
+msgid "contactMethod_add"
+msgstr "Contactmethode toevoegen"
+
+msgid "contactMethod_edit"
+msgstr "Contactmethode wijzigen"
+
+msgid "response"
+msgid_plural "responses"
+msgstr[0] "Reactie"
+msgstr[1] "Reacties"
+
+msgid "responseMethod"
+msgstr "Gewenste methode van reactie"
+
+msgid "api_key"
+msgstr "API sleutel"
+
+msgid "url"
+msgstr "URL"
+
+msgid "name"
+msgstr "Naam"
+
+msgid "firstname"
+msgstr "Voornaam"
+
+msgid "middlename"
+msgstr "Tussenvoegsels"
+
+msgid "lastname"
+msgstr "Achternaam"
+
+msgid "username"
+msgstr "Gebruikersnaam"
+
+msgid "password"
+msgstr "Wachtwoord"
+
+msgid "authenticationMethod"
+msgstr "Authenticatie"
+
+msgid "role"
+msgid_plural "roles"
+msgstr[0] "Rol"
+msgstr[1] "Rollen"
+
+msgid "change_password"
+msgstr "Wachtwoord wijzigen"
+
+msgid "current_password"
+msgstr "Huidige wachtwoord"
+
+msgid "new_password"
+msgstr "Nieuw wachtwoord"
+
+msgid "retype_password"
+msgstr "Wachtwoord opnieuw ingeven"
+
+#. The generic term for a where a person works or is associated with
+#. What "organization" is someone affiliated with?
+msgid "organization"
+msgstr "Organisatie"
+
+msgid "email"
+msgid_plural "emails"
+msgstr[0] "E-mail"
+msgstr[1] "E-mailadres"
+
+msgid "email_add"
+msgstr "E-mail toevoegen"
+
+msgid "email_edit"
+msgstr "E-mail wijzigen"
+
+msgid "phone"
+msgid_plural "phones"
+msgstr[0] "Telefoon"
+msgstr[1] "Telefoonnummers"
+
+msgid "phone_add"
+msgstr "Telefoon toevoegen"
+
+msgid "phone_edit"
+msgstr "Telefoon wijzigen"
+
+msgid "description"
+msgstr "Omschrijving"
+
+msgid "comment"
+msgid_plural "comments"
+msgstr[0] "Opmerking"
+msgstr[1] "Opmerkingen"
+
+msgid "type"
+msgstr "Type"
+
+msgid "media"
+msgid_plural "medias"
+msgstr[0] "Bijlage"
+msgstr[1] "Bijlagen"
+
+msgid "custom_fields"
+msgstr "Aangepaste velden"
+
+msgid "display_fields"
+msgstr "Zichtbare velden"
+
+msgid "date"
+msgstr "Datum"
+
+msgid "time"
+msgstr "Tijd"
+
+msgid "day"
+msgid_plural "days"
+msgstr[0] "Dag"
+msgstr[1] "Dagen"
+
+msgid "permissions_required"
+msgstr "Rechten"
+
+#. Posting permission level determines who is allowed to post new reports
+#. in a given category to the system
+msgid "postingPermissionLevel"
+msgstr "Melden"
+
+#. Display permission level determines who is allowed to view tickets of a
+#. given category
+msgid "displayPermissionLevel"
+msgstr "Inzien"
+
+msgid "anonymous"
+msgstr "Anoniem"
+
+msgid "public"
+msgstr "Publiek"
+
+msgid "staff"
+msgstr "Personeel"
+
+msgid "administrator"
+msgstr "Beheerder"
+
+#. Label for a person when you have a phone number for them
+msgid "contact"
+msgstr "Contact"
+
+msgid "contact_list"
+msgstr "Contactlijst"
+
+#. Label for someone to contact when there is a problem
+msgid "contactPerson"
+msgstr "Contactpersoon"
+
+msgid "defaultPerson"
+msgstr "Verantwoordelijke"
+
+#. What to call people who possess a piece of property
+msgid "owner"
+msgid_plural "owners"
+msgstr[0] "Eigenaar"
+msgstr[1] "Eigenaren"
+
+# We are using the word "Application" in english because we think it
+# makes more sense to end users.
+#. Clients are issued an api_key that allows them to POST Open311 requests to uReport.
+msgid "client"
+msgid_plural "clients"
+msgstr[0] "Applicatie"
+msgstr[1] "Applicaties"
+
+msgid "client_add"
+msgstr "Applicatie toevoegen"
+
+msgid "client_edit"
+msgstr "Applicatie wijzigen"
+
+msgid "client_id"
+msgstr "Applicatie"
+
+msgid "action"
+msgid_plural "actions"
+msgstr[0] "Actie"
+msgstr[1] "Acties"
+
+msgid "action_add"
+msgstr "Actie toevoegen"
+
+msgid "action_edit"
+msgstr "Actie wijzigen"
+
+msgid "bookmark"
+msgid_plural "bookmarks"
+msgstr[0] "Favoriet"
+msgstr[1] "Favorieten"
+
+msgid "bookmark_add"
+msgstr "Favoriet toevoegen"
+
+msgid "bookmark_edit"
+msgstr "Favoriet wijzigen"
+
+#. These are the categories of things users can report to city
+#. Some example "categories" are Potholes and Graffiti
+msgid "category"
+msgid_plural "categories"
+msgstr[0] "Categorie"
+msgstr[1] "Categorieën"
+
+msgid "category_add"
+msgstr "Categorie toevoegen"
+
+msgid "category_edit"
+msgstr "Categorie wijzigen"
+
+#. Categories are grouped.  This is what you call those groups
+msgid "categoryGroup"
+msgid_plural "categoryGroups"
+msgstr[0] "Thema"
+msgstr[1] "Thema's"
+
+msgid "categoryGroup_add"
+msgstr "Thema toevoegen"
+
+msgid "categoryGroup_edit"
+msgstr "Thema wijzigen"
+
+msgid "department"
+msgid_plural "departments"
+msgstr[0] "Afdeling"
+msgstr[1] "Afdelingen"
+
+msgid "department_add"
+msgstr "Afdeling toevoegen"
+
+msgid "department_edit"
+msgstr "Afdeling wijzigen"
+
+#. http://en.wikipedia.org/wiki/Service-level_agreement
+msgid "service_level_agreement"
+msgstr "Afhandeling"
+
+#. The abbreviation for "Service Level Agreement"
+#. http://en.wikipedia.org/wiki/Service-level_agreement
+msgid "sla"
+msgstr "Afhandeling"
+
+msgid "slaPercentage"
+msgstr "Afhandeling"
+
+msgid "overdue"
+msgstr "Verlopen"
+
+msgid "replyEmail"
+msgstr "Beantwoorden per e-mail"
+
+msgid "notificationReplyEmail"
+msgstr "Beantwoorden per e-mail"
+
+msgid "message"
+msgid_plural "messages"
+msgstr[0] "Bericht"
+msgstr[1] "Berichten"
+
+msgid "message_send"
+msgstr "Stuur een bericht"
+
+msgid "autoRespond"
+msgstr "Automatisch beantwoorden"
+
+msgid "responseTemplate"
+msgid_plural "responseTemplates"
+msgstr[0] "Tekst voor automatisch beantwoorden"
+msgstr[1] "Teksten voor automatisch beantwoorden"
+
+msgid "responseTemplate_add"
+msgstr "Tekst toevoegen"
+
+msgid "responseTemplate_edit"
+msgstr "Tekst wijzigen"
+
+msgid "autoCloseIsActive"
+msgstr "Automatisch sluiten"
+
+msgid "autoCloseSubstatus_id"
+msgstr "Status voor automatisch sluiten"
+
+msgid "active_yes"
+msgstr "Ja"
+
+msgid "active_no"
+msgstr "Nee"
+
+msgid "featured"
+msgstr "Aanbevolen"
+
+#. Reports that users send in are organized into Tickets
+#. A ticket can contain multiple issue reports that are related, usually by location
+msgid "ticket"
+msgid_plural "tickets"
+msgstr[0] "Melding"
+msgstr[1] "Meldingen"
+
+msgid "ticket_issues"
+msgstr "Discussie"
+
+#. These are the problem reports that users send in
+msgid "issue"
+msgid_plural "issues"
+msgstr[0] "Discussie"
+msgstr[1] "Discussies"
+
+#. Issues are organized by Type.
+#. Example types are Complaint, Request, Violation, etc.
+msgid "issueType"
+msgid_plural "issueTypes"
+msgstr[0] "Meldsoort"
+msgstr[1] "Meldsoorten"
+
+msgid "issueType_add"
+msgstr "Meldsoort toevoegen"
+
+msgid "issueType_edit"
+msgstr "Meldsoort wijzigen"
+
+msgid "address"
+msgid_plural "addresses"
+msgstr[0] "Adres"
+msgstr[1] "Adressen"
+
+msgid "address_add"
+msgstr "Adres toevoegen"
+
+msgid "address_edit"
+msgstr "Adres wijzigen"
+
+msgid "city"
+msgstr "Gemeente/Instelling"
+
+msgid "state"
+msgstr "Provincie"
+
+msgid "zip"
+msgstr "Postcode"
+
+msgid "latitude"
+msgstr "Latitude"
+
+msgid "longitude"
+msgstr "Longitude"
+
+msgid "bbox"
+msgstr "Locatie filter"
+
+msgid "enteredDate"
+msgstr "Melddatum"
+
+msgid "assignedDate"
+msgstr "Toegewezen datum"
+
+msgid "closedDate"
+msgstr "Gesloten datum"
+
+msgid "enteredByPerson"
+msgstr "Aangemaakt door"
+
+msgid "reportedByPerson"
+msgstr "Gemeld door"
+
+msgid "history"
+msgstr "Historie"
+
+msgid "general"
+msgstr "Algemeen"
+
+#. We use the word Location here, which is different from Address
+#. Locations refer to general descriptions of places that are not a street address
+#. Examples: "Behind the post office", "In front of the court house"
+msgid "location"
+msgid_plural "locations"
+msgstr[0] "Locatie"
+msgstr[1] "Locaties"
+
+msgid "change_location"
+msgstr "Locatie aanpassen"
+
+msgid "person"
+msgid_plural "people"
+msgstr[0] "Persoon"
+msgstr[1] "Personen"
+
+msgid "person_add"
+msgstr "Persoon toevoegen"
+
+msgid "person_edit"
+msgstr "Persoon wijzigen"
+
+msgid "user"
+msgid_plural "users"
+msgstr[0] "Gebruikersaccount"
+msgstr[1] "Gebruikersaccounts"
+
+#. Detailed analysis of ticket data presented to Staff
+msgid "report"
+msgid_plural "reports"
+msgstr[0] "Rapport"
+msgstr[1] "Rapporten"
+
+msgid "assignment"
+msgid_plural "assignments"
+msgstr[0] "Toewijzing"
+msgstr[1] "Toewijzingen"
+
+msgid "activity"
+msgstr "Activiteit"
+
+msgid "status"
+msgid_plural "statuses"
+msgstr[0] "Status"
+msgstr[1] "Status"
+
+msgid "substatus"
+msgid_plural "substatuses"
+msgstr[0] "Oplossing"
+msgstr[1] "Oplossingen"
+
+#. This is a special type of substatus
+msgid "resolution"
+msgstr "Resolutie"
+
+msgid "create_account"
+msgstr "Nieuwe gebruiker"
+
+msgid "edit_account"
+msgstr "Gebruiker wijzigen"
+
+msgid "info_client"
+msgstr "Subjectinformatie"
+
+msgid "info_person"
+msgstr "Persoonsinformatie"
+
+msgid "info_department"
+msgstr "Afdelingsinformatie"
+
+msgid "info_location"
+msgstr "Locatieinformatie"
+
+msgid "info_location_additional"
+msgstr "Uitgebreide locatieinformatie"
+
+msgid "info_issue"
+msgstr "Meldinginformatie"
+
+msgid "info_assignment"
+msgstr "Toewijzinginformatie"
+
+msgid "find_person"
+msgstr "Persoon zoeken"
+
+msgid "find_user"
+msgstr "Gebruikers filteren"
+
+msgid "find_address"
+msgstr "Zoek een adres"
+
+msgid "find_street"
+msgstr "Zoek een straat"
+
+msgid "find_location"
+msgstr "Zoek een locatie"
+
+msgid "use_location"
+msgstr "Gebruik deze locatie"
+
+msgid "use_person"
+msgstr "Gebruik deze persoon"
+
+msgid "upload_media"
+msgstr "Bijlage bijwerken"
+
+msgid "see_all_thumbnails"
+msgstr "Bekijk alle miniatuurafbeeldingen"
+
+msgid "back_to_ticket"
+msgstr "Terug"
+
+msgid "change_department"
+msgstr "Afdeling veranderen"
+
+msgid "add_ticket"
+msgstr "Nieuwe Melding"
+
+msgid "assign_ticket"
+msgstr "Melding toewijzen"
+
+msgid "delete_ticket"
+msgstr "Melding verwijderen"
+
+msgid "update_ticket"
+msgstr "Melding aanpassen"
+
+msgid "change_category"
+msgstr "Categorie veranderen"
+
+msgid "change_status"
+msgstr "Status veranderen"
+
+msgid "add_response"
+msgstr "Reactie registreren"
+
+msgid "assignment_notes"
+msgstr "Opmerking voor de behandelaar"
+
+msgid "merge"
+msgstr "Samenvoegen"
+
+msgid "merge_people"
+msgstr "Personen samenvoegen"
+
+msgid "merge_tickets"
+msgstr "Meldingen samenvoegen"
+
+#. Used during the process of merging people records.
+#. This label is placed on each person, so the user can choose which record will be the master copy
+msgid "merge_into_person"
+msgstr "Samenvoegen met persoon"
+
+#. Used during the process of merging ticket records.
+#. This label is placed on each ticket, so the user can choose which record will be the master copy
+msgid "merge_into_ticket"
+msgstr "Meldingen samenvoegen"
+
+#. Tickets that are currently assigned to the user
+msgid "tickets_open_assigned"
+msgstr "Toegewezen meldingen"
+
+#. Tickets that the user has reported that are still open
+msgid "tickets_open_reported"
+msgstr "Open meldingen"
+
+msgid "tickets_reported"
+msgstr "Gemeld meldingen"
+
+msgid "tickets_assigned"
+msgstr "Toegewezen meldingen"
+
+msgid "tickets_entered"
+msgstr "Aangemaakt meldingen"
+
+msgid "tickets_open"
+msgstr "Open meldingen"
+
+msgid "tickets_my"
+msgstr "Mijn meldingen"
+
+msgid "tickets_my_department"
+msgstr "Afdelingsmeldingen"
+
+msgid "tickets_for_location"
+msgstr "Melding op locatie"
+
+#. Ticket that have been referred to the user
+msgid "tickets_open_referred"
+msgstr "Gerelateerde meldingen"
+
+msgid "id"
+msgstr "#"
+
+msgid "category_id"
+msgstr "Categorie"
+
+msgid "department_id"
+msgstr "Afdeling"
+
+msgid "substatus_id"
+msgstr "Resolutie"
+
+msgid "neighborhoodAssociation"
+msgstr "Wijk of buurt"
+
+msgid "township"
+msgstr "Stadsdeel"
+
+msgid "enteredByPerson_id"
+msgstr "Ingevoerd door"
+
+msgid "assignedPerson_id"
+msgstr "Toegewezen aan"
+
+msgid "label"
+msgstr "Labels"
+
+msgid "label_id"
+msgstr "Labels"
+
+msgid "issueType_id"
+msgstr "Soort"
+
+msgid "contactMethod_id"
+msgstr "Contactvorm"
+
+msgid "referredPerson_id"
+msgstr "Verwijzingen"
+
+msgid "are_you_sure"
+msgstr "Weet je het zeker?"
+
+msgid "disclaimer"
+msgstr "Disclaimer"
+
+msgid "volume"
+msgstr "Volume"
+
+msgid "open_current"
+msgstr "Recent geopend"
+
+msgid "open_today"
+msgstr "Vandaag geopend"
+
+msgid "closed_today"
+msgstr "Vandaag gesloten"
+
+msgid "past_month"
+msgstr "Maandoverzicht"
+
+msgid "activity_report"
+msgstr "Recente activiteit"
+
+msgid "create_department"
+msgstr "Nieuwe afdeling"
+
+msgid "create_category"
+msgstr "Nieuwe categorie"
+
+msgid "create_categorygroup"
+msgstr "Nieuw thema"
+
+msgid "create_substatus"
+msgstr "Nieuwe oplossing"
+
+msgid "create_action"
+msgstr "Nieuwe actie"
+
+msgid "create_client"
+msgstr "Nieuwe applicatie"
+
+msgid "create_label"
+msgstr "Nieuw label"
+
+msgid "create_contactmethod"
+msgstr "Nieuwe contactmethode"
+
+msgid "create_issuetype"
+msgstr "Nieuwe meldsoort"
+
+msgid "open"
+msgstr "open"
+
+msgid "closed"
+msgstr "gesloten"
+
+msgid "ticket_open"
+msgstr "Melding heropenen"
+
+msgid "ticket_close"
+msgstr "Melding sluiten"
+
+msgid "total"
+msgstr "totaal"
+
+msgid "error"
+msgstr "Excuses"

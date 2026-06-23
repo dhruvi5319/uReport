@@ -1,0 +1,16 @@
+/* Pack things in tighter than when they are on screen */
+html { font-size:10pt; }
+h3 { margin-bottom:0; }
+ul { margin-bottom:0; }
+p { margin-bottom:0; }
+.panel, li { padding:0; }
+
+/* Hide all the interactive stuff */
+#banner,
+#menuBar,
+#footer,
+#resultFormatButtons,
+.btn, .icon-pencil, .actionForm { display:none; }
+
+/* Break pages nicely for search results */
+.searchResultsRows>div { page-break-inside:avoid; }

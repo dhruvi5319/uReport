@@ -1,0 +1,10 @@
+{
+    "repositories": [{
+        "type": "vcs",
+        "url": "https://github.com/City-of-Bloomington/factory-number-one"
+    }],
+    "require": {
+        "php": ">=7.2",
+        "city-of-bloomington/factory-number-one": "dev-master"
+    }
+}

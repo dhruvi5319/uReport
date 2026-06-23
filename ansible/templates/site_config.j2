@@ -1,0 +1,165 @@
+<?php
+define('APPLICATION_NAME','uReport');
+
+/**
+ * URL Generation settings
+ *
+ * Do NOT use trailing slashes
+ *
+ * If your site is being proxied, change BASE_HOST to the hostname
+ * used for the outside world.
+ */
+define('BASE_URI' , '{{ ureport_base_uri }}');
+define('BASE_HOST', isset($_SERVER['HTTP_X_FORWARDED_HOST'])
+                        ? $_SERVER['HTTP_X_FORWARDED_HOST']
+                        : '{{ ansible_host }}');
+#define('BASE_HOST', $_SERVER['SERVER_NAME']);
+define('BASE_URL' , "https://".BASE_HOST.BASE_URI);
+
+/**
+ * Specify the theme directory
+ *
+ * Remember to create a symbolic link in public/css to the theme CSS
+ * that you declare here.
+ *
+ * A theme can consist of templates, blocks which will override core.
+ * The current theme's screen.css will be included in the HTML head.
+ */
+define('THEME', 'COB');
+
+/**
+ * JavaScript Libraries
+ */
+define('JQUERY',      BASE_URI.'/js/vendor/jquery-2.1.1');
+define('JQUERY_UI',   BASE_URI.'/js/vendor/jquery-ui-1.11.1');
+define('GOOGLE_MAPS',   '//maps.googleapis.com/maps/api/js?key={{ ureport_google_api_key }}');
+define('GOOGLE_LOADER', '//www.google.com/jsapi');
+
+/**
+ * Database Setup
+ */
+$DATABASES = [
+    'default' => [
+        'dsn'     => "mysql:dbname={{ ureport_db.name }};host={{ ureport_db.host }}",
+        'user'    => '{{ ureport_db.user }}',
+        'pass'    => '{{ ureport_db.pass }}',
+        'options' => []
+    ]
+];
+
+/**
+ * Directory Configuration
+ *
+ * This supports doing user authentication from multiple external
+ * directories, such as LDAP or ADS. This is required since city staff
+ * are in a seperate LDAP directory from public user accounts.
+ * Classes that implement ExternalIdentity should have an entry here.
+ *
+ * See: ExternalIdentity
+ */
+$DIRECTORY_CONFIG = [
+{% if ureport_ldap %}
+    'Employee' => [
+        'classname'          => "{{ ureport_ldap.classname          }}",
+        'server'             => "{{ ureport_ldap.server             }}",
+        'base_dn'            => "{{ ureport_ldap.base_dn            }}",
+        'username_attribute' => "{{ ureport_ldap.username_attribute }}",
+        'user_binding'       => "{{ ureport_ldap.user_binding       }}",
+        'admin_binding'      => "{{ ureport_ldap.admin_binding      }}",
+        'admin_pass'         => "{{ ureport_ldap.admin_pass         }}"
+    ]
+{% endif %}
+];
+
+$AUTHENTICATION = [
+    'oidc' => [
+        'server'         => '{{ ureport_oidc.server        }}',
+        'client_id'      => '{{ ureport_oidc.client_id     }}',
+        'client_secret'  => '{{ ureport_oidc.client_secret }}',
+        'claims' => [
+            // uReport field => OIDC Claim
+            'username'    => 'adfs1upn',
+            'displayname' => 'commonname',
+            'firstname'   => 'given_name',
+            'lastname'    => 'family_name',
+            'email'       => 'upn',
+            'groups'      => 'group',
+            'groupmap'    => []
+        ],
+    ]
+];
+
+$SOLR = [
+    'ureport' => [
+        'scheme'   => 'https',
+        'host'     => '{{ ureport_solr.host }}',
+        'port'     =>  {{ ureport_solr.port }},
+        'core'     => '{{ ureport_solr.core }}',
+        'username' => '{{ ureport_solr.user }}',
+        'password' => '{{ ureport_solr.pass }}'
+    ]
+];
+
+/**
+ * Controls whether the system sends email notifications to people
+ */
+define('NOTIFICATIONS_ENABLED', true);
+define('ADMINISTRATOR_EMAIL', '{{ apache_serveradmin }}');
+
+
+{% if ureport_address_service %}
+/**
+ * Addresses can be validated against a master address web service
+ */
+define('ADDRESS_SERVICE',     '{{ ureport_address_service.class }}');
+define('ADDRESS_SERVICE_URL', '{{ ureport_address_service.url   }}');
+{% endif %}
+
+/**
+ * Some default values for Tickets in the system
+ */
+define('DEFAULT_CITY','Bloomington');
+define('DEFAULT_STATE','IN');
+
+/**
+ * Default coordinates for map center
+ * This should probably be the center of your city
+ * If you can, it's best to adjust these values in your php.ini
+ */
+define('DEFAULT_LATITUDE', ini_get('date.default_latitude'));
+define('DEFAULT_LONGITUDE',ini_get('date.default_longitude'));
+/**
+ * Bounding box for valid locations
+ *
+ * Comment these out if you do not want this validation.
+ * Tickets will be rejected if they have coordinates that
+ * do not fall inside the defined bounding box.
+ */
+//define('MIN_LATITUDE',   39.069187);
+//define('MAX_LATITUDE',   39.99915);
+//define('MIN_LONGITUDE', -86.641575);
+//define('MAX_LONGITUDE', -86.440543);
+
+/**
+ * This is a unique string identifying your jurisdiction to the
+ * rest of the Open311 community.
+ *
+ * Open311 servers typically use their domain name as their jurisdiction
+ */
+define('OPEN311_JURISDICTION','localhost');
+define('OPEN311_KEY_SERVICE', 'http://localhost/open311-api-key-request');
+
+define('THUMBNAIL_SIZE', 150);
+
+define('CLOSING_COMMENT_REQUIRED_LENGTH', 1);
+define('AUTO_CLOSE_COMMENT', 'Closed automatically');
+
+define('DATE_FORMAT', 'n/j/Y');
+define('DATETIME_FORMAT', 'n/j/Y H:i:s');
+define('TIME_FORMAT', 'H:i:s');
+define('LOCALE', 'en_US');
+
+{% if ureport_graylog %}
+define('GRAYLOG_DOMAIN', '{{ ureport_graylog.host }}');
+define('GRAYLOG_PORT',    {{ ureport_graylog.port }});
+{% endif %}
