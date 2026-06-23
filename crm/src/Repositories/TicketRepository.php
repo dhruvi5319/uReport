@@ -143,6 +143,37 @@ class TicketRepository extends AbstractPdoRepository implements RepositoryInterf
         $stmt->execute(['targetId' => $targetId, 'sourceId' => $sourceId]);
     }
 
+    /**
+     * Find valid merge targets for a given source ticket.
+     * Valid targets are: open, not merged (mergedIntoTicketId IS NULL), not deleted, not the source itself.
+     * Optional: filter by title substring match on $q.
+     * Returns ['rows' => Ticket[], 'total' => int].
+     */
+    public function findMergeCandidates(
+        int    $sourceId,
+        string $q       = '',
+        int    $page    = 1,
+        int    $perPage = 25,
+    ): array {
+        $where  = [
+            't.deletedAt IS NULL',
+            "t.status = 'open'",
+            't.mergedIntoTicketId IS NULL',
+            't.id != :sourceId',
+        ];
+        $params = ['sourceId' => $sourceId];
+
+        if ($q !== '') {
+            $where[]     = '(t.title LIKE :q OR t.description LIKE :q)';
+            $params['q'] = '%' . $q . '%';
+        }
+
+        $whereClause = 'WHERE ' . implode(' AND ', $where);
+        $sql = "SELECT t.* FROM tickets t $whereClause ORDER BY t.datetimeOpened DESC";
+
+        return $this->paginate($sql, $params, fn($row) => \Domain\Ticket::fromRow($row), $page, $perPage);
+    }
+
     /** Find tickets matching IDs (used after Solr returns IDs) */
     public function findByIds(array $ids): array
     {
