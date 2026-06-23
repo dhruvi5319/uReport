@@ -1,131 +1,115 @@
+// frontend/src/app/(staff)/tickets/page.tsx
 'use client';
-import { useState, useEffect, useTransition, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { listTickets } from '@/lib/api/tickets';
-import { TicketListItem } from '@/components/tickets/TicketListItem';
-import { StatusFilter } from '@/components/tickets/StatusFilter';
-import { BulkActionBar } from '@/components/tickets/BulkActionBar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
+import { Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { Ticket } from '@/types/api';
+import { useAuth } from '@/hooks/useAuth';
+import { exportCsv } from '@/lib/api/search';
+import { FilterPanel } from './components/FilterPanel';
+import { SortBar } from './components/SortBar';
+import { TicketResultsList } from './components/TicketResultsList';
+import { useTicketSearch } from './hooks/useTicketSearch';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import type { TicketSearchParams } from '@/types/search';
 
 function TicketsPageContent() {
-  const searchParams = useSearchParams();
-  const status = searchParams.get('status') as 'open' | 'closed' | null;
-  const q = searchParams.get('q') ?? undefined;
-  const page = parseInt(searchParams.get('page') ?? '1', 10);
+  const { user } = useAuth();
+  const router   = useRouter();
+  const {
+    params, setParam, results, facets, meta,
+    isLoading, error, isSearchUnavailable,
+  } = useTicketSearch();
 
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [, startTransition] = useTransition();
-
-  const fetchTickets = () => {
-    setLoading(true);
-    listTickets({ status: status ?? undefined, q, page, perPage: 25 })
-      .then((res) => {
-        setTickets(res.data);
-        setTotal((res.meta as { total?: number })?.total ?? 0);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    startTransition(fetchTickets);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, q, page]);
-
-  const toggleSelect = (id: number, checked: boolean) => {
-    setSelectedIds((prev) =>
-      checked ? [...prev, id] : prev.filter((x) => x !== id)
-    );
-  };
-
-  const toggleAll = (checked: boolean) => {
-    setSelectedIds(checked ? tickets.map((t) => t.id) : []);
-  };
+  const canExport = user?.role === 'staff' || user?.role === 'admin';
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Search + controls row */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b">
-        <Input
-          placeholder="Search tickets…"
-          className="max-w-sm"
-          defaultValue={q}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const next = new URLSearchParams(searchParams.toString());
-              next.set('q', (e.target as HTMLInputElement).value);
-              window.history.pushState({}, '', `/tickets?${next.toString()}`);
-              fetchTickets();
-            }
-          }}
-          aria-label="Search tickets"
-        />
-        <StatusFilter />
-        <div className="ml-auto">
-          <Button asChild size="sm">
-            <Link href="/tickets/new">+ New Ticket</Link>
-          </Button>
+    <main className="min-h-screen bg-gray-50">
+      <div className="max-w-screen-xl mx-auto px-4 py-6">
+
+        {/* Search bar + actions row */}
+        <div className="flex flex-wrap gap-3 mb-4">
+          <Input
+            type="search"
+            placeholder="Search tickets…"
+            value={params.q ?? ''}
+            onChange={(e) => setParam({ q: e.target.value || undefined })}
+            className="flex-1 min-w-48 h-9"
+            aria-label="Search tickets"
+          />
+          {canExport && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportCsv(params)}
+              aria-label="Export CSV"
+            >
+              Export CSV
+            </Button>
+          )}
+          <Link href={`/map?${new URLSearchParams(
+            Object.entries(params)
+              .filter(([, v]) => v !== undefined)
+              .map(([k, v]) => [k, String(v)])
+          ).toString()}`}>
+            <Button variant="outline" size="sm" aria-label="Switch to map view">
+              🗺 Map View
+            </Button>
+          </Link>
+          <Link href="/tickets/new">
+            <Button size="sm">+ New Ticket</Button>
+          </Link>
+        </div>
+
+        {/* Solr unavailable banner */}
+        {isSearchUnavailable && (
+          <div
+            className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"
+            role="alert"
+          >
+            Search temporarily unavailable. Showing all tickets.
+          </div>
+        )}
+
+        {/* Generic error banner */}
+        {error && !isSearchUnavailable && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-6 items-start">
+          {/* Filter sidebar */}
+          <FilterPanel
+            params={params}
+            facets={facets}
+            onParamChange={(updates: Partial<TicketSearchParams>) => setParam(updates)}
+          />
+
+          {/* Results area */}
+          <div className="flex-1 min-w-0">
+            <SortBar
+              sort={params.sort}
+              total={meta?.total ?? 0}
+              onSortChange={(s) => setParam({ sort: s })}
+            />
+            <TicketResultsList
+              tickets={results}
+              isLoading={isLoading}
+              meta={meta}
+              onPageChange={(page) => setParam({ page })}
+            />
+          </div>
         </div>
       </div>
-
-      {/* Results header */}
-      <div className="flex items-center gap-3 px-4 py-2 text-sm text-gray-500 border-b">
-        <input
-          type="checkbox"
-          aria-label="Select all"
-          checked={selectedIds.length === tickets.length && tickets.length > 0}
-          onChange={(e) => toggleAll(e.target.checked)}
-          className="h-4 w-4"
-        />
-        <span>{total} results</span>
-      </div>
-
-      {/* List */}
-      <div className="flex-1 overflow-auto">
-        {loading ? (
-          <div className="space-y-px">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-16 bg-gray-100 animate-pulse mx-4 my-1 rounded" />
-            ))}
-          </div>
-        ) : tickets.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-gray-500" data-testid="empty-state">
-            <p>No tickets match your filters.</p>
-            <Button variant="link" onClick={() => window.location.href = '/tickets'}>
-              Clear filters
-            </Button>
-          </div>
-        ) : (
-          tickets.map((ticket) => (
-            <TicketListItem
-              key={ticket.id}
-              ticket={ticket}
-              selected={selectedIds.includes(ticket.id)}
-              onSelect={(checked) => toggleSelect(ticket.id, checked as boolean)}
-            />
-          ))
-        )}
-      </div>
-
-      {/* Bulk action bar — fixed bottom */}
-      <BulkActionBar
-        selectedIds={selectedIds}
-        onClear={() => setSelectedIds([])}
-        onComplete={fetchTickets}
-      />
-    </div>
+    </main>
   );
 }
 
 export default function TicketsPage() {
   return (
-    <Suspense fallback={<div className="p-6 animate-pulse">Loading tickets…</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-gray-400">Loading…</div>}>
       <TicketsPageContent />
     </Suspense>
   );
