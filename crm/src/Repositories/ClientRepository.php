@@ -25,6 +25,27 @@ class ClientRepository extends AbstractPdoRepository implements RepositoryInterf
         return $row ? Client::fromRow($row) : null;
     }
 
+    /**
+     * Validate a plain-text api_key against bcrypt hashes in clients table.
+     * Uses the first 8-char hint to narrow candidate set before full bcrypt verify.
+     * Returns the matching active Client or null.
+     */
+    public function findByApiKey(string $plainKey): ?Client
+    {
+        // Use apiKeyHint (first 8 chars) to pre-filter candidates and avoid full-table bcrypt scan
+        $hint = substr($plainKey, 0, 8);
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM clients WHERE apiKeyHint = :hint AND active = 1'
+        );
+        $stmt->execute(['hint' => $hint]);
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            if (password_verify($plainKey, $row['apiKeyHash'])) {
+                return Client::fromRow($row);
+            }
+        }
+        return null;
+    }
+
     /** @return Client[] */
     public function findAll(bool $activeOnly = true): array
     {
