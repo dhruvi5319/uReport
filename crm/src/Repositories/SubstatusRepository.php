@@ -15,12 +15,22 @@ class SubstatusRepository extends AbstractPdoRepository implements RepositoryInt
     }
 
     /** @return Substatus[] */
-    public function findAll(bool $activeOnly = true): array
+    public function findAll(bool $activeOnly = true, ?string $primaryStatus = null): array
     {
-        $sql = $activeOnly
-            ? 'SELECT * FROM substatus WHERE active = 1 ORDER BY sortOrder ASC'
-            : 'SELECT * FROM substatus ORDER BY sortOrder ASC';
-        return $this->fetchAll($sql, [], fn($row) => Substatus::fromRow($row));
+        $where  = [];
+        $params = [];
+
+        if ($activeOnly) {
+            $where[] = 'active = 1';
+        }
+        if ($primaryStatus !== null) {
+            $where[]              = 'primaryStatus = :ps';
+            $params['ps']         = $primaryStatus;
+        }
+
+        $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $sql = "SELECT * FROM substatus $whereClause ORDER BY sortOrder ASC, label ASC";
+        return $this->fetchAll($sql, $params, fn($row) => Substatus::fromRow($row));
     }
 
     /** @return Substatus[] */
@@ -31,6 +41,28 @@ class SubstatusRepository extends AbstractPdoRepository implements RepositoryInt
             ['status' => $status],
             fn($row) => Substatus::fromRow($row),
         );
+    }
+
+    /**
+     * Clear isDefault flag for all substatuses with the given primaryStatus.
+     * Used by SubstatusController to enforce single-default-per-primaryStatus invariant.
+     *
+     * @param string   $primaryStatus 'open' or 'closed'
+     * @param int|null $excludeId     Optionally exclude a specific substatus ID from the clear
+     */
+    public function clearDefaults(string $primaryStatus, ?int $excludeId = null): void
+    {
+        if ($excludeId !== null) {
+            $stmt = $this->pdo->prepare(
+                'UPDATE substatus SET isDefault = 0 WHERE primaryStatus = :ps AND id != :excludeId'
+            );
+            $stmt->execute(['ps' => $primaryStatus, 'excludeId' => $excludeId]);
+        } else {
+            $stmt = $this->pdo->prepare(
+                'UPDATE substatus SET isDefault = 0 WHERE primaryStatus = :ps'
+            );
+            $stmt->execute(['ps' => $primaryStatus]);
+        }
     }
 
     public function save(object $entity): Substatus

@@ -15,11 +15,17 @@ class CategoryRepository extends AbstractPdoRepository implements RepositoryInte
     }
 
     /** @return Category[] */
-    public function findAll(bool $activeOnly = false): array
+    public function findAll(bool $activeOnly = false, bool $excludeStaffOnly = false): array
     {
-        $sql = $activeOnly
-            ? 'SELECT * FROM categories WHERE active = 1 ORDER BY name ASC'
-            : 'SELECT * FROM categories ORDER BY name ASC';
+        $where = [];
+        if ($activeOnly) {
+            $where[] = 'active = 1';
+        }
+        if ($excludeStaffOnly) {
+            $where[] = "displayPermission != 'staff'";
+        }
+        $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $sql = "SELECT * FROM categories $whereClause ORDER BY name ASC";
         return $this->fetchAll($sql, [], fn($row) => Category::fromRow($row));
     }
 
