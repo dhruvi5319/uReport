@@ -4,9 +4,11 @@
     "require": {
         "php": ">=8.5",
         "facile-it/php-openid-client":     "@stable",
+        "firebase/php-jwt":                "^6.10",
         "graylog2/gelf-php":               "@stable",
         "guzzlehttp/guzzle":               "@stable",
-        "solarium/solarium":               "@stable",
+        "monolog/monolog":                 "^3.5",
+        "solarium/solarium":               "^6.3",
         "symfony/event-dispatcher":        "@stable",
         "phpmailer/phpmailer":             "@stable",
         "laminas/laminas-permissions-acl": "@stable",
@@ -22,6 +24,10 @@
             "Domain\\":        "src/Domain",
             "Repositories\\":  "src/Repositories",
             "Infrastructure\\": "src/Infrastructure",
+            "Http\\":          "src/Http",
+            "Middleware\\":     "src/Middleware",
+            "Services\\":      "src/Services",
+            "Controllers\\":   "src/Controllers",
             "Test\\":          "src/Test"
         }
     },
