@@ -2,75 +2,64 @@
 declare(strict_types=1);
 namespace Services;
 
-use Domain\Ticket;
-
+/**
+ * SLA computation service (FRD F09 Process: SLA Calculation).
+ *
+ * Computes SLA status, expected close date, and percentage elapsed for a ticket.
+ *
+ * MVP implementation uses calendar days (matching legacy uReport behaviour).
+ * Business-hour-aware computation is deferred to a future enhancement.
+ *
+ * Integration contract:
+ *   SlaService::compute(array $ticket, ?int $slaDays): array
+ *   Returns: ['expectedCloseDate' => string|null, 'status' => 'on_time'|'late'|'no_sla', 'pctElapsed' => float|null]
+ */
 class SlaService
 {
     /**
-     * Compute SLA info for a ticket.
+     * Compute SLA info for a ticket row.
      *
-     * @param Ticket   $ticket
-     * @param int|null $slaDays  Category.slaDays (null = no SLA)
-     * @return array{slaDays:int|null, expectedCloseDate:string|null, status:string, pctElapsed:float|null}
+     * @param  array{datetimeOpened: string, datetimeClosed: ?string, status: string} $ticket
+     *         Raw ticket data (from DB row or Ticket domain object properties).
+     * @param  int|null $slaDays  From category.slaDays; null = no SLA configured
+     * @return array{expectedCloseDate: string|null, status: 'on_time'|'late'|'no_sla', pctElapsed: float|null}
      */
-    public function compute(Ticket $ticket, ?int $slaDays): array
+    public function compute(array $ticket, ?int $slaDays): array
     {
         if ($slaDays === null || $slaDays <= 0) {
-            return [
-                'slaDays'           => null,
-                'expectedCloseDate' => null,
-                'status'            => 'no_sla',
-                'pctElapsed'        => null,
-            ];
+            return ['expectedCloseDate' => null, 'status' => 'no_sla', 'pctElapsed' => null];
         }
 
-        $opened      = new \DateTimeImmutable($ticket->datetimeOpened);
-        $expected    = $this->addBusinessDays($opened, $slaDays);
-        $compareDate = $ticket->datetimeClosed
-            ? new \DateTimeImmutable($ticket->datetimeClosed)
-            : new \DateTimeImmutable('now');
+        $opened   = new \DateTimeImmutable($ticket['datetimeOpened']);
+        $expected = $opened->modify("+{$slaDays} days");
+        $now      = new \DateTimeImmutable();
 
-        $elapsedDays  = $this->countBusinessDays($opened, $compareDate);
-        $pctElapsed   = round(($elapsedDays / $slaDays) * 100, 1);
-        $isLate       = $compareDate > $expected;
+        // For closed tickets: compare against close time; for open tickets: compare against now
+        $comparisonPoint = ($ticket['status'] === 'closed' && !empty($ticket['datetimeClosed']))
+            ? new \DateTimeImmutable($ticket['datetimeClosed'])
+            : $now;
+
+        $totalSeconds   = $expected->getTimestamp() - $opened->getTimestamp();
+        $elapsedSeconds = $comparisonPoint->getTimestamp() - $opened->getTimestamp();
+        $pctElapsed     = $totalSeconds > 0 ? round(($elapsedSeconds / $totalSeconds) * 100, 1) : null;
+
+        $slaStatus = $comparisonPoint <= $expected ? 'on_time' : 'late';
 
         return [
-            'slaDays'           => $slaDays,
             'expectedCloseDate' => $expected->format('Y-m-d'),
-            'status'            => $isLate ? 'late' : 'on_time',
+            'status'            => $slaStatus,
             'pctElapsed'        => $pctElapsed,
         ];
     }
 
-    /** Add $days business days (Mon–Fri) to $date */
-    private function addBusinessDays(\DateTimeImmutable $date, int $days): \DateTimeImmutable
+    /**
+     * Convenience method: returns true if the ticket is on time, false if late or no SLA.
+     *
+     * @param array    $ticket   Same shape as compute() $ticket parameter
+     * @param int|null $slaDays  Category SLA days; null = no SLA
+     */
+    public function isOnTime(array $ticket, ?int $slaDays): bool
     {
-        $added = 0;
-        $cur   = $date;
-        while ($added < $days) {
-            $cur = $cur->modify('+1 day');
-            if ((int) $cur->format('N') < 6) { // 1=Mon … 5=Fri
-                $added++;
-            }
-        }
-        return $cur;
-    }
-
-    /** Count business days (Mon–Fri) between two dates */
-    private function countBusinessDays(\DateTimeImmutable $from, \DateTimeImmutable $to): int
-    {
-        if ($to <= $from) {
-            return 0;
-        }
-        $count = 0;
-        $cur   = $from->setTime(0, 0, 0);
-        $end   = $to->setTime(0, 0, 0);
-        while ($cur < $end) {
-            $cur = $cur->modify('+1 day');
-            if ((int) $cur->format('N') < 6) {
-                $count++;
-            }
-        }
-        return $count;
+        return $this->compute($ticket, $slaDays)['status'] === 'on_time';
     }
 }
