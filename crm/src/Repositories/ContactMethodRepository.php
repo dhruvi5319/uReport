@@ -18,7 +18,7 @@ class ContactMethodRepository extends AbstractPdoRepository implements Repositor
     public function findByPersonId(int $personId): array
     {
         return $this->fetchAll(
-            'SELECT * FROM contactMethods WHERE personId = :personId ORDER BY isPrimary DESC, type ASC',
+            'SELECT * FROM contactMethods WHERE personId = :personId ORDER BY isPrimary DESC, id ASC',
             ['personId' => $personId],
             fn($row) => ContactMethod::fromRow($row),
         );
@@ -38,26 +38,12 @@ class ContactMethodRepository extends AbstractPdoRepository implements Repositor
     }
 
     /**
-     * INSERT or UPDATE. When isPrimary=true on save, first demotes all
-     * other records of the same type for the same personId to isPrimary=0.
+     * If $entity->id > 0 → UPDATE; otherwise → INSERT.
+     * Before saving with isPrimary=true, call demotePrimariesForPerson() first.
      */
     public function save(object $entity): ContactMethod
     {
         /** @var ContactMethod $entity */
-
-        // Demote existing primary methods of same type if this one is primary
-        if ($entity->isPrimary) {
-            $demoteStmt = $this->pdo->prepare(
-                'UPDATE contactMethods SET isPrimary = 0
-                 WHERE personId = :personId AND type = :type AND id != :excludeId'
-            );
-            $demoteStmt->execute([
-                'personId'  => $entity->personId,
-                'type'      => $entity->type,
-                'excludeId' => $entity->id > 0 ? $entity->id : 0,
-            ]);
-        }
-
         $data = [
             'personId'  => $entity->personId,
             'type'      => $entity->type,
@@ -88,5 +74,34 @@ class ContactMethodRepository extends AbstractPdoRepository implements Repositor
     {
         $stmt = $this->pdo->prepare("DELETE FROM contactMethods WHERE id = :id");
         $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Demote all existing primary contact methods of a given type for a person.
+     * Call before saving a new/updated contact method with isPrimary=true (F03 process).
+     */
+    public function demotePrimariesForPerson(int $personId, string $type): void
+    {
+        $stmt = $this->pdo->prepare(
+            "UPDATE contactMethods SET isPrimary = 0 WHERE personId = :personId AND type = :type"
+        );
+        $stmt->execute(['personId' => $personId, 'type' => $type]);
+    }
+
+    /**
+     * Check email uniqueness across all contactMethods of type 'email'.
+     * Returns true if the email is already in use (by a different contact method).
+     */
+    public function emailExists(string $email, ?int $excludeContactMethodId = null): bool
+    {
+        $sql    = "SELECT COUNT(*) FROM contactMethods WHERE type = 'email' AND value = :email";
+        $params = ['email' => $email];
+        if ($excludeContactMethodId !== null) {
+            $sql .= " AND id != :excludeId";
+            $params['excludeId'] = $excludeContactMethodId;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn() > 0;
     }
 }
