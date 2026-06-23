@@ -27,8 +27,7 @@ RUN npm install -g sass
 RUN a2enmod rewrite
 
 # Install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 # Set working dir
 WORKDIR /var/www/html
