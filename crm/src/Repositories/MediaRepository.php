@@ -54,10 +54,24 @@ class MediaRepository extends AbstractPdoRepository implements RepositoryInterfa
         }
     }
 
-    /** Soft-delete */
-    public function delete(int $id): void
+    /** Count non-deleted attachments for a ticket (for MAX_ATTACHMENTS_PER_TICKET enforcement). */
+    public function countByTicketId(int $ticketId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM media WHERE ticketId = :ticketId AND deletedAt IS NULL');
+        $stmt->execute(['ticketId' => $ticketId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /** Soft-delete by media id. Alias consumed by TicketMediaController::delete(). */
+    public function softDelete(int $id): void
     {
         $stmt = $this->pdo->prepare("UPDATE media SET deletedAt = NOW() WHERE id = :id");
         $stmt->execute(['id' => $id]);
+    }
+
+    /** Soft-delete (RepositoryInterface compliance). */
+    public function delete(int $id): void
+    {
+        $this->softDelete($id);
     }
 }
