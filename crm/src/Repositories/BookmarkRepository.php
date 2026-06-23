@@ -45,6 +45,24 @@ class BookmarkRepository extends AbstractPdoRepository implements RepositoryInte
         return $this->findById($newId) ?? $entity;
     }
 
+    /**
+     * Create a new bookmark from raw data array.
+     * Accepts ['personId' => int, 'name' => string, 'filterState' => string (JSON)].
+     * Returns persisted Bookmark with id set.
+     */
+    public function create(array $data): \Domain\Bookmark
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO bookmarks (personId, name, filterState) VALUES (:personId, :name, :filterState)'
+        );
+        $stmt->execute([
+            'personId'    => $data['personId'],
+            'name'        => $data['name'],
+            'filterState' => $data['filterState'],
+        ]);
+        return $this->findById((int) $this->lastInsertId());
+    }
+
     /** Hard delete — personal data, no historical reference needed */
     public function delete(int $id): void
     {
