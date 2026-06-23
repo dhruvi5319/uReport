@@ -70,9 +70,11 @@
 ---
 
 ### US-0.3: Assign a Ticket to a Staff Member
-**As a** Marcus Webb (department manager), **I want to** assign or reassign a ticket to a specific staff member and/or department, **so that** the right person is responsible for resolving it.
+**As a** Marcus Webb (department manager), **I want to** assign or reassign one or more tickets to a specific staff member and/or department — individually or in bulk — **so that** the right people are responsible for resolving them and workload can be rebalanced without visiting each ticket individually.
 
 **Acceptance Criteria:**
+
+*Single-ticket assignment:*
 - [ ] Staff/admin can submit an assignment with `assigneeId` and/or `departmentId`
 - [ ] System validates that the assignee is an active person with `staff` or `admin` role
 - [ ] System validates that the department is active
@@ -81,6 +83,13 @@
 - [ ] Setting `assigneeId = null` unassigns the ticket without error
 - [ ] API returns HTTP 200 with the updated ticket object
 - [ ] Anonymous and public users cannot perform assignment (HTTP 403)
+
+*Bulk assignment (via `POST /api/tickets/bulk-assign`):*
+- [ ] Staff/admin can submit `ticketIds` (array, min 1, max 100) plus target `assigneeId` and/or `departmentId`
+- [ ] Each ticket in the batch is independently assigned; partial success is allowed (failed IDs returned in `failed[]`)
+- [ ] Each successfully reassigned ticket gets its own `actions` record of type `assignment` with the actor set to the requesting staff member
+- [ ] Bulk assignment completes without requiring a full-page reload (SPA updates the ticket list in place)
+- [ ] API returns HTTP 200 with `{ "data": { "reassigned": N, "failed": [] }, "meta": {}, "errors": [] }`
 
 **Priority:** P0 | **Feature Ref:** F0
 
@@ -937,7 +946,7 @@
 | US-17.2 | Apply and Display Substatus on a Ticket | PER-01 Dana | P1 | F17 |
 | US-18.1 | Merge a Duplicate Ticket into a Canonical Record | PER-01 Dana | P2 | F18 |
 
-**Total stories: 50** across 19 epics (F0–F18).
+**Total stories: 51** across 19 epics (F0–F18).
 
 ---
 
@@ -945,9 +954,9 @@
 
 | Priority | Story Count | Story IDs |
 |----------|-------------|-----------|
-| P0 — Critical / MVP-blocking | 22 | US-0.1–0.7, US-1.1–1.3, US-2.1–2.2, US-6.1–6.2, US-10.1–10.2, US-11.1–11.2, US-15.1–15.4, US-16.1–16.3 |
-| P1 — Required for MVP | 19 | US-2.3, US-3.1–3.3, US-4.1–4.3, US-5.1–5.2, US-7.1–7.2, US-8.1–8.3, US-9.1–9.3, US-17.1–17.2 |
-| P2 — Standard / Post-core | 9 | US-12.1–12.2, US-13.1–13.2, US-14.1–14.2, US-18.1 + US-2.3 (see note) |
+| P0 — Critical / MVP-blocking | 26 | US-0.1–0.7, US-1.1–1.3, US-2.1–2.3, US-6.1–6.2, US-10.1–10.2, US-11.1–11.2, US-15.1–15.4, US-16.1–16.3 |
+| P1 — Required for MVP | 18 | US-3.1–3.3, US-4.1–4.3, US-5.1–5.2, US-7.1–7.2, US-8.1–8.3, US-9.1–9.3, US-17.1–17.2 |
+| P2 — Standard / Post-core | 7 | US-12.1–12.2, US-13.1–13.2, US-14.1–14.2, US-18.1 |
 | P3 — Future / Out of scope | 0 | — |
 
 ---

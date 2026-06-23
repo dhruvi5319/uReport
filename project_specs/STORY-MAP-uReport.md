@@ -17,7 +17,7 @@
 
 ## Overview
 
-This Story Map organizes all 50 user stories (US-0.1 – US-18.1) across two axes:
+This Story Map organizes all 51 user stories (US-0.1 – US-18.1) across two axes:
 
 - **X-axis (columns):** Journey stages drawn from the 6 user journeys in JOURNEYS-uReport.md
 - **Y-axis (rows):** Stories placed at the intersection of persona × journey stage × epic
@@ -40,9 +40,9 @@ NaC are **not invented** — they are derived by contextualizing the JTBD hiring
 
 | Release | Theme | Stories | Priority |
 |---------|-------|---------|----------|
-| **R1 — Foundation** | Runnable system: auth, core ticket lifecycle, API backbone, SPA shell, RBAC | P0 stories (22) | MVP-blocking |
-| **R2 — Complete MVP** | Full workflow: search, geo, media, notifications, reporting, substatuses, people | P1 stories (19) | Required for MVP |
-| **R3 — Enhancements** | Staff efficiency: bookmarks, templates, API client management, ticket merging | P2 stories (9) | Post-core |
+| **R1 — Foundation** | Runnable system: auth, core ticket lifecycle, API backbone, SPA shell, RBAC | P0 stories (26) | MVP-blocking |
+| **R2 — Complete MVP** | Full workflow: search, geo, media, notifications, reporting, substatuses, people | P1 stories (18) | Required for MVP |
+| **R3 — Enhancements** | Staff efficiency: bookmarks, templates, API client management, ticket merging | P2 stories (7) | Post-core |
 
 ---
 ---
@@ -222,7 +222,7 @@ Full traceability chain: **JTBD Outcome → Journey Stage → NaC → User Story
 
 ---
 
-### R1 — Foundation (P0 Stories — 22 Stories)
+### R1 — Foundation (P0 Stories — 26 Stories)
 
 **Theme:** *Runnable system with complete auth, core ticket lifecycle, API backbone, SPA shell, RBAC, and Open311 contract.*
 
@@ -263,7 +263,7 @@ This release delivers enough of the system that all four personas can complete t
 | US-16.2 | Access Complete OpenAPI Documentation for All Endpoints | PER-04 | Read OpenAPI Spec | F16 | JTBD-04.1 |
 | US-16.3 | Access Data via a Clean Repository Pattern (Developer) | PER-04 | Read Runbook | F16 | JTBD-04.2 |
 
-> **Note:** US-2.3 (Configure Auto-Close Rule) is listed as P0 in the story map because it is needed for correct SLA behavior at MVP, even though the UserStories doc marks it P0 under F2. US-15.1–15.4 and US-16.1–16.3 are the primary new deliverables.
+> **Note:** US-2.3 (Configure Auto-Close Rule) is P0 in both the story map and UserStories — it is needed for correct SLA behavior at MVP. The story also appears in the R2 table as a cross-reference because the SLA/auto-close configuration screen is part of the R2 full admin UI completion, but the story itself ships in R1. US-15.1–15.4 and US-16.1–16.3 are the primary new deliverables.
 
 #### R1 Persona Coverage
 
@@ -292,7 +292,7 @@ This release delivers enough of the system that all four personas can complete t
 
 ---
 
-### R2 — Complete MVP (P1 Stories — 19 Stories)
+### R2 — Complete MVP (P1 Stories — 18 Stories)
 
 **Theme:** *Full workflow completeness: search, geo, media, notifications, reporting, people management, and substatuses.*
 
@@ -302,7 +302,6 @@ After R2, every primary journey is fully operational. Dana can attach photos fro
 
 | Story ID | Title | Persona(s) | Journey Stage | Feature | JTBD |
 |----------|-------|------------|---------------|---------|------|
-| US-2.3 | Configure Auto-Close Rule for a Category | PER-02 | (Config: SLA rules) | F2 | JTBD-02.3 |
 | US-3.1 | Create a Staff User Account | PER-04 | Navigate to Staff User Mgmt | F3 | JTBD-04.3 |
 | US-3.2 | Auto-Provision Person Record on First OIDC Login | PER-04 | Assign Ticket | F3 | JTBD-04.3 |
 | US-3.3 | Search and Manage Contact Methods for a Person | PER-04 | Select for Reassignment | F3 | JTBD-02.1 |
@@ -349,7 +348,7 @@ After R2, every primary journey is fully operational. Dana can attach photos fro
 
 ---
 
-### R3 — Enhancements (P2 Stories — 9 Stories)
+### R3 — Enhancements (P2 Stories — 7 Stories)
 
 **Theme:** *Staff efficiency and API governance: bookmarks, response templates, API client management, ticket merging.*
 
@@ -367,7 +366,7 @@ After R3, Dana can use saved queue bookmarks and template-based responses. Tomá
 | US-14.2 | Revoke and Regenerate an API Client Key | PER-04 | Navigate & Revoke Key | F14 | JTBD-04.3 |
 | US-18.1 | Merge a Duplicate Ticket into a Canonical Record | PER-01 | (Workflow: Merge) | F18 | JTBD-02.1 |
 
-> Note: R3 contains 7 unique stories (US-12.1, US-12.2, US-13.1, US-13.2, US-14.1, US-14.2, US-18.1). This brings the total to 26 (R1) + 19 (R2) + 7 (R3) = **52 story placements** across 50 unique stories (3 stories appear on the map at multiple stages: US-0.1, US-0.3, US-4.1 each serve two distinct journey contexts).
+> Note: R3 contains 7 unique stories (US-12.1, US-12.2, US-13.1, US-13.2, US-14.1, US-14.2, US-18.1). This brings the total to 26 (R1) + 18 (R2) + 7 (R3) = **51 story placements** across 51 unique stories (3 stories appear on the map at multiple stages: US-0.1, US-0.3, US-4.1 each serve two distinct journey contexts).
 
 #### R3 Persona Coverage
 
@@ -481,7 +480,7 @@ After R3, Dana can use saved queue bookmarks and template-based responses. Tomá
 
 > **None found.** All 50 user stories (US-0.1 – US-18.1) appear in the story map.
 >
-> Cross-check: 50 unique stories × average 1.04 stage placements = 52 map entries. Three stories have dual-stage placement (US-0.1, US-0.3, US-4.1) to reflect their role in multiple journeys.
+> Cross-check: 51 unique stories. Three stories have dual-stage placement (US-0.1, US-0.3, US-4.1) to reflect their role in multiple journeys.
 
 #### Features With No JTBD Derivation
 
@@ -532,7 +531,7 @@ This section cross-checks each NaC against the acceptance criteria in UserStorie
 
 ## Validation Checklist
 
-- [x] Every UserStory (US-0.1 – US-18.1) — all 50 stories — appears in the map
+- [x] Every UserStory (US-0.1 – US-18.1) — all 51 stories — appears in the map
 - [x] Every mapped story has a NaC derived from a specific JTBD outcome (full traceability in NaC Derivation Table)
 - [x] NaC Derivation Table has complete traceability chains: JTBD-ID → Journey Stage → NaC → Story ID(s)
 - [x] Release planning defines R1 (P0/22 stories), R2 (P1/19 stories), R3 (P2/9 stories)

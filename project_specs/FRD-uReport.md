@@ -24,6 +24,7 @@ This FRD specifies the detailed functional behavior of every feature in the uRep
 - **JSON envelope** for all new API responses: `{ "data": …, "meta": …, "errors": [] }`.
 - **Auth tokens** are JWT Bearer tokens delivered in `Authorization: Bearer <token>` header, plus HttpOnly cookie fallback for SPA.
 - **Role names**: `admin`, `staff`, `public` (authenticated citizen), `anonymous` (unauthenticated).
+- **Display/Posting permission enum values** — note the naming convention: `'anonymous'` means the permission applies to the broadest audience (including unauthenticated visitors); `'public'` means authenticated citizens + staff; `'staff'` means staff/admin only. The value `'anonymous'` is more permissive than `'public'`. This is counterintuitive but matches the legacy schema — do not conflate `anonymous` (permission level) with the `anonymous` role name.
 - **Primary status values**: `open`, `closed`.
 - **Cross-references** use `see F{nn}` or `see §{section}`.
 - **Table names** reference the existing MySQL schema unless noted as new.
@@ -112,7 +113,8 @@ This FRD specifies the detailed functional behavior of every feature in the uRep
 - Create ticket (staff or public, depending on category permissions)
 - View ticket detail (full fields, history, attachments)
 - Edit ticket fields (category, description, location, custom fields)
-- Assign ticket to department and/or staff member
+- Assign ticket to department and/or staff member (single ticket)
+- Bulk assign multiple tickets to a new assignee in one action (staff/admin)
 - Change ticket status (open ↔ closed)
 - Apply/change substatus
 - Post response (external — sent to reporter via email)
@@ -145,6 +147,15 @@ This FRD specifies the detailed functional behavior of every feature in the uRep
 4. System creates an `actions` entry with `type = 'assignment'`.
 5. System sends email notification to the new assignee (see F08).
 6. System returns updated ticket with HTTP 200.
+
+### F00 Process: Bulk Assign Tickets
+
+1. Staff submits `POST /api/tickets/bulk-assign` with an array of `ticketIds` and a target `assigneeId` and/or `departmentId`.
+2. System validates: all ticket IDs exist and are not deleted; assignee is active staff; caller has `staff` or `admin` role.
+3. For each ticket, system performs the same assignment logic as single-ticket assign (steps 3–5 of §Assign Ticket above).
+4. Each reassigned ticket gets its own `actions` entry with `type = 'assignment'`, recording the actor (the staff member doing the bulk assign).
+5. Email notifications are sent to the new assignee per ticket (subject to deduplication — see F08).
+6. System returns a summary response: `{ reassigned: N, failed: [] }` with HTTP 200.
 
 ### F00 Process: Close Ticket
 
@@ -192,9 +203,14 @@ This FRD specifies the detailed functional behavior of every feature in the uRep
 - `customFields` (object, optional): Key-value map of category-specific custom field values
 - `mediaUrls` (array of strings, optional): URLs of pre-uploaded media (Open311 `media_url`)
 
-**Assign Ticket:**
+**Assign Ticket (single):**
 - `assigneeId` (integer, optional): Person ID of staff assignee (null to unassign)
 - `departmentId` (integer, optional): Department ID override
+
+**Bulk Assign Tickets:**
+- `ticketIds` (array of integers, required, min 1, max 100): IDs of tickets to reassign
+- `assigneeId` (integer, optional): New assignee person ID (null to unassign)
+- `departmentId` (integer, optional): New department ID
 
 **Close Ticket:**
 - `response` (string, optional, max 5000): Resolution message sent to reporter
@@ -265,7 +281,8 @@ Full request/response schemas: see `Y1a-api-tickets.md` §Tickets.
 | POST | `/api/tickets` | Any (role-checked) | Create ticket |
 | GET | `/api/tickets/{id}` | Any (visibility-checked) | Get ticket detail |
 | PUT | `/api/tickets/{id}` | staff/admin | Update ticket fields |
-| POST | `/api/tickets/{id}/assign` | staff/admin | Assign ticket |
+| POST | `/api/tickets/{id}/assign` | staff/admin | Assign ticket (single) |
+| POST | `/api/tickets/bulk-assign` | staff/admin | Bulk assign multiple tickets |
 | POST | `/api/tickets/{id}/close` | staff/admin | Close ticket |
 | POST | `/api/tickets/{id}/reopen` | staff/admin | Reopen ticket |
 | DELETE | `/api/tickets/{id}` | admin | Delete ticket |
@@ -598,6 +615,8 @@ Reads from `tickets`, `categories`, `departments`, `ticket_geodata`. Reads `clie
 
 Full schemas: see `Y1b-api-admin.md` §Departments and §Categories.
 
+> **Role note:** Category create/edit/delete requires `admin` role, consistent with the legacy `access_control.php` (`Administrator`-only). Staff and department managers (`staff` role) may view categories but not mutate them. This is by design: SLA changes that stem from policy decisions (JTBD-02.3) are made by an admin on behalf of the manager, not directly by the manager role.
+
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/api/departments` | staff/admin | List all departments |
@@ -608,7 +627,7 @@ Full schemas: see `Y1b-api-admin.md` §Departments and §Categories.
 | GET | `/api/categories` | staff/admin (or public for active) | List categories |
 | POST | `/api/categories` | admin | Create category |
 | GET | `/api/categories/{id}` | Any (visibility-checked) | Get category detail |
-| PUT | `/api/categories/{id}` | admin | Update category |
+| PUT | `/api/categories/{id}` | admin | Update category (including SLA days and auto-close rules) |
 | DELETE | `/api/categories/{id}` | admin | Deactivate category |
 | GET | `/api/category-groups` | staff/admin | List category groups |
 | POST | `/api/category-groups` | admin | Create category group |

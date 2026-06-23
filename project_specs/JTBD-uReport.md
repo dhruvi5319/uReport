@@ -167,9 +167,9 @@ When city policy changes the required response time for a ticket category — fo
 - Category SLA days and auto-close rules are editable from a self-service admin UI without SSH or database access
 - Changes take effect immediately and are reflected in SLA calculations for new tickets created after the change
 - The edit form shows the current SLA value and last-modified timestamp before saving
-- Admin UI is accessible to department manager role without requiring full admin privileges
+- Access requires `admin` role (consistent with legacy `access_control.php` — only `Administrator` role may edit categories; Marcus works with Tomás who holds admin access)
 
-**Success Measure:** Marcus updates SLA days for a category and confirms the change is reflected in the system in under 5 minutes from identifying the need, with zero IT tickets filed.
+**Success Measure:** Marcus updates SLA days for a category and confirms the change is reflected in the system in under 5 minutes from identifying the need, with zero IT tickets filed. (In practice this requires admin credentials; the job is that it happens via the admin UI rather than a developer code change or direct database edit.)
 
 **Related Features:** F2, F15
 **Priority:** P1

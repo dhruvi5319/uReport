@@ -559,7 +559,7 @@ The modernization is **incremental, not a full rewrite**. The existing MySQL sch
 
 | Priority | Count | Features |
 |----------|-------|---------|
-| P0 — Critical / MVP-blocking | 7 | F0, F1, F2, F6, F10, F11, F15, F16 |
+| P0 — Critical / MVP-blocking | 8 | F0, F1, F2, F6, F10, F11, F15, F16 |
 | P1 — Required for MVP | 7 | F3, F4, F5, F7, F8, F9, F17 |
 | P2 — Standard / Post-core | 4 | F12, F13, F14, F18 |
 | P3 — Future / Out of Scope | 0 | — |
