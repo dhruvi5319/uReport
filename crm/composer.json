@@ -9,7 +9,8 @@
         "solarium/solarium":               "@stable",
         "symfony/event-dispatcher":        "@stable",
         "phpmailer/phpmailer":             "@stable",
-        "laminas/laminas-permissions-acl": "@stable"
+        "laminas/laminas-permissions-acl": "@stable",
+        "robmorgan/phinx":                 "^0.16"
     },
     "require-dev": {
         "phpunit/phpunit": "@stable",
@@ -17,9 +18,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Application\\": "src/Application",
-            "Domain\\":      "src/Domain",
-            "Test\\":        "src/Test"
+            "Application\\":   "src/Application",
+            "Domain\\":        "src/Domain",
+            "Repositories\\":  "src/Repositories",
+            "Infrastructure\\": "src/Infrastructure",
+            "Test\\":          "src/Test"
         }
     },
     "config": {
