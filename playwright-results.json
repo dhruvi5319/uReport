@@ -1,0 +1,1748 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/share/nvm/versions/node/v25.9.0/bin/node",
+      "/home/daytona/project/node_modules/.bin/playwright",
+      "test",
+      "e2e/uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+      "--reporter=json",
+      "--project=desktop-chrome"
+    ],
+    "configFile": "/home/daytona/project/playwright.config.ts",
+    "rootDir": "/home/daytona/project/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 24
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/daytona/project/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 24
+        },
+        "id": "desktop-chrome",
+        "name": "desktop-chrome",
+        "testDir": "/home/daytona/project/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/daytona/project/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 24
+        },
+        "id": "mobile-375px",
+        "name": "mobile-375px",
+        "testDir": "/home/daytona/project/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 24,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+      "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "US-11.1: Login page — unauthenticated access redirects or shows login link",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 38,
+          "column": 6,
+          "specs": [
+            {
+              "title": "GET /application redirects to /application/tickets (public search page)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 299,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.273Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-81cd92feb02f3ca4dd43",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "/application/tickets page loads and shows CRM navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5624,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.568Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-73504a825814093dffac",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 46,
+              "column": 7
+            },
+            {
+              "title": "/application/tickets shows Login link when unauthenticated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 4912,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.376Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-5ce81dbab7ed65389338",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 54,
+              "column": 7
+            },
+            {
+              "title": "/application/tickets/new returns 403 (auth-gated create form)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 215,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.169Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-b6e0c21a2425eea2ddd7",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 61,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-15.1: Staff ticket dashboard — ticket list and search form",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 72,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Tickets page returns 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 593,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:09.673Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-4c2d7f7babb08b3db9e0",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 74,
+              "column": 7
+            },
+            {
+              "title": "Tickets page renders search form with query input",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 2146,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:09.873Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-7edb426debb4b8d3fe78",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 79,
+              "column": 7
+            },
+            {
+              "title": "Tickets page renders advanced search panel with Category and Status facets",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 6,
+                      "status": "passed",
+                      "duration": 2053,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:09.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-785d82166e1bcbe08830",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 85,
+              "column": 7
+            },
+            {
+              "title": "Tickets page lists existing tickets in search results",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 7,
+                      "status": "passed",
+                      "duration": 5103,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.270Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-574196bcf818c1dbf5fe",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 93,
+              "column": 7
+            },
+            {
+              "title": "Status filter link for \"open\" exists in page or URL filter works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 8,
+                      "status": "passed",
+                      "duration": 4237,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.176Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-4380995df1f8908171f4",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 102,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-4.1: Ticket keyword search",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 117,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Submitting the search form appends query param to URL",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 9,
+                      "status": "passed",
+                      "duration": 4315,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:09.878Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-51047ba67280ea6ada0b",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 119,
+              "column": 7
+            },
+            {
+              "title": "Search with a broad keyword returns results section",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 10,
+                      "status": "passed",
+                      "duration": 4917,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.371Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-0abef09fd97d834d549c",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 126,
+              "column": 7
+            },
+            {
+              "title": "Empty search returns Search Results header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 11,
+                      "status": "passed",
+                      "duration": 3515,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.473Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-f7dcfa16c79717c819c9",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 132,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-0.2: View Ticket Detail — /application/tickets/view?ticket_id=:id",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 143,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Ticket detail page for ticket 1 returns 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 12,
+                      "status": "passed",
+                      "duration": 398,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.069Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-29ee9a5d8bff0ee9d8cd",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 145,
+              "column": 7
+            },
+            {
+              "title": "Ticket detail page renders case number in title/header",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 13,
+                      "status": "passed",
+                      "duration": 3472,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.268Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-922ce3cd30288ca197a0",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 150,
+              "column": 7
+            },
+            {
+              "title": "Ticket detail page shows status badge (open/closed)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 14,
+                      "status": "passed",
+                      "duration": 3143,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.570Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-efa78922495fb9e819ab",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 156,
+              "column": 7
+            },
+            {
+              "title": "Ticket detail page shows category heading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 15,
+                      "status": "passed",
+                      "duration": 2952,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.674Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-62635ab520a5ed8da996",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 165,
+              "column": 7
+            },
+            {
+              "title": "Ticket detail page shows History section",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 16,
+                      "status": "passed",
+                      "duration": 4895,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.769Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-87eb0ade5de1922f6e4c",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 171,
+              "column": 7
+            },
+            {
+              "title": "Non-existent ticket returns 404 error response",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 17,
+                      "status": "passed",
+                      "duration": 505,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.774Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-08edab1204c3e36dcdbe",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 176,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-0.1: Create a Ticket — auth-gated form at /application/tickets/new",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 193,
+          "column": 6,
+          "specs": [
+            {
+              "title": "GET /application/tickets/new returns 403 for unauthenticated users",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 18,
+                      "status": "passed",
+                      "duration": 296,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.671Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-36d783f86807a676b522",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 195,
+              "column": 7
+            },
+            {
+              "title": "The tickets list page includes a nav link to \"Cases\"",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 19,
+                      "status": "passed",
+                      "duration": 4795,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.775Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-75adf011e5adeef988f2",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 200,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-15.2: Citizen submission form — public Report a Problem link",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 211,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Navigation contains \"Report a problem\" external link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 20,
+                      "status": "passed",
+                      "duration": 5061,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.769Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-62e84c70534663370b7a",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 213,
+              "column": 7
+            },
+            {
+              "title": "Report a problem link points to bloomington.in.gov/ureport",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 21,
+                      "parallelIndex": 21,
+                      "status": "passed",
+                      "duration": 4502,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.670Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-e33a897386e1644e8bdf",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 220,
+              "column": 7
+            },
+            {
+              "title": "GET /application/locations returns 200 (location picker used in submission)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 22,
+                      "status": "passed",
+                      "duration": 394,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.769Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-2040873cc7818e316c60",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 227,
+              "column": 7
+            },
+            {
+              "title": "Locations page renders Find a location form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 23,
+                      "parallelIndex": 23,
+                      "status": "passed",
+                      "duration": 5142,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.774Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-afb0444bd7bb27921bb7",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 232,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-16.2: OpenAPI specification and Swagger UI",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 243,
+          "column": 6,
+          "specs": [
+            {
+              "title": "GET /api/openapi.json returns 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 10,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.575Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-eca345fc6492f77ad6f2",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 245,
+              "column": 7
+            },
+            {
+              "title": "GET /api/openapi.json response is valid OpenAPI 3.x document",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 12,
+                      "status": "passed",
+                      "duration": 111,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.769Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-42c19c25dfabb91ecf5d",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 250,
+              "column": 7
+            },
+            {
+              "title": "OpenAPI info block has correct title for uReport",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 101,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-9ab9aa02a7c3303bd7a3",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 261,
+              "column": 7
+            },
+            {
+              "title": "OpenAPI paths include /api/tickets",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 101,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-58b7951fd08615e0c33b",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 267,
+              "column": 7
+            },
+            {
+              "title": "GET /api/docs/ returns 200 with Swagger UI HTML",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 196,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.969Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-43ed5522ae31016e9758",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 273,
+              "column": 7
+            },
+            {
+              "title": "GET /api/docs/ response contains swagger-ui element or container",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 1303,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.969Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-dab7aff84d4ca8fdad34",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 280,
+              "column": 7
+            },
+            {
+              "title": "Swagger UI page title is \"uReport API Docs\"",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 12,
+                      "status": "passed",
+                      "duration": 1839,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:10.977Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-b0aced5e51ad87ef3613",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 288,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-16.1: JSON API envelope — /api/* returns structured JSON",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 298,
+          "column": 6,
+          "specs": [
+            {
+              "title": "GET /api/openapi.json content-type is application/json",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 98,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.171Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-c81fade15aef7a240cd4",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "GET /api/tickets returns JSON envelope (any status — Solr may not be available)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 204,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.268Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-f96be599c58c0668c60c",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 306,
+              "column": 7
+            },
+            {
+              "title": "GET /api/categories returns JSON envelope (any auth/config status)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 18,
+                      "status": "passed",
+                      "duration": 102,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.181Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-bb4538dd5259c1250bcb",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 319,
+              "column": 7
+            },
+            {
+              "title": "GET /api/departments returns JSON or auth-gated response (not 404/500)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 100,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.373Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-8d976a9ce3f596b460e7",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 331,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "US-1.1/1.2/1.3: Open311 GeoReport v2 endpoint availability",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 341,
+          "column": 6,
+          "specs": [
+            {
+              "title": "US-1.1: GET /open311/services returns 200 array or skips if not deployed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 22,
+                      "status": "passed",
+                      "duration": 94,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.377Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-238e239757724531870f",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 348,
+              "column": 7
+            },
+            {
+              "title": "US-1.1: GET /open311/services.json returns service list with required fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Open311 /services.json not yet deployed",
+                      "location": {
+                        "file": "/home/daytona/project/e2e/uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+                        "line": 364,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 18,
+                      "status": "skipped",
+                      "duration": 11,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.380Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Open311 /services.json not yet deployed",
+                          "location": {
+                            "file": "/home/daytona/project/e2e/uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+                            "line": 364,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-533b03d4db513b2d7890",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 361,
+              "column": 7
+            },
+            {
+              "title": "US-1.2: GET /open311/requests.json returns requests array or skips if not deployed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Open311 /requests.json not yet deployed",
+                      "location": {
+                        "file": "/home/daytona/project/e2e/uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+                        "line": 379,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 697,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.577Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Open311 /requests.json not yet deployed",
+                          "location": {
+                            "file": "/home/daytona/project/e2e/uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+                            "line": 379,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-1967fc6b478795f426d0",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 376,
+              "column": 7
+            },
+            {
+              "title": "US-1.3: GET /open311/discovery returns discovery document or skips if not deployed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 17,
+                      "status": "passed",
+                      "duration": 194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.572Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-162a995d2f954650693d",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 389,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Smoke: Core application infrastructure reachability",
+          "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+          "line": 405,
+          "column": 6,
+          "specs": [
+            {
+              "title": "PHP CRM root (/) redirects to /application/tickets",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 22,
+                      "status": "passed",
+                      "duration": 94,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.573Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-8a09ecbcbe0dce1b6905",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 407,
+              "column": 7
+            },
+            {
+              "title": "PHP CRM tickets page serves XHTML content",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 18,
+                      "status": "passed",
+                      "duration": 398,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.579Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-7b66ac6f4250531bea5d",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 413,
+              "column": 7
+            },
+            {
+              "title": "PHP CRM locations page returns 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 210,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.576Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-3036021be327ff35e851",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 421,
+              "column": 7
+            },
+            {
+              "title": "OpenAPI JSON endpoint is reachable and well-formed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 22,
+                      "status": "passed",
+                      "duration": 100,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.774Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-85258a279eaabb2d5d7f",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 426,
+              "column": 7
+            },
+            {
+              "title": "Swagger UI (/api/docs/) is reachable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 17,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.872Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-cc520440c37d637b3988",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 433,
+              "column": 7
+            },
+            {
+              "title": "CRM branding — page header contains city name",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop-chrome",
+                  "projectName": "desktop-chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 4556,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-23T20:20:11.969Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a40c8cff9a29a9b91d2e-6fc046d56781ca0d1dd9",
+              "file": "uat/modernize-the-ureport-legacy-php-crm-imp.spec.ts",
+              "line": 438,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-06-23T20:20:06.958Z",
+    "duration": 10537.296,
+    "expected": 43,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
