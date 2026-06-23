@@ -174,6 +174,25 @@ class TicketRepository extends AbstractPdoRepository implements RepositoryInterf
         return $this->paginate($sql, $params, fn($row) => \Domain\Ticket::fromRow($row), $page, $perPage);
     }
 
+    /**
+     * Count tickets belonging to a department.
+     * Used by DepartmentController to guard deactivation (F02 HAS_ACTIVE_TICKETS check).
+     *
+     * @param int  $deptId    Department ID
+     * @param bool $statusOpen When true, count only tickets with status = 'open'
+     */
+    public function countByDepartment(int $deptId, bool $statusOpen = false): int
+    {
+        $sql    = 'SELECT COUNT(*) FROM tickets WHERE departmentId = :deptId AND deletedAt IS NULL';
+        $params = ['deptId' => $deptId];
+        if ($statusOpen) {
+            $sql .= " AND status = 'open'";
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** Find tickets matching IDs (used after Solr returns IDs) */
     public function findByIds(array $ids): array
     {

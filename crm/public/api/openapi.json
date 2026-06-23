@@ -1,0 +1,2348 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "uReport API",
+    "version": "1.0.0",
+    "description": "uReport CRM REST API — Wave 2a–2d backend surface. All endpoints require JWT authentication via Authorization: Bearer header or ureport_session cookie. Staff/admin roles enforced by RbacMiddleware."
+  },
+  "servers": [
+    { "url": "/", "description": "Current host" }
+  ],
+  "security": [
+    { "BearerAuth": [] },
+    { "CookieAuth": [] }
+  ],
+  "tags": [
+    { "name": "tickets", "description": "Ticket lifecycle operations" },
+    { "name": "search", "description": "Solr-backed full-text search" },
+    { "name": "geo", "description": "Geocoding and clustering" },
+    { "name": "reports", "description": "Analytics and reporting" },
+    { "name": "admin-departments", "description": "Department management" },
+    { "name": "admin-categories", "description": "Category and category-group management" },
+    { "name": "admin-people", "description": "People and contact-method management" },
+    { "name": "admin-substatuses", "description": "Substatus management" },
+    { "name": "admin-templates", "description": "Response template management" },
+    { "name": "admin-clients", "description": "API client management" },
+    { "name": "bookmarks", "description": "Saved search bookmarks" },
+    { "name": "auth", "description": "Authentication (OIDC / session)" }
+  ],
+  "paths": {
+    "/api/tickets": {
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "createTicket",
+        "summary": "Create a new ticket",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTicketBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ticket created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Ticket" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      },
+      "get": {
+        "tags": ["tickets"],
+        "operationId": "listTickets",
+        "summary": "List / search tickets (MySQL fallback when Solr unavailable)",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["open", "closed"] } },
+          { "name": "categoryId", "in": "query", "schema": { "type": "integer" } },
+          { "name": "departmentId", "in": "query", "schema": { "type": "integer" } },
+          { "name": "personId", "in": "query", "schema": { "type": "integer" } },
+          { "name": "substatusId", "in": "query", "schema": { "type": "integer" } },
+          { "name": "reporterEmail", "in": "query", "schema": { "type": "string" } },
+          { "name": "dateFrom", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "dateTo", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "perPage", "in": "query", "schema": { "type": "integer", "default": 25 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated ticket list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Ticket" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["tickets"],
+        "operationId": "getTicket",
+        "summary": "Get a single ticket by ID",
+        "responses": {
+          "200": {
+            "description": "Ticket found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Ticket" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["tickets"],
+        "operationId": "updateTicket",
+        "summary": "Update a ticket",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateTicketBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Ticket" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      },
+      "delete": {
+        "tags": ["tickets"],
+        "operationId": "deleteTicket",
+        "summary": "Soft-delete a ticket",
+        "responses": {
+          "204": { "description": "Ticket deleted" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/tickets/{id}/assign": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "assignTicket",
+        "summary": "Assign a ticket to a staff person",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AssignTicketBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Ticket" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/tickets/{id}/close": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "closeTicket",
+        "summary": "Close a ticket",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CloseTicketBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket closed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Ticket" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/api/tickets/{id}/reopen": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "reopenTicket",
+        "summary": "Reopen a closed ticket",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReopenTicketBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket reopened",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Ticket" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/api/tickets/{id}/responses": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "postResponse",
+        "summary": "Post an external response to a reporter",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PostResponseBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response posted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Action" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/tickets/{id}/comments": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "postComment",
+        "summary": "Post an internal comment (staff only)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PostCommentBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comment posted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Action" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/tickets/{id}/merge": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "Source ticket ID to merge away" }
+      ],
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "mergeTicket",
+        "summary": "Merge source ticket into target ticket (F18)",
+        "description": "Closes source ticket, sets mergedIntoTicketId, inserts two merged action records (one on source, one on target), and triggers reporter notification. Auth: staff/admin only.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MergeTicketBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Merge successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "sourceTicketId": { "type": "integer" },
+                            "targetTicketId": { "type": "integer" },
+                            "status": { "type": "string", "enum": ["merged"] },
+                            "mergedAt": { "type": "string", "format": "date-time" }
+                          },
+                          "required": ["sourceTicketId", "targetTicketId", "status", "mergedAt"]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "$ref": "#/components/responses/Conflict" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/api/tickets/{id}/merge-candidates": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "Source ticket ID (excluded from results)" }
+      ],
+      "get": {
+        "tags": ["tickets"],
+        "operationId": "getMergeCandidates",
+        "summary": "Search for valid merge targets (F18)",
+        "description": "Returns open, non-merged, non-deleted tickets that are not the source ticket. Used by the MergeDialog UI.",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" }, "description": "Title/description substring search" },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "perPage", "in": "query", "schema": { "type": "integer", "default": 25, "maximum": 50 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of merge candidates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Ticket" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/{id}/history": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["tickets"],
+        "operationId": "getTicketHistory",
+        "summary": "Get action history for a ticket",
+        "responses": {
+          "200": {
+            "description": "Action history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Action" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/{id}/media": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["tickets"],
+        "operationId": "listMedia",
+        "summary": "List media attachments for a ticket",
+        "responses": {
+          "200": {
+            "description": "Media list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Media" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "uploadMedia",
+        "summary": "Upload a media file attachment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Media uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Media" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/{id}/media/{mediaId}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+        { "name": "mediaId", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "delete": {
+        "tags": ["tickets"],
+        "operationId": "deleteMedia",
+        "summary": "Delete a media attachment",
+        "responses": {
+          "204": { "description": "Media deleted" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/tickets/{id}/location": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["geo"],
+        "operationId": "getTicketLocation",
+        "summary": "Get location data for a ticket",
+        "responses": {
+          "200": {
+            "description": "Location data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiEnvelope" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/clusters": {
+      "get": {
+        "tags": ["geo"],
+        "operationId": "getClusters",
+        "summary": "Get geo clusters for map display",
+        "parameters": [
+          { "name": "zoom", "in": "query", "schema": { "type": "integer" } },
+          { "name": "bounds", "in": "query", "schema": { "type": "string" }, "description": "SW_lat,SW_lng,NE_lat,NE_lng" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Geo clusters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/GeoCluster" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/bulk-assign": {
+      "post": {
+        "tags": ["tickets"],
+        "operationId": "bulkAssign",
+        "summary": "Bulk assign multiple tickets to a person",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ticketIds": { "type": "array", "items": { "type": "integer" } },
+                  "personId": { "type": "integer" }
+                },
+                "required": ["ticketIds", "personId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tickets assigned",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiEnvelope" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geocode": {
+      "get": {
+        "tags": ["geo"],
+        "operationId": "geocode",
+        "summary": "Geocode an address to lat/lng",
+        "parameters": [
+          { "name": "address", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Geocoded location",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiEnvelope" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/activity": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "activityReport",
+        "summary": "Activity report — tickets opened/closed over time",
+        "parameters": [
+          { "name": "dateFrom", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "dateTo", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "groupBy", "in": "query", "schema": { "type": "string", "enum": ["day", "week", "month"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity report data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/ActivityReport" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/assignments": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "assignmentsReport",
+        "summary": "Assignments report — tickets per staff member",
+        "responses": {
+          "200": {
+            "description": "Assignments report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/AssignmentReport" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/categories": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "categoriesReport",
+        "summary": "Tickets by category report",
+        "responses": {
+          "200": {
+            "description": "Categories report",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/departments": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "departmentsReport",
+        "summary": "Tickets by department report",
+        "responses": {
+          "200": {
+            "description": "Departments report",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/staff-performance": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "staffPerformanceReport",
+        "summary": "Staff performance metrics report",
+        "responses": {
+          "200": {
+            "description": "Staff performance report",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/sla": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "slaReport",
+        "summary": "SLA compliance report",
+        "responses": {
+          "200": {
+            "description": "SLA report",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/volume": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "volumeReport",
+        "summary": "Ticket volume report",
+        "responses": {
+          "200": {
+            "description": "Volume report",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/open-age": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "openAgeReport",
+        "summary": "Age of open tickets report",
+        "responses": {
+          "200": {
+            "description": "Open-age report",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/metrics/sla": {
+      "get": {
+        "tags": ["reports"],
+        "operationId": "slaMetrics",
+        "summary": "Real-time SLA metrics",
+        "responses": {
+          "200": {
+            "description": "SLA metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/SlaMetric" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/departments": {
+      "get": {
+        "tags": ["admin-departments"],
+        "operationId": "listDepartments",
+        "summary": "List all departments",
+        "responses": {
+          "200": {
+            "description": "Department list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Department" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-departments"],
+        "operationId": "createDepartment",
+        "summary": "Create a department",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateDepartmentBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Department created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Department" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/departments/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-departments"],
+        "operationId": "getDepartment",
+        "summary": "Get department by ID",
+        "responses": {
+          "200": {
+            "description": "Department",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Department" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["admin-departments"],
+        "operationId": "updateDepartment",
+        "summary": "Update a department",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateDepartmentBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated department",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Department" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-departments"],
+        "operationId": "deleteDepartment",
+        "summary": "Delete a department",
+        "responses": {
+          "204": { "description": "Deleted" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": ["admin-categories"],
+        "operationId": "listCategories",
+        "summary": "List all categories",
+        "responses": {
+          "200": {
+            "description": "Category list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Category" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-categories"],
+        "operationId": "createCategory",
+        "summary": "Create a category",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateCategoryBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Category" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-categories"],
+        "operationId": "getCategory",
+        "summary": "Get category by ID",
+        "responses": {
+          "200": {
+            "description": "Category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Category" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["admin-categories"],
+        "operationId": "updateCategory",
+        "summary": "Update a category",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateCategoryBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Category" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-categories"],
+        "operationId": "deleteCategory",
+        "summary": "Delete a category",
+        "responses": {
+          "204": { "description": "Deleted" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/category-groups": {
+      "get": {
+        "tags": ["admin-categories"],
+        "operationId": "listCategoryGroups",
+        "summary": "List category groups",
+        "responses": {
+          "200": {
+            "description": "Category group list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/CategoryGroup" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-categories"],
+        "operationId": "createCategoryGroup",
+        "summary": "Create a category group",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category group created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/CategoryGroup" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/category-groups/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-categories"],
+        "operationId": "getCategoryGroup",
+        "summary": "Get category group by ID",
+        "responses": {
+          "200": {
+            "description": "Category group",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/CategoryGroup" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["admin-categories"],
+        "operationId": "updateCategoryGroup",
+        "summary": "Update a category group",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "name": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiEnvelope" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-categories"],
+        "operationId": "deleteCategoryGroup",
+        "summary": "Delete a category group",
+        "responses": {
+          "204": { "description": "Deleted" }
+        }
+      }
+    },
+    "/api/people": {
+      "get": {
+        "tags": ["admin-people"],
+        "operationId": "listPeople",
+        "summary": "List people (staff/admin)",
+        "parameters": [
+          { "name": "role", "in": "query", "schema": { "type": "string", "enum": ["staff", "admin", "reporter"] } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "People list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Person" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-people"],
+        "operationId": "createPerson",
+        "summary": "Create a person",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePersonBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Person created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Person" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/people/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-people"],
+        "operationId": "getPerson",
+        "summary": "Get person by ID",
+        "responses": {
+          "200": {
+            "description": "Person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Person" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["admin-people"],
+        "operationId": "updatePerson",
+        "summary": "Update a person",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePersonBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Person" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-people"],
+        "operationId": "deletePerson",
+        "summary": "Delete (deactivate) a person",
+        "responses": {
+          "204": { "description": "Deleted" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/people/{id}/contact-methods": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-people"],
+        "operationId": "listContactMethods",
+        "summary": "List contact methods for a person",
+        "responses": {
+          "200": {
+            "description": "Contact methods",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ApiEnvelope" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-people"],
+        "operationId": "createContactMethod",
+        "summary": "Add a contact method to a person",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateContactMethodBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contact method created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/people/{id}/contact-methods/{cmId}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+        { "name": "cmId", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "put": {
+        "tags": ["admin-people"],
+        "operationId": "updateContactMethod",
+        "summary": "Update a contact method",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateContactMethodBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-people"],
+        "operationId": "deleteContactMethod",
+        "summary": "Delete a contact method",
+        "responses": {
+          "204": { "description": "Deleted" }
+        }
+      }
+    },
+    "/api/substatuses": {
+      "get": {
+        "tags": ["admin-substatuses"],
+        "operationId": "listSubstatuses",
+        "summary": "List substatuses",
+        "responses": {
+          "200": {
+            "description": "Substatus list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Substatus" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-substatuses"],
+        "operationId": "createSubstatus",
+        "summary": "Create a substatus",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateSubstatusBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Substatus created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Substatus" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/substatuses/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-substatuses"],
+        "operationId": "getSubstatus",
+        "summary": "Get substatus by ID",
+        "responses": {
+          "200": {
+            "description": "Substatus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Substatus" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["admin-substatuses"],
+        "operationId": "updateSubstatus",
+        "summary": "Update a substatus",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateSubstatusBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated substatus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Substatus" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-substatuses"],
+        "operationId": "deleteSubstatus",
+        "summary": "Delete a substatus",
+        "responses": {
+          "204": { "description": "Deleted" }
+        }
+      }
+    },
+    "/api/templates": {
+      "get": {
+        "tags": ["admin-templates"],
+        "operationId": "listTemplates",
+        "summary": "List response templates",
+        "responses": {
+          "200": {
+            "description": "Template list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Template" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-templates"],
+        "operationId": "createTemplate",
+        "summary": "Create a response template",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTemplateBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Template created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Template" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/templates/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-templates"],
+        "operationId": "getTemplate",
+        "summary": "Get template by ID",
+        "responses": {
+          "200": {
+            "description": "Template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Template" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["admin-templates"],
+        "operationId": "updateTemplate",
+        "summary": "Update a template",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTemplateBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Template" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-templates"],
+        "operationId": "deleteTemplate",
+        "summary": "Delete a template",
+        "responses": {
+          "204": { "description": "Deleted" }
+        }
+      }
+    },
+    "/api/clients": {
+      "get": {
+        "tags": ["admin-clients"],
+        "operationId": "listClients",
+        "summary": "List API clients",
+        "responses": {
+          "200": {
+            "description": "API client list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/ApiClient" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["admin-clients"],
+        "operationId": "createClient",
+        "summary": "Create an API client",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateApiClientBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Client created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/ApiClient" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clients/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["admin-clients"],
+        "operationId": "getClient",
+        "summary": "Get API client by ID",
+        "responses": {
+          "200": {
+            "description": "API client",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/ApiClient" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["admin-clients"],
+        "operationId": "updateClient",
+        "summary": "Update an API client",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateApiClientBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/ApiClient" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["admin-clients"],
+        "operationId": "deleteClient",
+        "summary": "Delete an API client",
+        "responses": {
+          "204": { "description": "Deleted" }
+        }
+      }
+    },
+    "/api/clients/{id}/regenerate-key": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "post": {
+        "tags": ["admin-clients"],
+        "operationId": "regenerateClientKey",
+        "summary": "Regenerate API client secret key",
+        "responses": {
+          "200": {
+            "description": "New key generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/ApiClient" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookmarks": {
+      "get": {
+        "tags": ["bookmarks"],
+        "operationId": "listBookmarks",
+        "summary": "List saved search bookmarks for current user",
+        "responses": {
+          "200": {
+            "description": "Bookmark list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/Bookmark" } } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["bookmarks"],
+        "operationId": "createBookmark",
+        "summary": "Save a search bookmark",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateBookmarkBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bookmark created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Bookmark" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookmarks/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+      ],
+      "get": {
+        "tags": ["bookmarks"],
+        "operationId": "getBookmark",
+        "summary": "Get a bookmark by ID",
+        "responses": {
+          "200": {
+            "description": "Bookmark",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Bookmark" } } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["bookmarks"],
+        "operationId": "deleteBookmark",
+        "summary": "Delete a bookmark",
+        "responses": {
+          "204": { "description": "Deleted" }
+        }
+      }
+    },
+    "/api/notifications/settings": {
+      "get": {
+        "tags": ["admin-templates"],
+        "operationId": "getNotificationSettings",
+        "summary": "Get notification settings for current user",
+        "responses": {
+          "200": {
+            "description": "Notification settings",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["admin-templates"],
+        "operationId": "updateNotificationSettings",
+        "summary": "Update notification settings",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "emailOnAssign": { "type": "boolean" },
+                  "emailOnComment": { "type": "boolean" },
+                  "emailOnClose": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ApiEnvelope" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/openapi.json": {
+      "get": {
+        "tags": ["auth"],
+        "operationId": "getOpenApiSpec",
+        "summary": "OpenAPI 3.1 JSON spec",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OpenAPI specification",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/openapi.yaml": {
+      "get": {
+        "tags": ["auth"],
+        "operationId": "getOpenApiYaml",
+        "summary": "OpenAPI 3.1 YAML spec",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OpenAPI specification (YAML)",
+            "content": {
+              "application/yaml": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/docs": {
+      "get": {
+        "tags": ["auth"],
+        "operationId": "getApiDocs",
+        "summary": "Swagger UI interactive API documentation",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Swagger UI HTML page",
+            "content": {
+              "text/html": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "get": {
+        "tags": ["auth"],
+        "operationId": "authLogin",
+        "summary": "Initiate OIDC login flow",
+        "security": [],
+        "responses": {
+          "302": { "description": "Redirect to OIDC provider" }
+        }
+      }
+    },
+    "/auth/callback": {
+      "get": {
+        "tags": ["auth"],
+        "operationId": "authCallback",
+        "summary": "OIDC callback — exchange code for session",
+        "security": [],
+        "responses": {
+          "302": { "description": "Redirect to app after login" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "operationId": "authLogout",
+        "summary": "Destroy session and logout",
+        "responses": {
+          "302": { "description": "Redirect to login page" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["auth"],
+        "operationId": "authMe",
+        "summary": "Get current authenticated user",
+        "responses": {
+          "200": {
+            "description": "Current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ApiEnvelope" },
+                    { "properties": { "data": { "$ref": "#/components/schemas/Person" } } }
+                  ]
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authenticated" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token in Authorization: Bearer header"
+      },
+      "CookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ureport_session",
+        "description": "Session cookie set after OIDC login"
+      }
+    },
+    "schemas": {
+      "Ticket": {
+        "type": "object",
+        "description": "A uReport citizen ticket",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "title": { "type": "string" },
+          "description": { "type": ["string", "null"] },
+          "status": { "type": "string", "enum": ["open", "closed"] },
+          "datetimeOpened": { "type": "string", "format": "date-time" },
+          "datetimeClosed": { "type": ["string", "null"], "format": "date-time" },
+          "datetimeUpdated": { "type": "string", "format": "date-time" },
+          "deletedAt": { "type": ["string", "null"], "format": "date-time" },
+          "categoryId": { "type": "integer" },
+          "departmentId": { "type": "integer" },
+          "personId": { "type": ["integer", "null"] },
+          "reporterPersonId": { "type": ["integer", "null"] },
+          "reporterName": { "type": ["string", "null"] },
+          "reporterEmail": { "type": ["string", "null"], "format": "email" },
+          "reporterPhone": { "type": ["string", "null"] },
+          "address": { "type": ["string", "null"] },
+          "lat": { "type": ["string", "null"] },
+          "lng": { "type": ["string", "null"] },
+          "substatusId": { "type": ["integer", "null"] },
+          "mergedIntoTicketId": { "type": ["integer", "null"], "description": "ID of the target ticket this was merged into" },
+          "apiClientId": { "type": ["integer", "null"] },
+          "customFields": { "type": ["string", "null"], "description": "JSON blob of custom field values" }
+        },
+        "required": ["id", "title", "status", "datetimeOpened", "datetimeUpdated", "categoryId", "departmentId"]
+      },
+      "Action": {
+        "type": "object",
+        "description": "An immutable audit/action record on a ticket",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "ticketId": { "type": "integer" },
+          "type": {
+            "type": "string",
+            "enum": ["open", "assignment", "closed", "reopen", "response", "comment", "upload", "deleted", "merged", "substatus", "notification_sent"]
+          },
+          "visibility": { "type": "string", "enum": ["external", "internal"] },
+          "actorPersonId": { "type": ["integer", "null"] },
+          "actorClientId": { "type": ["integer", "null"] },
+          "datetimeCreated": { "type": "string", "format": "date-time" },
+          "payload": { "type": ["string", "null"], "description": "Raw JSON payload (content/mergedIntoTicketId/etc.)" }
+        },
+        "required": ["id", "ticketId", "type", "visibility", "datetimeCreated"]
+      },
+      "Media": {
+        "type": "object",
+        "description": "Media attachment on a ticket",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "ticketId": { "type": "integer" },
+          "filename": { "type": "string" },
+          "mimeType": { "type": "string" },
+          "size": { "type": "integer" },
+          "url": { "type": "string", "format": "uri" },
+          "datetimeCreated": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "ticketId", "filename", "mimeType"]
+      },
+      "Person": {
+        "type": "object",
+        "description": "A person in the system (staff, admin, or reporter)",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "firstname": { "type": ["string", "null"] },
+          "lastname": { "type": ["string", "null"] },
+          "email": { "type": ["string", "null"], "format": "email" },
+          "role": { "type": "string", "enum": ["staff", "admin", "reporter"] },
+          "username": { "type": ["string", "null"] },
+          "authenticationMethod": { "type": ["string", "null"] },
+          "externalIdentityId": { "type": ["string", "null"] },
+          "datetimeCreated": { "type": ["string", "null"], "format": "date-time" }
+        },
+        "required": ["id", "role"]
+      },
+      "Department": {
+        "type": "object",
+        "description": "A city department",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" },
+          "defaultPerson": { "type": ["integer", "null"], "description": "Default assignee person ID" }
+        },
+        "required": ["id", "name"]
+      },
+      "Category": {
+        "type": "object",
+        "description": "An issue category",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" },
+          "departmentId": { "type": "integer" },
+          "categoryGroupId": { "type": ["integer", "null"] },
+          "displayOrder": { "type": ["integer", "null"] },
+          "active": { "type": "boolean" }
+        },
+        "required": ["id", "name", "departmentId"]
+      },
+      "CategoryGroup": {
+        "type": "object",
+        "description": "A group of related categories",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "name"]
+      },
+      "Substatus": {
+        "type": "object",
+        "description": "A custom substatus label for tickets",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" },
+          "label": { "type": ["string", "null"] }
+        },
+        "required": ["id", "name"]
+      },
+      "Template": {
+        "type": "object",
+        "description": "A response template for staff replies",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" },
+          "subject": { "type": ["string", "null"] },
+          "body": { "type": "string" }
+        },
+        "required": ["id", "name", "body"]
+      },
+      "ApiClient": {
+        "type": "object",
+        "description": "An external API client with a secret key",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" },
+          "key": { "type": ["string", "null"], "description": "API secret key — shown only on creation/regeneration" },
+          "active": { "type": "boolean" },
+          "datetimeCreated": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "name", "active"]
+      },
+      "Bookmark": {
+        "type": "object",
+        "description": "A saved search bookmark",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "personId": { "type": "integer" },
+          "name": { "type": "string" },
+          "queryParams": { "type": "string", "description": "URL-encoded search parameters" },
+          "datetimeCreated": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "personId", "name", "queryParams"]
+      },
+      "GeoCluster": {
+        "type": "object",
+        "description": "A geographic cluster of tickets for map display",
+        "properties": {
+          "lat": { "type": "number", "format": "float" },
+          "lng": { "type": "number", "format": "float" },
+          "count": { "type": "integer" },
+          "ticketIds": { "type": "array", "items": { "type": "integer" } }
+        },
+        "required": ["lat", "lng", "count"]
+      },
+      "SlaMetric": {
+        "type": "object",
+        "description": "SLA compliance metrics snapshot",
+        "properties": {
+          "totalOpen": { "type": "integer" },
+          "overdue": { "type": "integer" },
+          "complianceRate": { "type": "number", "format": "float", "description": "0.0–1.0" },
+          "avgResolutionHours": { "type": "number", "format": "float" }
+        }
+      },
+      "ActivityReport": {
+        "type": "object",
+        "description": "Activity report data point",
+        "properties": {
+          "period": { "type": "string", "description": "Date period label (e.g., 2024-01)" },
+          "opened": { "type": "integer" },
+          "closed": { "type": "integer" }
+        },
+        "required": ["period", "opened", "closed"]
+      },
+      "AssignmentReport": {
+        "type": "object",
+        "description": "Assignment report data point",
+        "properties": {
+          "personId": { "type": "integer" },
+          "personName": { "type": "string" },
+          "assigned": { "type": "integer" },
+          "resolved": { "type": "integer" }
+        },
+        "required": ["personId", "assigned", "resolved"]
+      },
+      "ApiError": {
+        "type": "object",
+        "description": "A single validation/business error",
+        "properties": {
+          "field": { "type": ["string", "null"], "description": "Field name if field-level error, null for entity-level" },
+          "message": { "type": "string" },
+          "code": { "type": "string", "description": "Machine-readable error code (e.g. SELF_MERGE, NOT_FOUND)" }
+        },
+        "required": ["message", "code"]
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "description": "Pagination metadata",
+        "properties": {
+          "total": { "type": "integer" },
+          "page": { "type": "integer" },
+          "perPage": { "type": "integer" },
+          "pages": { "type": "integer" }
+        }
+      },
+      "ApiEnvelope": {
+        "type": "object",
+        "description": "Standard API response envelope { data, meta, errors }",
+        "properties": {
+          "data": {},
+          "meta": { "$ref": "#/components/schemas/PaginationMeta" },
+          "errors": { "type": "array", "items": { "$ref": "#/components/schemas/ApiError" } }
+        },
+        "required": ["errors"]
+      },
+      "CreateTicketBody": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": ["string", "null"] },
+          "categoryId": { "type": "integer" },
+          "departmentId": { "type": "integer" },
+          "reporterName": { "type": ["string", "null"] },
+          "reporterEmail": { "type": ["string", "null"], "format": "email" },
+          "reporterPhone": { "type": ["string", "null"] },
+          "address": { "type": ["string", "null"] },
+          "lat": { "type": ["string", "null"] },
+          "lng": { "type": ["string", "null"] },
+          "customFields": { "type": ["string", "null"] }
+        },
+        "required": ["title", "categoryId", "departmentId"]
+      },
+      "UpdateTicketBody": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": ["string", "null"] },
+          "categoryId": { "type": "integer" },
+          "departmentId": { "type": "integer" },
+          "substatusId": { "type": ["integer", "null"] },
+          "address": { "type": ["string", "null"] },
+          "lat": { "type": ["string", "null"] },
+          "lng": { "type": ["string", "null"] },
+          "customFields": { "type": ["string", "null"] }
+        }
+      },
+      "AssignTicketBody": {
+        "type": "object",
+        "properties": {
+          "personId": { "type": ["integer", "null"], "description": "Person to assign; null to unassign" }
+        },
+        "required": ["personId"]
+      },
+      "CloseTicketBody": {
+        "type": "object",
+        "properties": {
+          "reason": { "type": ["string", "null"] }
+        }
+      },
+      "ReopenTicketBody": {
+        "type": "object",
+        "properties": {
+          "reason": { "type": ["string", "null"] }
+        }
+      },
+      "MergeTicketBody": {
+        "type": "object",
+        "description": "Request body for merging tickets",
+        "properties": {
+          "targetTicketId": { "type": "integer", "description": "ID of the canonical ticket to merge into" }
+        },
+        "required": ["targetTicketId"]
+      },
+      "PostResponseBody": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "string", "description": "Response text sent to the reporter" },
+          "templateId": { "type": ["integer", "null"] }
+        },
+        "required": ["content"]
+      },
+      "PostCommentBody": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "string", "description": "Internal staff comment" }
+        },
+        "required": ["content"]
+      },
+      "CreateDepartmentBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "defaultPerson": { "type": ["integer", "null"] }
+        },
+        "required": ["name"]
+      },
+      "CreateCategoryBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "departmentId": { "type": "integer" },
+          "categoryGroupId": { "type": ["integer", "null"] },
+          "displayOrder": { "type": ["integer", "null"] },
+          "active": { "type": "boolean" }
+        },
+        "required": ["name", "departmentId"]
+      },
+      "CreatePersonBody": {
+        "type": "object",
+        "properties": {
+          "firstname": { "type": ["string", "null"] },
+          "lastname": { "type": ["string", "null"] },
+          "email": { "type": "string", "format": "email" },
+          "role": { "type": "string", "enum": ["staff", "admin", "reporter"] },
+          "username": { "type": ["string", "null"] }
+        },
+        "required": ["email", "role"]
+      },
+      "CreateContactMethodBody": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["email", "phone", "sms"] },
+          "value": { "type": "string" },
+          "isPrimary": { "type": "boolean" }
+        },
+        "required": ["type", "value"]
+      },
+      "CreateSubstatusBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "label": { "type": ["string", "null"] }
+        },
+        "required": ["name"]
+      },
+      "CreateTemplateBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "subject": { "type": ["string", "null"] },
+          "body": { "type": "string" }
+        },
+        "required": ["name", "body"]
+      },
+      "CreateApiClientBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "active": { "type": "boolean" }
+        },
+        "required": ["name"]
+      },
+      "CreateBookmarkBody": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "queryParams": { "type": "string" }
+        },
+        "required": ["name", "queryParams"]
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                { "$ref": "#/components/schemas/ApiEnvelope" },
+                {
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ApiError" },
+                      "example": [{ "field": null, "message": "Not found", "code": "NOT_FOUND" }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error (422)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                { "$ref": "#/components/schemas/ApiEnvelope" },
+                {
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ApiError" },
+                      "example": [{ "field": "targetTicketId", "message": "Cannot merge a ticket into itself", "code": "SELF_MERGE" }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Business rule conflict (409)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                { "$ref": "#/components/schemas/ApiEnvelope" },
+                {
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ApiError" },
+                      "example": [{ "field": null, "message": "This ticket has already been merged", "code": "ALREADY_MERGED" }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

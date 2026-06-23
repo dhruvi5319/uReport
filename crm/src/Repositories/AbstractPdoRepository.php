@@ -75,4 +75,13 @@ abstract class AbstractPdoRepository
     public function beginTransaction(): void { $this->pdo->beginTransaction(); }
     public function commit(): void           { $this->pdo->commit(); }
     public function rollback(): void         { $this->pdo->rollBack(); }
+
+    /**
+     * Expose the raw PDO connection for ad-hoc queries in controllers
+     * (e.g. uniqueness checks, cross-table lookups).
+     */
+    public function getRawPdo(): \PDO
+    {
+        return $this->pdo;
+    }
 }
