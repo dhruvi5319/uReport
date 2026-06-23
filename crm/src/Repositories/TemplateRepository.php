@@ -1,65 +1,72 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Repositories;
 
-class TemplateRepository extends AbstractRepository
+use Domain\Template;
+
+class TemplateRepository extends AbstractPdoRepository implements RepositoryInterface
 {
-    public function findById(int $id): ?array
+    public function findById(int $id): ?Template
     {
-        return $this->fetchOne('SELECT * FROM templates WHERE id = :id', [':id' => $id]);
+        $stmt = $this->pdo->prepare('SELECT * FROM templates WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Template::fromRow($row) : null;
     }
 
-    public function findBySlug(string $slug): ?array
+    /** For system template lookup (e.g., 'ticket_created') */
+    public function findBySlug(string $slug): ?Template
     {
-        return $this->fetchOne(
-            'SELECT * FROM templates WHERE slug = :slug AND active = 1',
-            [':slug' => $slug]
-        );
+        $stmt = $this->pdo->prepare('SELECT * FROM templates WHERE slug = :slug AND active = 1 LIMIT 1');
+        $stmt->execute(['slug' => $slug]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Template::fromRow($row) : null;
     }
 
-    public function findAll(bool $activeOnly = true): array
+    /** @return Template[] */
+    public function findAll(bool $activeOnly = false): array
     {
-        $w = $activeOnly ? 'WHERE active = 1' : '';
-        return $this->fetchAll("SELECT * FROM templates {$w} ORDER BY name");
+        $sql = $activeOnly
+            ? 'SELECT * FROM templates WHERE active = 1 ORDER BY name ASC'
+            : 'SELECT * FROM templates ORDER BY name ASC';
+        return $this->fetchAll($sql, [], fn($row) => Template::fromRow($row));
     }
 
-    public function create(array $data): int
+    public function save(object $entity): Template
     {
-        return $this->insertRow(
-            'INSERT INTO templates (name, subject, body, active) VALUES (:name, :subject, :body, :active)',
-            [
-                ':name'    => $data['name'],
-                ':subject' => $data['subject'] ?? null,
-                ':body'    => $data['body'],
-                ':active'  => $data['active'] ?? 1,
-            ]
-        );
-    }
+        /** @var Template $entity */
+        $data = [
+            'name'    => $entity->name,
+            'subject' => $entity->subject,
+            'body'    => $entity->body,
+            'active'  => (int) $entity->active,
+        ];
 
-    public function update(int $id, array $data): int
-    {
-        $sets   = [];
-        $params = [':id' => $id];
-
-        foreach (['name', 'subject', 'body', 'active'] as $col) {
-            if (array_key_exists($col, $data)) {
-                $sets[]            = "{$col} = :{$col}";
-                $params[":{$col}"] = $data[$col];
+        if ($entity->id > 0) {
+            // Do not overwrite existing slug on update (system templates keep their slug)
+            $set  = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("UPDATE templates SET $set WHERE id = :id");
+            $data['id'] = $entity->id;
+            $stmt->execute($data);
+            return $this->findById($entity->id) ?? $entity;
+        } else {
+            // On insert, include slug only if provided
+            if ($entity->slug !== null) {
+                $data['slug'] = $entity->slug;
             }
+            $cols = implode(', ', array_keys($data));
+            $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("INSERT INTO templates ($cols) VALUES ($vals)");
+            $stmt->execute($data);
+            $newId = $this->lastInsertId();
+            return $this->findById($newId) ?? $entity;
         }
-
-        // System templates (slug IS NOT NULL) cannot have their slug changed
-        return empty($sets) ? 0 : $this->execute(
-            'UPDATE templates SET ' . implode(', ', $sets) . ' WHERE id = :id',
-            $params
-        );
     }
 
-    public function isSystemTemplate(int $id): bool
+    /** Soft-deactivate */
+    public function delete(int $id): void
     {
-        $row = $this->fetchOne('SELECT slug FROM templates WHERE id = :id', [':id' => $id]);
-        return $row !== null && $row['slug'] !== null;
+        $stmt = $this->pdo->prepare("UPDATE templates SET active = 0 WHERE id = :id");
+        $stmt->execute(['id' => $id]);
     }
 }

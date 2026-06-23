@@ -1,67 +1,69 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Repositories;
 
-class SubstatusRepository extends AbstractRepository
+use Domain\Substatus;
+
+class SubstatusRepository extends AbstractPdoRepository implements RepositoryInterface
 {
-    public function findById(int $id): ?array
+    public function findById(int $id): ?Substatus
     {
-        return $this->fetchOne('SELECT * FROM substatus WHERE id = :id', [':id' => $id]);
+        $stmt = $this->pdo->prepare('SELECT * FROM substatus WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Substatus::fromRow($row) : null;
     }
 
+    /** @return Substatus[] */
     public function findAll(bool $activeOnly = true): array
     {
-        $w = $activeOnly ? 'WHERE active = 1' : '';
-        return $this->fetchAll("SELECT * FROM substatus {$w} ORDER BY primaryStatus, sortOrder");
+        $sql = $activeOnly
+            ? 'SELECT * FROM substatus WHERE active = 1 ORDER BY sortOrder ASC'
+            : 'SELECT * FROM substatus ORDER BY sortOrder ASC';
+        return $this->fetchAll($sql, [], fn($row) => Substatus::fromRow($row));
     }
 
-    public function findDefault(string $primaryStatus): ?array
+    /** @return Substatus[] */
+    public function findByPrimaryStatus(string $status): array
     {
-        return $this->fetchOne(
-            'SELECT * FROM substatus WHERE primaryStatus = :ps AND isDefault = 1 AND active = 1 LIMIT 1',
-            [':ps' => $primaryStatus]
+        return $this->fetchAll(
+            'SELECT * FROM substatus WHERE primaryStatus = :status AND active = 1 ORDER BY sortOrder ASC',
+            ['status' => $status],
+            fn($row) => Substatus::fromRow($row),
         );
     }
 
-    public function create(array $data): int
+    public function save(object $entity): Substatus
     {
-        return $this->insertRow(
-            'INSERT INTO substatus (label, primaryStatus, isDefault, active, sortOrder) VALUES (:label, :primaryStatus, :isDefault, :active, :sortOrder)',
-            [
-                ':label'         => $data['label'],
-                ':primaryStatus' => $data['primaryStatus'],
-                ':isDefault'     => $data['isDefault'] ?? 0,
-                ':active'        => $data['active'] ?? 1,
-                ':sortOrder'     => $data['sortOrder'] ?? 0,
-            ]
-        );
-    }
+        /** @var Substatus $entity */
+        $data = [
+            'label'         => $entity->label,
+            'primaryStatus' => $entity->primaryStatus,
+            'isDefault'     => (int) $entity->isDefault,
+            'active'        => (int) $entity->active,
+            'sortOrder'     => $entity->sortOrder,
+        ];
 
-    public function clearDefault(string $primaryStatus, int $exceptId = 0): void
-    {
-        $this->execute(
-            'UPDATE substatus SET isDefault = 0 WHERE primaryStatus = :ps AND id != :id',
-            [':ps' => $primaryStatus, ':id' => $exceptId]
-        );
-    }
-
-    public function update(int $id, array $data): int
-    {
-        $sets   = [];
-        $params = [':id' => $id];
-
-        foreach (['label', 'primaryStatus', 'isDefault', 'active', 'sortOrder'] as $col) {
-            if (array_key_exists($col, $data)) {
-                $sets[]            = "{$col} = :{$col}";
-                $params[":{$col}"] = $data[$col];
-            }
+        if ($entity->id > 0) {
+            $set  = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("UPDATE substatus SET $set WHERE id = :id");
+            $data['id'] = $entity->id;
+            $stmt->execute($data);
+            return $this->findById($entity->id) ?? $entity;
+        } else {
+            $cols = implode(', ', array_keys($data));
+            $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("INSERT INTO substatus ($cols) VALUES ($vals)");
+            $stmt->execute($data);
+            $newId = $this->lastInsertId();
+            return $this->findById($newId) ?? $entity;
         }
+    }
 
-        return empty($sets) ? 0 : $this->execute(
-            'UPDATE substatus SET ' . implode(', ', $sets) . ' WHERE id = :id',
-            $params
-        );
+    /** Soft-deactivate (tickets.substatusId ON DELETE SET NULL handles FK cascade) */
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE substatus SET active = 0 WHERE id = :id");
+        $stmt->execute(['id' => $id]);
     }
 }

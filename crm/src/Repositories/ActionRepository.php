@@ -1,50 +1,58 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Repositories;
 
-class ActionRepository extends AbstractRepository
+use Domain\Action;
+
+class ActionRepository extends AbstractPdoRepository implements RepositoryInterface
 {
-    /**
-     * Insert an immutable action record. Returns the new action ID.
-     * No update() or delete() methods exist — actions are append-only (F6).
-     */
-    public function insert(array $data): int
+    public function findById(int $id): ?Action
     {
-        return $this->insertRow(
-            'INSERT INTO actions
-             (ticketId, type, visibility, actorPersonId, actorClientId, payload)
-             VALUES
-             (:ticketId, :type, :visibility, :actorPersonId, :actorClientId, :payload)',
-            [
-                ':ticketId'      => $data['ticketId'],
-                ':type'          => $data['type'],
-                ':visibility'    => $data['visibility'] ?? 'internal',
-                ':actorPersonId' => $data['actorPersonId'] ?? null,
-                ':actorClientId' => $data['actorClientId'] ?? null,
-                ':payload'       => isset($data['payload'])
-                                     ? json_encode($data['payload'], JSON_THROW_ON_ERROR)
-                                     : null,
-            ]
+        $stmt = $this->pdo->prepare('SELECT * FROM actions WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Action::fromRow($row) : null;
+    }
+
+    /** @return Action[] */
+    public function findByTicketId(int $ticketId): array
+    {
+        return $this->fetchAll(
+            'SELECT * FROM actions WHERE ticketId = :ticketId ORDER BY datetimeCreated ASC',
+            ['ticketId' => $ticketId],
+            fn($row) => Action::fromRow($row),
         );
     }
 
-    public function findByTicketId(int $ticketId, bool $includeInternal = true, int $page = 1, int $perPage = 50): array
+    /** Insert a new action; returns the persisted Action with id set. */
+    public function insert(Action $action): Action
     {
-        $where  = ['ticketId = :ticketId'];
-        $params = [':ticketId' => $ticketId];
-
-        if (!$includeInternal) {
-            $where[] = "visibility = 'external'";
-        }
-
-        $offset      = ($page - 1) * $perPage;
-        $whereClause = 'WHERE ' . implode(' AND ', $where);
-
-        return $this->fetchAll(
-            "SELECT * FROM actions {$whereClause} ORDER BY datetimeCreated ASC LIMIT {$perPage} OFFSET {$offset}",
-            $params
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO actions (ticketId, type, visibility, actorPersonId, actorClientId, datetimeCreated, payload)
+             VALUES (:ticketId, :type, :visibility, :actorPersonId, :actorClientId, :datetimeCreated, :payload)'
         );
+        $stmt->execute([
+            'ticketId'        => $action->ticketId,
+            'type'            => $action->type,
+            'visibility'      => $action->visibility,
+            'actorPersonId'   => $action->actorPersonId,
+            'actorClientId'   => $action->actorClientId,
+            'datetimeCreated' => $action->datetimeCreated,
+            'payload'         => $action->payload,
+        ]);
+        return $this->findById($this->lastInsertId()) ?? $action;
+    }
+
+    /** Delegates to insert(). $entity MUST be a Domain\Action. */
+    public function save(object $entity): Action
+    {
+        /** @var Action $entity */
+        return $this->insert($entity);
+    }
+
+    /** Actions are immutable — throws LogicException. */
+    public function delete(int $id): void
+    {
+        throw new \LogicException('Actions are immutable and cannot be deleted.');
     }
 }

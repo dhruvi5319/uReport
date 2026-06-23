@@ -1,58 +1,56 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Repositories;
 
-class DepartmentRepository extends AbstractRepository
+use Domain\Department;
+
+class DepartmentRepository extends AbstractPdoRepository implements RepositoryInterface
 {
-    public function findById(int $id): ?array
+    public function findById(int $id): ?Department
     {
-        return $this->fetchOne('SELECT * FROM departments WHERE id = :id', [':id' => $id]);
+        $stmt = $this->pdo->prepare('SELECT * FROM departments WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Department::fromRow($row) : null;
     }
 
+    /** @return Department[] */
     public function findAll(bool $activeOnly = true): array
     {
-        $where = $activeOnly ? 'WHERE active = 1' : '';
-        return $this->fetchAll("SELECT * FROM departments {$where} ORDER BY name");
+        $sql = $activeOnly
+            ? 'SELECT * FROM departments WHERE active = 1 ORDER BY name ASC'
+            : 'SELECT * FROM departments ORDER BY name ASC';
+        return $this->fetchAll($sql, [], fn($row) => Department::fromRow($row));
     }
 
-    public function create(array $data): int
+    public function save(object $entity): Department
     {
-        return $this->insertRow(
-            'INSERT INTO departments (name, defaultAssigneeId, active) VALUES (:name, :defaultAssigneeId, :active)',
-            [
-                ':name'              => $data['name'],
-                ':defaultAssigneeId' => $data['defaultAssigneeId'] ?? null,
-                ':active'            => $data['active'] ?? 1,
-            ]
-        );
-    }
+        /** @var Department $entity */
+        $data = [
+            'name'              => $entity->name,
+            'defaultAssigneeId' => $entity->defaultAssigneeId,
+            'active'            => (int) $entity->active,
+        ];
 
-    public function update(int $id, array $data): int
-    {
-        $sets   = [];
-        $params = [':id' => $id];
-
-        foreach (['name', 'defaultAssigneeId', 'active'] as $col) {
-            if (array_key_exists($col, $data)) {
-                $sets[]            = "{$col} = :{$col}";
-                $params[":{$col}"] = $data[$col];
-            }
+        if ($entity->id > 0) {
+            $set  = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("UPDATE departments SET $set WHERE id = :id");
+            $data['id'] = $entity->id;
+            $stmt->execute($data);
+        } else {
+            $cols = implode(', ', array_keys($data));
+            $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("INSERT INTO departments ($cols) VALUES ($vals)");
+            $stmt->execute($data);
+            $entity = $this->findById($this->lastInsertId()) ?? $entity;
         }
-
-        return empty($sets) ? 0 : $this->execute(
-            'UPDATE departments SET ' . implode(', ', $sets) . ' WHERE id = :id',
-            $params
-        );
+        return $this->findById($entity->id) ?? $entity;
     }
 
-    public function countActiveTickets(int $id): int
+    /** Soft-deactivate */
+    public function delete(int $id): void
     {
-        $row = $this->fetchOne(
-            "SELECT COUNT(*) as cnt FROM tickets WHERE departmentId = :id AND status = 'open' AND deletedAt IS NULL",
-            [':id' => $id]
-        );
-        return (int) ($row['cnt'] ?? 0);
+        $stmt = $this->pdo->prepare("UPDATE departments SET active = 0 WHERE id = :id");
+        $stmt->execute(['id' => $id]);
     }
 }

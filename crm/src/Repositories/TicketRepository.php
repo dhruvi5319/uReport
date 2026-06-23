@@ -1,137 +1,159 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Repositories;
 
-class TicketRepository extends AbstractRepository
+use Domain\Ticket;
+
+class TicketRepository extends AbstractPdoRepository implements RepositoryInterface
 {
-    public function findById(int $id): ?array
+    public function findById(int $id): ?Ticket
     {
-        return $this->fetchOne(
-            'SELECT * FROM tickets WHERE id = :id AND deletedAt IS NULL',
-            [':id' => $id]
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM tickets WHERE id = :id AND deletedAt IS NULL'
         );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Ticket::fromRow($row) : null;
     }
 
-    public function findAll(array $filters = [], int $page = 1, int $perPage = 25): array
+    /** Find including soft-deleted (for admin / audit) */
+    public function findByIdIncludeDeleted(int $id): ?Ticket
     {
+        $stmt = $this->pdo->prepare('SELECT * FROM tickets WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Ticket::fromRow($row) : null;
+    }
+
+    /**
+     * Filtered list — used by SearchController (MySQL fallback when Solr unavailable).
+     * $filters keys: status, categoryId, departmentId, personId, substatusId,
+     *                reporterEmail, dateFrom, dateTo, deletedAt (boolean).
+     * Returns ['rows' => Ticket[], 'total' => int].
+     */
+    public function findByFilters(
+        array  $filters = [],
+        int    $page    = 1,
+        int    $perPage = 25,
+        string $order   = 'datetimeOpened DESC',
+    ): array {
         $where  = ['t.deletedAt IS NULL'];
         $params = [];
 
         if (!empty($filters['status'])) {
-            $where[]           = 't.status = :status';
-            $params[':status'] = $filters['status'];
+            $where[]          = 't.status = :status';
+            $params['status'] = $filters['status'];
         }
         if (!empty($filters['categoryId'])) {
-            $where[]               = 't.categoryId = :categoryId';
-            $params[':categoryId'] = $filters['categoryId'];
+            $where[]              = 't.categoryId = :categoryId';
+            $params['categoryId'] = $filters['categoryId'];
         }
         if (!empty($filters['departmentId'])) {
-            $where[]                 = 't.departmentId = :departmentId';
-            $params[':departmentId'] = $filters['departmentId'];
+            $where[]                = 't.departmentId = :departmentId';
+            $params['departmentId'] = $filters['departmentId'];
         }
         if (!empty($filters['personId'])) {
-            $where[]             = 't.personId = :personId';
-            $params[':personId'] = $filters['personId'];
+            $where[]            = 't.personId = :personId';
+            $params['personId'] = $filters['personId'];
         }
         if (!empty($filters['substatusId'])) {
-            $where[]                = 't.substatusId = :substatusId';
-            $params[':substatusId'] = $filters['substatusId'];
+            $where[]               = 't.substatusId = :substatusId';
+            $params['substatusId'] = $filters['substatusId'];
+        }
+        if (!empty($filters['reporterEmail'])) {
+            $where[]                 = 't.reporterEmail = :reporterEmail';
+            $params['reporterEmail'] = $filters['reporterEmail'];
+        }
+        if (!empty($filters['dateFrom'])) {
+            $where[]            = 't.datetimeOpened >= :dateFrom';
+            $params['dateFrom'] = $filters['dateFrom'];
+        }
+        if (!empty($filters['dateTo'])) {
+            $where[]          = 't.datetimeOpened <= :dateTo';
+            $params['dateTo'] = $filters['dateTo'];
         }
 
-        $whereClause = 'WHERE ' . implode(' AND ', $where);
-        $offset      = ($page - 1) * $perPage;
+        $whereClause = $where ? 'WHERE '.implode(' AND ', $where) : '';
+        $sql = "SELECT t.* FROM tickets t $whereClause ORDER BY t.$order";
 
-        $sql = "SELECT t.* FROM tickets t {$whereClause}
-                ORDER BY t.datetimeOpened DESC
-                LIMIT {$perPage} OFFSET {$offset}";
-
-        return $this->fetchAll($sql, $params);
+        return $this->paginate($sql, $params, fn($row) => Ticket::fromRow($row), $page, $perPage);
     }
 
-    public function countAll(array $filters = []): int
+    /**
+     * Insert or update a ticket.
+     * For INSERT: $ticket->id must be 0 or negative (not set).
+     * Returns Ticket with id populated.
+     */
+    public function save(object $entity): Ticket
     {
-        $where  = ['deletedAt IS NULL'];
-        $params = [];
-
-        if (!empty($filters['status'])) {
-            $where[]           = 'status = :status';
-            $params[':status'] = $filters['status'];
-        }
-
-        $whereClause = 'WHERE ' . implode(' AND ', $where);
-        $row         = $this->fetchOne("SELECT COUNT(*) as cnt FROM tickets {$whereClause}", $params);
-        return (int) ($row['cnt'] ?? 0);
-    }
-
-    public function create(array $data): int
-    {
-        return $this->insertRow(
-            'INSERT INTO tickets
-             (title, description, status, categoryId, departmentId, personId,
-              reporterPersonId, reporterName, reporterEmail, reporterPhone,
-              address, lat, lng, substatusId, apiClientId, customFields)
-             VALUES
-             (:title, :description, :status, :categoryId, :departmentId, :personId,
-              :reporterPersonId, :reporterName, :reporterEmail, :reporterPhone,
-              :address, :lat, :lng, :substatusId, :apiClientId, :customFields)',
-            [
-                ':title'            => $data['title'],
-                ':description'      => $data['description'] ?? null,
-                ':status'           => $data['status'] ?? 'open',
-                ':categoryId'       => $data['categoryId'],
-                ':departmentId'     => $data['departmentId'],
-                ':personId'         => $data['personId'] ?? null,
-                ':reporterPersonId' => $data['reporterPersonId'] ?? null,
-                ':reporterName'     => $data['reporterName'] ?? null,
-                ':reporterEmail'    => $data['reporterEmail'] ?? null,
-                ':reporterPhone'    => $data['reporterPhone'] ?? null,
-                ':address'          => $data['address'] ?? null,
-                ':lat'              => $data['lat'] ?? null,
-                ':lng'              => $data['lng'] ?? null,
-                ':substatusId'      => $data['substatusId'] ?? null,
-                ':apiClientId'      => $data['apiClientId'] ?? null,
-                ':customFields'     => isset($data['customFields'])
-                                        ? json_encode($data['customFields'], JSON_THROW_ON_ERROR)
-                                        : null,
-            ]
-        );
-    }
-
-    public function update(int $id, array $data): int
-    {
-        $sets   = [];
-        $params = [':id' => $id];
-
-        $updatable = [
-            'title', 'description', 'status', 'categoryId', 'departmentId',
-            'personId', 'address', 'lat', 'lng', 'substatusId',
-            'datetimeClosed', 'mergedIntoTicketId',
+        /** @var Ticket $entity */
+        $data = [
+            'title'              => $entity->title,
+            'description'        => $entity->description,
+            'status'             => $entity->status,
+            'datetimeOpened'     => $entity->datetimeOpened,
+            'datetimeClosed'     => $entity->datetimeClosed,
+            'categoryId'         => $entity->categoryId,
+            'departmentId'       => $entity->departmentId,
+            'personId'           => $entity->personId,
+            'reporterPersonId'   => $entity->reporterPersonId,
+            'reporterName'       => $entity->reporterName,
+            'reporterEmail'      => $entity->reporterEmail,
+            'reporterPhone'      => $entity->reporterPhone,
+            'address'            => $entity->address,
+            'lat'                => $entity->lat,
+            'lng'                => $entity->lng,
+            'substatusId'        => $entity->substatusId,
+            'mergedIntoTicketId' => $entity->mergedIntoTicketId,
+            'apiClientId'        => $entity->apiClientId,
+            'customFields'       => $entity->customFields,
         ];
 
-        foreach ($updatable as $col) {
-            if (array_key_exists($col, $data)) {
-                $sets[]            = "{$col} = :{$col}";
-                $params[":{$col}"] = $data[$col];
-            }
+        if ($entity->id > 0) {
+            // UPDATE
+            $set  = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("UPDATE tickets SET $set WHERE id = :id");
+            $data['id'] = $entity->id;
+            $stmt->execute($data);
+            return $this->findById($entity->id) ?? $entity;
+        } else {
+            // INSERT
+            $cols = implode(', ', array_keys($data));
+            $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("INSERT INTO tickets ($cols) VALUES ($vals)");
+            $stmt->execute($data);
+            $newId = $this->lastInsertId();
+            return $this->findById($newId) ?? Ticket::fromRow(array_merge($data, ['id' => $newId, 'datetimeUpdated' => date('Y-m-d H:i:s'), 'deletedAt' => null]));
         }
-
-        if (empty($sets)) {
-            return 0;
-        }
-
-        return $this->execute(
-            'UPDATE tickets SET ' . implode(', ', $sets) . ' WHERE id = :id',
-            $params
-        );
     }
 
-    public function softDelete(int $id): int
+    /** Soft-delete by setting deletedAt = NOW() */
+    public function delete(int $id): void
     {
-        return $this->execute(
-            'UPDATE tickets SET deletedAt = NOW() WHERE id = :id',
-            [':id' => $id]
+        $stmt = $this->pdo->prepare("UPDATE tickets SET deletedAt = NOW() WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+    }
+
+    /** For merge: set mergedIntoTicketId and close source ticket */
+    public function setMerged(int $sourceId, int $targetId): void
+    {
+        $stmt = $this->pdo->prepare(
+            "UPDATE tickets SET mergedIntoTicketId = :targetId, status = 'closed', datetimeClosed = NOW() WHERE id = :sourceId"
         );
+        $stmt->execute(['targetId' => $targetId, 'sourceId' => $sourceId]);
+    }
+
+    /** Find tickets matching IDs (used after Solr returns IDs) */
+    public function findByIds(array $ids): array
+    {
+        if (empty($ids)) { return []; }
+        $in   = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo->prepare("SELECT * FROM tickets WHERE id IN ($in) AND deletedAt IS NULL");
+        $stmt->execute(array_values($ids));
+        $rows = [];
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $rows[] = Ticket::fromRow($row);
+        }
+        return $rows;
     }
 }

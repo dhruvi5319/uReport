@@ -1,87 +1,72 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Repositories;
 
-class CategoryRepository extends AbstractRepository
+use Domain\Category;
+
+class CategoryRepository extends AbstractPdoRepository implements RepositoryInterface
 {
-    public function findById(int $id): ?array
+    public function findById(int $id): ?Category
     {
-        $row = $this->fetchOne('SELECT * FROM categories WHERE id = :id', [':id' => $id]);
-        if ($row) {
-            $row['fields'] = $this->decodeJson($row['fields']);
-        }
-        return $row;
+        $stmt = $this->pdo->prepare('SELECT * FROM categories WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Category::fromRow($row) : null;
     }
 
-    public function findAll(array $filters = []): array
+    /** @return Category[] */
+    public function findAll(bool $activeOnly = false): array
     {
-        $where  = ['1=1'];
-        $params = [];
-
-        if (isset($filters['active'])) {
-            $where[]           = 'active = :active';
-            $params[':active'] = (int) $filters['active'];
-        }
-        if (!empty($filters['departmentId'])) {
-            $where[]         = 'departmentId = :deptId';
-            $params[':deptId'] = $filters['departmentId'];
-        }
-
-        $rows = $this->fetchAll(
-            'SELECT * FROM categories WHERE ' . implode(' AND ', $where) . ' ORDER BY name',
-            $params
-        );
-
-        return array_map(fn($r) => array_merge($r, ['fields' => $this->decodeJson($r['fields'])]), $rows);
+        $sql = $activeOnly
+            ? 'SELECT * FROM categories WHERE active = 1 ORDER BY name ASC'
+            : 'SELECT * FROM categories ORDER BY name ASC';
+        return $this->fetchAll($sql, [], fn($row) => Category::fromRow($row));
     }
 
-    public function create(array $data): int
+    /** @return Category[] filtered by departmentId */
+    public function findByDepartment(int $departmentId): array
     {
-        return $this->insertRow(
-            'INSERT INTO categories (name, departmentId, groupId, slaDays, displayPermission, postingPermission, defaultAssigneeId, autoCloseDays, active, fields)
-             VALUES (:name, :departmentId, :groupId, :slaDays, :displayPermission, :postingPermission, :defaultAssigneeId, :autoCloseDays, :active, :fields)',
-            [
-                ':name'               => $data['name'],
-                ':departmentId'       => $data['departmentId'],
-                ':groupId'            => $data['groupId'] ?? null,
-                ':slaDays'            => $data['slaDays'] ?? null,
-                ':displayPermission'  => $data['displayPermission'] ?? 'public',
-                ':postingPermission'  => $data['postingPermission'] ?? 'public',
-                ':defaultAssigneeId'  => $data['defaultAssigneeId'] ?? null,
-                ':autoCloseDays'      => $data['autoCloseDays'] ?? 0,
-                ':active'             => $data['active'] ?? 1,
-                ':fields'             => isset($data['fields'])
-                                          ? json_encode($data['fields'], JSON_THROW_ON_ERROR)
-                                          : null,
-            ]
+        return $this->fetchAll(
+            'SELECT * FROM categories WHERE departmentId = :deptId AND active = 1 ORDER BY name ASC',
+            ['deptId' => $departmentId],
+            fn($row) => Category::fromRow($row),
         );
     }
 
-    public function update(int $id, array $data): int
+    public function save(object $entity): Category
     {
-        $sets   = [];
-        $params = [':id' => $id];
-        $cols   = ['name', 'departmentId', 'groupId', 'slaDays', 'displayPermission', 'postingPermission', 'defaultAssigneeId', 'autoCloseDays', 'active'];
+        /** @var Category $entity */
+        $data = [
+            'name'              => $entity->name,
+            'departmentId'      => $entity->departmentId,
+            'groupId'           => $entity->groupId,
+            'slaDays'           => $entity->slaDays,
+            'displayPermission' => $entity->displayPermission,
+            'postingPermission' => $entity->postingPermission,
+            'defaultAssigneeId' => $entity->defaultAssigneeId,
+            'autoCloseDays'     => $entity->autoCloseDays,
+            'active'            => (int) $entity->active,
+            'fields'            => $entity->fields,
+        ];
 
-        foreach ($cols as $col) {
-            if (array_key_exists($col, $data)) {
-                $sets[]            = "{$col} = :{$col}";
-                $params[":{$col}"] = $data[$col];
-            }
+        if ($entity->id > 0) {
+            $set  = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("UPDATE categories SET $set WHERE id = :id");
+            $data['id'] = $entity->id;
+            $stmt->execute($data);
+        } else {
+            $cols = implode(', ', array_keys($data));
+            $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("INSERT INTO categories ($cols) VALUES ($vals)");
+            $stmt->execute($data);
+            $entity = $this->findById($this->lastInsertId()) ?? $entity;
         }
+        return $this->findById($entity->id) ?? $entity;
+    }
 
-        if (array_key_exists('fields', $data)) {
-            $sets[]           = 'fields = :fields';
-            $params[':fields'] = $data['fields'] !== null
-                                  ? json_encode($data['fields'], JSON_THROW_ON_ERROR)
-                                  : null;
-        }
-
-        return empty($sets) ? 0 : $this->execute(
-            'UPDATE categories SET ' . implode(', ', $sets) . ' WHERE id = :id',
-            $params
-        );
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE categories SET active = 0 WHERE id = :id");
+        $stmt->execute(['id' => $id]);
     }
 }

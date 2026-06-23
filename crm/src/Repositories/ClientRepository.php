@@ -1,69 +1,72 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Repositories;
 
-class ClientRepository extends AbstractRepository
+use Domain\Client;
+
+class ClientRepository extends AbstractPdoRepository implements RepositoryInterface
 {
-    public function findById(int $id): ?array
+    public function findById(int $id): ?Client
     {
-        return $this->fetchOne('SELECT * FROM clients WHERE id = :id', [':id' => $id]);
+        $stmt = $this->pdo->prepare('SELECT * FROM clients WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Client::fromRow($row) : null;
     }
 
+    /** Used for Open311 API key validation */
+    public function findByApiKeyHash(string $hash): ?Client
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM clients WHERE apiKeyHash = :hash AND active = 1 LIMIT 1'
+        );
+        $stmt->execute(['hash' => $hash]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? Client::fromRow($row) : null;
+    }
+
+    /** @return Client[] */
     public function findAll(bool $activeOnly = true): array
     {
-        $w = $activeOnly ? 'WHERE active = 1' : '';
-        return $this->fetchAll(
-            "SELECT id, name, contactEmail, apiKeyHint, notes, active, createdAt, updatedAt FROM clients {$w} ORDER BY name"
-        );
+        $sql = $activeOnly
+            ? 'SELECT * FROM clients WHERE active = 1 ORDER BY name ASC'
+            : 'SELECT * FROM clients ORDER BY name ASC';
+        return $this->fetchAll($sql, [], fn($row) => Client::fromRow($row));
     }
 
-    /** Never returns apiKeyHash in results — callers must use findHashById() for hash comparison. */
-    public function findHashById(int $id): ?string
+    public function save(object $entity): Client
     {
-        $row = $this->fetchOne('SELECT apiKeyHash FROM clients WHERE id = :id AND active = 1', [':id' => $id]);
-        return $row['apiKeyHash'] ?? null;
-    }
+        /** @var Client $entity */
+        // NOTE: apiKeyHash is bcrypt — caller is responsible for hashing before passing to save()
+        $data = [
+            'name'         => $entity->name,
+            'contactEmail' => $entity->contactEmail,
+            'apiKeyHash'   => $entity->apiKeyHash,
+            'apiKeyHint'   => $entity->apiKeyHint,
+            'notes'        => $entity->notes,
+            'active'       => (int) $entity->active,
+        ];
 
-    public function create(array $data): int
-    {
-        return $this->insertRow(
-            'INSERT INTO clients (name, contactEmail, apiKeyHash, apiKeyHint, notes, active) VALUES (:name, :contactEmail, :apiKeyHash, :apiKeyHint, :notes, :active)',
-            [
-                ':name'         => $data['name'],
-                ':contactEmail' => $data['contactEmail'],
-                ':apiKeyHash'   => $data['apiKeyHash'],
-                ':apiKeyHint'   => $data['apiKeyHint'],
-                ':notes'        => $data['notes'] ?? null,
-                ':active'       => $data['active'] ?? 1,
-            ]
-        );
-    }
-
-    public function updateKey(int $id, string $newHash, string $newHint): int
-    {
-        return $this->execute(
-            'UPDATE clients SET apiKeyHash = :h, apiKeyHint = :hint WHERE id = :id',
-            [':h' => $newHash, ':hint' => $newHint, ':id' => $id]
-        );
-    }
-
-    public function update(int $id, array $data): int
-    {
-        $sets   = [];
-        $params = [':id' => $id];
-
-        foreach (['name', 'contactEmail', 'notes', 'active'] as $col) {
-            if (array_key_exists($col, $data)) {
-                $sets[]            = "{$col} = :{$col}";
-                $params[":{$col}"] = $data[$col];
-            }
+        if ($entity->id > 0) {
+            $set  = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("UPDATE clients SET $set WHERE id = :id");
+            $data['id'] = $entity->id;
+            $stmt->execute($data);
+            return $this->findById($entity->id) ?? $entity;
+        } else {
+            $cols = implode(', ', array_keys($data));
+            $vals = implode(', ', array_map(fn($k) => ":$k", array_keys($data)));
+            $stmt = $this->pdo->prepare("INSERT INTO clients ($cols) VALUES ($vals)");
+            $stmt->execute($data);
+            $newId = $this->lastInsertId();
+            return $this->findById($newId) ?? $entity;
         }
+    }
 
-        return empty($sets) ? 0 : $this->execute(
-            'UPDATE clients SET ' . implode(', ', $sets) . ' WHERE id = :id',
-            $params
-        );
+    /** Soft-deactivate */
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE clients SET active = 0 WHERE id = :id");
+        $stmt->execute(['id' => $id]);
     }
 }

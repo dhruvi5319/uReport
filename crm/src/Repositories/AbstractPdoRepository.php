@@ -10,7 +10,7 @@ abstract class AbstractPdoRepository
 
     public function __construct()
     {
-        $this->pdo = PdoConnection::getInstance();
+        $this->pdo = PdoConnection::get();
     }
 
     /**
