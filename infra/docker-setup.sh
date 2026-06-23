@@ -18,9 +18,15 @@ SECONDS=0
 CONFIG_FILE="crm/data/site_config.php"
 
 if [ ! -f "$CONFIG_FILE" ]; then
-  echo "ERROR: Missing config file: "
-  echo "$CONFIG_FILE"
-  exit 1
+  EXAMPLE_FILE="${CONFIG_FILE}.example"
+  if [ -f "$EXAMPLE_FILE" ]; then
+    echo "Config file not found. Auto-copying from example: $EXAMPLE_FILE -> $CONFIG_FILE"
+    cp "$EXAMPLE_FILE" "$CONFIG_FILE"
+  else
+    echo "ERROR: Missing config file: "
+    echo "$CONFIG_FILE"
+    exit 1
+  fi
 fi
 
 # --- Wait for MySQL ---
@@ -40,7 +46,8 @@ echo "Solr is ready!"
 
 # --- Install Composer packages ---
 echo "Installing Composer packages..."
-composer install --no-interaction --prefer-dist --working-dir=crm
+composer update --no-interaction --prefer-dist --working-dir=crm \
+  --no-audit
 composer install --no-interaction --prefer-dist --working-dir=crm/data/Themes/COB
 
 # --- Run Solr indexing ---
