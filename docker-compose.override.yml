@@ -7,7 +7,7 @@ version: "3.9"
 
 services:
 
-  php-crm:
+  app:
     environment:
       APP_ENV: development
       APP_DEBUG: "true"
@@ -15,11 +15,4 @@ services:
       - ./crm/src:/var/www/html/src:ro
       - ./crm/public:/var/www/html/public:ro
 
-  next-frontend:
-    # In development, run Next.js dev server instead of production build
-    command: ["npm", "run", "dev"]
-    environment:
-      NODE_ENV: development
-    volumes:
-      - ./frontend/src:/app/src:delegated
-      - ./frontend/public:/app/public:delegated
+  # next-frontend is a separate application and is not part of this compose stack
