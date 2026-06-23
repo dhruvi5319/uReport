@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         failOnWarning="true"
+         failOnRisky="true">
+
+    <testsuites>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!-- MySQL test database (separate from dev DB) -->
+        <env name="TEST_DB_DSN"        value="mysql:host=127.0.0.1;port=3306;dbname=ureport_test;charset=utf8mb4"/>
+        <env name="TEST_DB_USER"       value="ureport_test"/>
+        <env name="TEST_DB_PASS"       value="ureport_test"/>
+        <!-- PHP API base URL (Docker Compose: http://app:8080 or http://localhost:8080) -->
+        <env name="TEST_APP_BASE_URL"  value="http://localhost:8080"/>
+        <!-- Solr test core -->
+        <env name="TEST_SOLR_URL"      value="http://localhost:8983/solr/ureport_test"/>
+        <!-- OIDC test provider (Keycloak test realm or mock-oidc-server) -->
+        <env name="TEST_OIDC_ISSUER"   value="http://localhost:9090/realms/ureport-test"/>
+        <env name="TEST_OIDC_CLIENT_ID"    value="ureport-test-client"/>
+        <env name="TEST_OIDC_CLIENT_SECRET" value="test-secret"/>
+        <!-- Graylog GELF UDP capture (test-gelf-server listening port) -->
+        <env name="TEST_GELF_HOST"     value="127.0.0.1"/>
+        <env name="TEST_GELF_PORT"     value="12201"/>
+    </php>
+
+    <source>
+        <include>
+            <directory>crm/src</directory>
+        </include>
+    </source>
+</phpunit>

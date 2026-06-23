@@ -31,6 +31,10 @@
             "Test\\":          "src/Test"
         }
     },
+    "scripts": {
+        "test:integration": "phpunit --configuration ../phpunit.integration.xml",
+        "test:open311": "phpunit --configuration ../phpunit.integration.xml --testsuite Integration --filter Open311"
+    },
     "config": {
         "allow-plugins": {
             "php-http/discovery": true
