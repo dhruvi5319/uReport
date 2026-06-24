@@ -64,9 +64,9 @@ class MediaServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(ticketId, result.getTicketId());
-        assertEquals("test.jpg", result.getOriginalFilename());
+        assertEquals("test.jpg", result.getFilename());
         assertEquals("image/jpeg", result.getMimeType());
-        assertEquals(personId, result.getUploadedByPersonId());
+        assertEquals(personId, result.getPersonId());
         assertNotNull(result.getInternalFilename());
 
         // Verify history appended with action_id=10
