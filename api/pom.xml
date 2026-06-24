@@ -78,6 +78,13 @@
             <version>1.17.0</version>
         </dependency>
 
+        <!-- Apache Commons CSV for StreamingResponseBody CSV export -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.11.0</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
