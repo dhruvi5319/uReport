@@ -6,7 +6,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/pages/LoginPage';
 import CallbackPage from '@/pages/CallbackPage';
 
-// Eagerly-loaded P0 ticket pages
+// Wave 3a: Ticket pages (P0)
 import TicketListPage   from '@/pages/tickets/TicketListPage';
 import TicketDetailPage from '@/pages/tickets/TicketDetailPage';
 import CreateTicketPage from '@/pages/tickets/CreateTicketPage';
@@ -20,13 +20,16 @@ import SubstatusPage    from '@/pages/admin/SubstatusPage';
 import ActionsPage      from '@/pages/admin/ActionsPage';
 import ClientsPage      from '@/pages/admin/ClientsPage';
 
-// Placeholder factory — Wave 3c will replace these with real components
-const Placeholder = (title: string): React.FC =>
-  () => <div style={{ padding: '1.5rem' }}><h2>{title}</h2><p>Coming in a future wave.</p></div>;
-
-const AdminJobsPage         = Placeholder('Scheduler Jobs');
-const MetricsDashboardPage  = Placeholder('Metrics Dashboard');
-const ReportsPage           = Placeholder('Reports');
+// Wave 3c: New feature pages (F2, F10, F12, F14, F15, F16, F17, F19, F20)
+import Open311ServiceListPage  from '@/pages/Open311ServiceListPage';
+import BookmarksPage           from '@/pages/admin/BookmarksPage';
+import ContactMethodsPage      from '@/pages/admin/ContactMethodsPage';
+import TicketMapPage           from '@/pages/admin/TicketMapPage';
+import AdminJobsPage           from '@/pages/admin/AdminJobsPage';
+import MetricsDashboardPage    from '@/pages/admin/MetricsDashboardPage';
+import ReportsPage             from '@/pages/admin/ReportsPage';
+import IssueTypesPage          from '@/pages/admin/IssueTypesPage';
+import ResponseTemplatesPage   from '@/pages/admin/ResponseTemplatesPage';
 
 const withLayout = (el: React.ReactNode) => <AppLayout>{el}</AppLayout>;
 const staffRoute = (el: React.ReactNode) => (
@@ -41,6 +44,9 @@ const router = createBrowserRouter([
   { path: '/login',    element: <LoginPage /> },
   { path: '/callback', element: <CallbackPage /> },
 
+  // F2: Open311 public service list (no auth required)
+  { path: '/open311-services', element: withLayout(<Open311ServiceListPage />) },
+
   // Ticket routes (authenticated, any role)
   { path: '/tickets',     element: authRoute(<TicketListPage />) },
   { path: '/tickets/:id', element: authRoute(<TicketDetailPage />) },
@@ -48,18 +54,29 @@ const router = createBrowserRouter([
   // Ticket creation (staff only)
   { path: '/tickets/new', element: staffRoute(<CreateTicketPage />) },
 
+  // F15: Geo-cluster map view (staff only)
+  { path: '/map', element: staffRoute(<TicketMapPage />) },
+
+  // F12: Bookmarks (staff only)
+  { path: '/bookmarks', element: staffRoute(<BookmarksPage />) },
+
   // Wave 3b: People admin (F5)
+  { path: '/people',       element: staffRoute(<PeopleListPage />) },
+  { path: '/people/:id',   element: staffRoute(<PersonDetailPage />) },
   { path: '/admin/people',     element: staffRoute(<PeopleListPage />) },
   { path: '/admin/people/:id', element: staffRoute(<PersonDetailPage />) },
 
   // Wave 3b: Department admin (F6)
-  { path: '/admin/departments', element: staffRoute(<DepartmentsPage />) },
+  { path: '/departments',        element: staffRoute(<DepartmentsPage />) },
+  { path: '/admin/departments',  element: staffRoute(<DepartmentsPage />) },
 
   // Wave 3b: Categories admin (F7)
-  { path: '/admin/categories', element: staffRoute(<CategoriesPage />) },
+  { path: '/categories',        element: staffRoute(<CategoriesPage />) },
+  { path: '/admin/categories',  element: staffRoute(<CategoriesPage />) },
 
   // Wave 3b: Substatus admin (F8)
-  { path: '/admin/substatus', element: staffRoute(<SubstatusPage />) },
+  { path: '/admin/substatus',   element: staffRoute(<SubstatusPage />) },
+  { path: '/admin/substatuses', element: staffRoute(<SubstatusPage />) },
 
   // Wave 3b: Actions admin (F9)
   { path: '/admin/actions', element: staffRoute(<ActionsPage />) },
@@ -67,16 +84,26 @@ const router = createBrowserRouter([
   // Wave 3b: API Clients admin (F13)
   { path: '/admin/clients', element: staffRoute(<ClientsPage />) },
 
-  // Legacy placeholders kept for backward compat with Wave 3a Sidebar links
-  { path: '/people',            element: staffRoute(<PeopleListPage />) },
-  { path: '/departments',       element: staffRoute(<DepartmentsPage />) },
-  { path: '/categories',        element: staffRoute(<CategoriesPage />) },
-  { path: '/admin/substatuses', element: staffRoute(<SubstatusPage />) },
+  // F19: Issue Types admin (staff only)
+  { path: '/issue-types', element: staffRoute(<IssueTypesPage />) },
 
-  // Wave 3c placeholders (jobs, metrics, reports)
-  { path: '/admin/jobs',  element: staffRoute(<AdminJobsPage />) },
-  { path: '/metrics',     element: staffRoute(<MetricsDashboardPage />) },
-  { path: '/reports',     element: staffRoute(<ReportsPage />) },
+  // F14: Contact Methods (staff only)
+  { path: '/contact-methods', element: staffRoute(<ContactMethodsPage />) },
+
+  // F20: Response Templates admin (staff only)
+  { path: '/response-templates', element: staffRoute(<ResponseTemplatesPage />) },
+
+  // F17: Metrics dashboard (staff only)
+  { path: '/metrics', element: staffRoute(<MetricsDashboardPage />) },
+
+  // F17: Reports page (staff only)
+  { path: '/reports', element: staffRoute(<ReportsPage />) },
+
+  // F16: Scheduler admin jobs (staff only)
+  { path: '/admin/jobs', element: staffRoute(<AdminJobsPage />) },
+
+  // Fallback
+  { path: '*', element: <Navigate to="/tickets" replace /> },
 ]);
 
 const AppRouter: React.FC = () => (
