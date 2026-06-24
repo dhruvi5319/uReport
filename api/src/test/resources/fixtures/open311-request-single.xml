@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service_requests>
+  <request>
+    <service_request_id>PLACEHOLDER</service_request_id>
+    <status>open</status>
+    <status_notes/>
+    <service_name>PLACEHOLDER</service_name>
+    <service_code>PLACEHOLDER</service_code>
+    <description>PLACEHOLDER</description>
+    <agency_responsible/>
+    <requested_datetime>PLACEHOLDER</requested_datetime>
+    <updated_datetime>PLACEHOLDER</updated_datetime>
+    <expected_datetime/>
+    <lat/>
+    <long/>
+    <address/>
+    <address_id/>
+    <zipcode/>
+    <media_url/>
+  </request>
+</service_requests>

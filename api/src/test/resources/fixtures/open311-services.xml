@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<services>
+  <service>
+    <service_code>PLACEHOLDER</service_code>
+    <service_name>PLACEHOLDER</service_name>
+    <description>PLACEHOLDER</description>
+    <metadata>false</metadata>
+    <type>realtime</type>
+    <keywords>PLACEHOLDER</keywords>
+    <group/>
+  </service>
+</services>
