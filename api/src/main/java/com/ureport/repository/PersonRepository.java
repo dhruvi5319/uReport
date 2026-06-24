@@ -18,7 +18,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 
     Page<Person> findByDeletedAtIsNull(Pageable pageable);
 
-    List<Person> findByDepartmentId(Integer departmentId);
+    List<Person> findByDepartment_Id(Integer departmentId);
 
     /**
      * Find a person by email address (joins to peopleEmails).
