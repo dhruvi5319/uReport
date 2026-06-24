@@ -1,0 +1,692 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/share/nvm/versions/node/v25.9.0/bin/node",
+      "/home/daytona/project/node_modules/.bin/playwright",
+      "test",
+      "e2e/uat/implement-the-full-ureport-modernization.spec.ts",
+      "--reporter=json"
+    ],
+    "configFile": "/home/daytona/project/playwright.config.ts",
+    "rootDir": "/home/daytona/project/e2e/uat",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/daytona/project/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/daytona/project/e2e/uat",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 32,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "implement-the-full-ureport-modernization.spec.ts",
+      "file": "implement-the-full-ureport-modernization.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "US-APP-HEALTH — GET /api/v1/health returns {\"status\":\"UP\"}",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 99,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:51.637Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-570e121c50d77e9a6a91",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "US-HEALTH-CONTROLLER — GET /api/v1/health returns {\"status\":\"UP\"}",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 78,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:51.854Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-f980bac819d7f09675f2",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "US-PUBLIC-ENDPOINTS — GET /api/v1/contact-methods returns 200 without auth",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 124,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:51.944Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-96a960b0ca5ec6443137",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 36,
+          "column": 5
+        },
+        {
+          "title": "US-PUBLIC-ENDPOINTS — GET /api/v1/issue-types returns 200 without auth",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 79,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:52.079Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-52d4d770de464a82d864",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 41,
+          "column": 5
+        },
+        {
+          "title": "US-PUBLIC-ENDPOINTS — GET /open311/services returns 200 without auth",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 84,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:52.170Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-97bd2ac83b78c26e433a",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 46,
+          "column": 5
+        },
+        {
+          "title": "US-SPA-LOADS — SPA root returns 200 with HTML content",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 72,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:52.272Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-b58c4091e661f33c2a0f",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 53,
+          "column": 5
+        },
+        {
+          "title": "US-SPA-REDIRECT — browser GET http://localhost:80/ returns HTML 200",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 157,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:52.355Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-ed0cb2d1a8601b3a3e29",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 65,
+          "column": 5
+        },
+        {
+          "title": "US-SPA-LOGIN — /login page renders with username and password fields",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 165,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:52.527Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-a4bfaaa28291e2723692",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 75,
+          "column": 5
+        },
+        {
+          "title": "US-SPA-LOGIN — /login page has a submit button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 158,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:52.704Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-700558dddacdeb3031b8",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 82,
+          "column": 5
+        },
+        {
+          "title": "US-AUTH — POST /api/v1/auth/login with wrong credentials returns 401",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 150,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:52.884Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-d334f5fcdafa1d0086a9",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 89,
+          "column": 5
+        },
+        {
+          "title": "US-OPEN311 — GET /open311/services returns JSON array",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 76,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.048Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-3a564ed7f79ae7e828c2",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 99,
+          "column": 5
+        },
+        {
+          "title": "US-OPEN311-XML — GET /open311/services?format=xml returns Content-Type application/xml",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 89,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.136Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-7830e219778eb6fa981b",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 110,
+          "column": 5
+        },
+        {
+          "title": "US-SEARCH — GET /api/v1/tickets returns paginated response or auth error (not 500)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 86,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.233Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-d05b9307d8429e4162bd",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "US-CONTACT-METHODS — GET /api/v1/contact-methods returns array with 4 seeded items",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 81,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.329Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-958c3e6554d6673cbd58",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 137,
+          "column": 5
+        },
+        {
+          "title": "US-ISSUE-TYPES — GET /api/v1/issue-types returns array with 6 seeded items",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 94,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.422Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-39289cd782bfc74a7abe",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 147,
+          "column": 5
+        },
+        {
+          "title": "US-DISCOVERY — GET /open311/discovery returns JSON with changeset field",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 69,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.526Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-d531a9360a059a90d656",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 157,
+          "column": 5
+        },
+        {
+          "title": "US-404-HANDLING — GET /api/v1/tickets/99999 returns 404 or auth error (not 500)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 70,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.605Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-0e8dce5c5c2072c8668e",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 168,
+          "column": 5
+        },
+        {
+          "title": "US-SUBSTATUS-API — GET /api/v1/substatus without auth returns 401 or 403 (not 500, not HTML)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 60,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-06-24T21:16:53.682Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "053c3db5427a8fd49f49-043cd1bed0378aadccea",
+          "file": "implement-the-full-ureport-modernization.spec.ts",
+          "line": 178,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-06-24T21:16:51.185Z",
+    "duration": 2629.7290000000003,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
