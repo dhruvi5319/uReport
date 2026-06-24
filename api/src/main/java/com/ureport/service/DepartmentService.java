@@ -136,7 +136,7 @@ public class DepartmentService {
     @Transactional(readOnly = true)
     public List<PersonResponse> getDepartmentPeople(Integer departmentId) {
         loadDepartment(departmentId); // ensure exists
-        return personRepository.findByDepartmentId(departmentId).stream()
+        return personRepository.findByDepartment_Id(departmentId).stream()
                 .map(personService::toResponse)
                 .collect(Collectors.toList());
     }
