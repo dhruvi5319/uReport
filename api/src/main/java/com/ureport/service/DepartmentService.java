@@ -144,7 +144,7 @@ public class DepartmentService {
     @Transactional(readOnly = true)
     public List<CategoryResponse> getDepartmentCategories(Integer departmentId) {
         loadDepartment(departmentId); // ensure exists
-        return categoryRepository.findByDepartmentId(departmentId).stream()
+        return categoryRepository.findByDepartment_Id(departmentId).stream()
                 .map(categoryService::toResponse)
                 .collect(Collectors.toList());
     }

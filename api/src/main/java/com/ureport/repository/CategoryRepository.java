@@ -13,7 +13,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     List<Category> findByActiveTrueOrderByCategoryGroupOrderingAscNameAsc();
 
-    List<Category> findByDepartmentId(Integer departmentId);
+    List<Category> findByDepartment_Id(Integer departmentId);
 
-    List<Category> findByCategoryGroupId(Integer groupId);
+    List<Category> findByCategoryGroup_Id(Integer groupId);
 }

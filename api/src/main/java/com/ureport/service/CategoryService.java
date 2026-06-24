@@ -351,7 +351,7 @@ public class CategoryService {
 
     private CategoryGroupResponse toGroupResponseWithCategories(CategoryGroup group) {
         CategoryGroupResponse resp = toGroupResponse(group);
-        List<Category> categories = categoryRepository.findByCategoryGroupId(group.getId());
+        List<Category> categories = categoryRepository.findByCategoryGroup_Id(group.getId());
         resp.setCategories(categories.stream().map(this::toResponse).collect(Collectors.toList()));
         return resp;
     }
