@@ -109,21 +109,20 @@ public class TicketSearchService {
         int zoom = Math.min(Math.max(zoomLevel, 0), 6);
         String clusterCol = ZOOM_CLUSTER_COLUMNS.get(zoom);
 
-        StringBuilder sql = new StringBuilder("""
-                SELECT g.id AS cluster_id,
-                       COUNT(tgd.ticket_id) AS count,
-                       ST_Y(g.center::geometry) AS lat,
-                       ST_X(g.center::geometry) AS long
-                FROM ticket_geodata tgd
-                JOIN geoclusters g ON tgd.""" + clusterCol + """ = g.id
-                JOIN tickets t ON tgd.ticket_id = t.id
-                JOIN categories c ON t.category_id = c.id
-                LEFT JOIN substatus s ON t.substatus_id = s.id
-                LEFT JOIN people p ON t.assignedPerson_id = p.id
-                LEFT JOIN contactMethods cm ON t.contactMethod_id = cm.id
-                LEFT JOIN departments d ON c.department_id = d.id
-                WHERE 1=1
-                """);
+        StringBuilder sql = new StringBuilder(
+                "SELECT g.id AS cluster_id," +
+                " COUNT(tgd.ticket_id) AS count," +
+                " ST_Y(g.center::geometry) AS lat," +
+                " ST_X(g.center::geometry) AS long" +
+                " FROM ticket_geodata tgd" +
+                " JOIN geoclusters g ON tgd." + clusterCol + " = g.id" +
+                " JOIN tickets t ON tgd.ticket_id = t.id" +
+                " JOIN categories c ON t.category_id = c.id" +
+                " LEFT JOIN substatus s ON t.substatus_id = s.id" +
+                " LEFT JOIN people p ON t.assignedPerson_id = p.id" +
+                " LEFT JOIN contactMethods cm ON t.contactMethod_id = cm.id" +
+                " LEFT JOIN departments d ON c.department_id = d.id" +
+                " WHERE 1=1 ");
 
         List<Object> paramList = new ArrayList<>();
         applyFilters(sql, paramList, params);
