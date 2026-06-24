@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface MediaRepository extends JpaRepository<Media, Long> {
     List<Media> findByTicketId(Long ticketId);
+    Optional<Media> findFirstByTicketIdOrderByIdAsc(Long ticketId);
     Optional<Media> findByInternalFilename(String internalFilename);
 }
