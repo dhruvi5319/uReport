@@ -9,6 +9,13 @@ import java.util.Optional;
 
 @Repository
 public interface SubstatusRepository extends JpaRepository<Substatus, Integer> {
-    Optional<Substatus> findFirstByStatusAndIsDefaultTrue(String status);
+
+    Optional<Substatus> findByStatusAndIsDefaultTrue(String status);
+
+    /** Backward-compatible alias — TicketService uses this method name */
+    default Optional<Substatus> findFirstByStatusAndIsDefaultTrue(String status) {
+        return findByStatusAndIsDefaultTrue(status);
+    }
+
     List<Substatus> findByStatus(String status);
 }

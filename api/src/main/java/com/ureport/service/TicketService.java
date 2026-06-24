@@ -116,7 +116,7 @@ public class TicketService {
                 reporter = personRepository.save(reporter);
                 // Create email record
                 com.ureport.entity.PeopleEmail newEmail = new com.ureport.entity.PeopleEmail();
-                newEmail.setPersonId(reporter.getId());
+                newEmail.setPerson(reporter);
                 newEmail.setEmail(req.reporterEmail());
                 newEmail.setUsedForNotifications(true);
                 peopleEmailRepository.save(newEmail);

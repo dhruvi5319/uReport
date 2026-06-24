@@ -16,14 +16,15 @@ public class Substatus {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    // CHECK(status IN ('open','closed'))
     @Column(name = "status", nullable = false, length = 10)
     private String status;
 
-    @Column(name = "isDefault", nullable = false)
-    private Boolean isDefault;
+    @Column(name = "isDefault", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isDefault;
 
-    @Column(name = "isSystem", nullable = false)
-    private Boolean isSystem;
+    @Column(name = "isSystem", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isSystem;
 
     // Getters and setters
     public Integer getId() { return id; }
@@ -38,9 +39,17 @@ public class Substatus {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public Boolean getIsDefault() { return isDefault; }
-    public void setIsDefault(Boolean isDefault) { this.isDefault = isDefault; }
+    public boolean isDefault() { return isDefault; }
+    public void setDefault(boolean isDefault) { this.isDefault = isDefault; }
 
+    /** Alias for backward compatibility with Boolean getIsDefault() */
+    public Boolean getIsDefault() { return isDefault; }
+    public void setIsDefault(Boolean isDefault) { this.isDefault = isDefault != null && isDefault; }
+
+    public boolean isSystem() { return isSystem; }
+    public void setSystem(boolean isSystem) { this.isSystem = isSystem; }
+
+    /** Alias for backward compatibility with Boolean getIsSystem() */
     public Boolean getIsSystem() { return isSystem; }
-    public void setIsSystem(Boolean isSystem) { this.isSystem = isSystem; }
+    public void setIsSystem(Boolean isSystem) { this.isSystem = isSystem != null && isSystem; }
 }
