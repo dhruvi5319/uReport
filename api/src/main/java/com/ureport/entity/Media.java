@@ -14,27 +14,24 @@ public class Media {
     @Column(name = "ticket_id", nullable = false)
     private Long ticketId;
 
-    @Column(name = "internal_filename", nullable = false, length = 255)
-    private String internalFilename;
+    @Column(name = "filename", nullable = false, length = 255)
+    private String filename;
 
-    @Column(name = "original_filename", length = 255)
-    private String originalFilename;
+    @Column(name = "internalFilename", nullable = false, length = 255)
+    private String internalFilename;
 
     @Column(name = "mime_type", length = 100)
     private String mimeType;
 
-    @Column(name = "file_size")
-    private Long fileSize;
+    @Column(name = "uploaded")
+    private OffsetDateTime uploaded;
 
-    @Column(name = "uploaded_at")
-    private OffsetDateTime uploadedAt;
-
-    @Column(name = "uploaded_by_person_id")
-    private Integer uploadedByPersonId;
+    @Column(name = "person_id")
+    private Integer personId;
 
     @PrePersist
     protected void onCreate() {
-        if (uploadedAt == null) uploadedAt = OffsetDateTime.now();
+        if (uploaded == null) uploaded = OffsetDateTime.now();
     }
 
     // Getters and setters
@@ -44,21 +41,18 @@ public class Media {
     public Long getTicketId() { return ticketId; }
     public void setTicketId(Long ticketId) { this.ticketId = ticketId; }
 
+    public String getFilename() { return filename; }
+    public void setFilename(String filename) { this.filename = filename; }
+
     public String getInternalFilename() { return internalFilename; }
     public void setInternalFilename(String internalFilename) { this.internalFilename = internalFilename; }
-
-    public String getOriginalFilename() { return originalFilename; }
-    public void setOriginalFilename(String originalFilename) { this.originalFilename = originalFilename; }
 
     public String getMimeType() { return mimeType; }
     public void setMimeType(String mimeType) { this.mimeType = mimeType; }
 
-    public Long getFileSize() { return fileSize; }
-    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
+    public OffsetDateTime getUploaded() { return uploaded; }
+    public void setUploaded(OffsetDateTime uploaded) { this.uploaded = uploaded; }
 
-    public OffsetDateTime getUploadedAt() { return uploadedAt; }
-    public void setUploadedAt(OffsetDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
-
-    public Integer getUploadedByPersonId() { return uploadedByPersonId; }
-    public void setUploadedByPersonId(Integer uploadedByPersonId) { this.uploadedByPersonId = uploadedByPersonId; }
+    public Integer getPersonId() { return personId; }
+    public void setPersonId(Integer personId) { this.personId = personId; }
 }

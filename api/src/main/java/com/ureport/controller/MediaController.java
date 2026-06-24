@@ -71,7 +71,7 @@ public class MediaController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(media.getMimeType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + media.getOriginalFilename() + "\"")
+                        "inline; filename=\"" + media.getFilename() + "\"")
                 .body(resource);
     }
 

@@ -76,15 +76,14 @@ public class MediaService {
             throw new RuntimeException("Failed to store file: " + internalFilename, e);
         }
 
-        // Insert media row
+        // Insert media row (columns: filename, internalFilename, mime_type, uploaded, person_id)
         Media media = new Media();
         media.setTicketId(ticketId);
-        media.setOriginalFilename(originalFilename != null ? originalFilename : internalFilename);
+        media.setFilename(originalFilename != null ? originalFilename : internalFilename);
         media.setInternalFilename(internalFilename);
         media.setMimeType(file.getContentType() != null ? file.getContentType() : "application/octet-stream");
-        media.setFileSize(file.getSize());
-        media.setUploadedAt(OffsetDateTime.now());
-        media.setUploadedByPersonId(personId);
+        media.setUploaded(OffsetDateTime.now());
+        media.setPersonId(personId);
         media = mediaRepository.save(media);
 
         // Append upload_media history entry (action_id=10)
