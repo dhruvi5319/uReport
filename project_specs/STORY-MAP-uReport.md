@@ -187,7 +187,7 @@ Full traceability: JTBD outcome → Journey Stage → NaC Statement → Stories 
 
 **Theme:** Deliver a fully functional, byte-compatible replacement of the legacy PHP system for all P0 flows. After R1, staff can log in, manage tickets, search, and export. External API clients continue operating without code changes.
 
-**Story Count:** 25 P0 stories
+**Story Count:** 29 P0 stories
 
 **Stories in R1:**
 

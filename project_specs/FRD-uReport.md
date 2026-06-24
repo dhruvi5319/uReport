@@ -145,7 +145,7 @@ This document provides detailed functional specifications for all 21 feature are
 #### Create Ticket
 1. Client submits POST `/api/v1/tickets` with required fields (category_id, description, location fields, reportedByPerson_id or reporter contact info).
 2. System validates category is active and caller has posting permission (see F03).
-3. System creates `people` record for reporter if not found (by email/name lookup).
+3. System creates `people` record for reporter if `reporterEmail` is provided and no match is found (by email lookup); if no `reporterEmail` is provided, `reportedByPerson_id` remains null (anonymous submission — no person record created).
 4. System creates `tickets` row with `status = 'open'`, `enteredDate = NOW()`, `lastModified = NOW()`.
 5. System looks up default substatus for `open` and assigns it.
 6. System assigns `assignedPerson_id` to category's `defaultPerson_id` if set.
@@ -181,10 +181,10 @@ This document provides detailed functional specifications for all 21 feature are
 4. System appends "duplicate" history entry with `data = { "duplicate": parent_id }`.
 
 #### Reopen Ticket
-1. Staff submits PATCH `/api/v1/tickets/{id}/reopen`.
+1. Staff submits PATCH `/api/v1/tickets/{id}/reopen` with optional `reason` (string).
 2. System validates ticket is closed.
 3. System updates `status = 'open'`, clears `closedDate`, assigns default open substatus.
-4. System appends "update" history entry with `notes = 'Reopened'`.
+4. System appends "update" history entry with `notes = reason` if provided, otherwise `notes = 'Reopened'`.
 
 #### Record Comment
 1. Staff or permitted user submits POST `/api/v1/tickets/{id}/comments` with `notes`.
@@ -215,6 +215,7 @@ This document provides detailed functional specifications for all 21 feature are
 - `customFields` (JSON, optional): Values matching category's `customFields` schema.
 - `additionalFields` (JSON, optional): Supplementary address fields from AddressService.
 - `client_id` (integer, optional): FK to `clients.id`; set when ticket arrives via API client.
+- `reason` (string, optional): Freeform text reason for reopen action; stored as `notes` on the resulting history entry. Defaults to `'Reopened'` if absent.
 
 ---
 
@@ -1404,7 +1405,7 @@ Key columns:
 
 ## F08: Substatus System
 
-**Description:** The substatus table provides fine-grained lifecycle states beyond the binary `open`/`closed` ticket status. Each substatus maps to either `open` or `closed` parent status, carries a name and description, and may be flagged as the default for that parent status. Three system substatuses are seeded at installation; staff may define additional custom substatuses. Substatuses are used on ticket close, auto-close rules, and as search filters.
+**Description:** The substatus table provides fine-grained lifecycle states beyond the binary `open`/`closed` ticket status. Each substatus maps to either `open` or `closed` parent status, carries a name and description, and may be flagged as the default for that parent status. Four system substatuses are seeded at installation (Open, Resolved, Duplicate, Bogus); staff may define additional custom substatuses. Substatuses are used on ticket close, auto-close rules, and as search filters.
 
 ---
 
@@ -1424,7 +1425,7 @@ Key columns:
 - Mark one substatus as default per parent status
 - Assign substatus on ticket close
 - Use substatus as ticket search filter
-- Seed system substatuses (Resolved, Duplicate, Bogus)
+- Seed system substatuses (Open, Resolved, Duplicate, Bogus)
 - Use substatus as auto-close target in category config
 
 ---
@@ -2502,7 +2503,7 @@ Key columns:
 3. For each such category, queries tickets where:
    - `status = 'open'`
    - `category_id = category.id`
-   - `lastModified < NOW() - INTERVAL slaDays DAY` (or a separate `autoCloseDays` config per category if available; falls back to `slaDays`).
+   - `lastModified < NOW() - INTERVAL slaDays DAY` (staleness is measured from `lastModified`, not `enteredDate`; this means tickets actively being worked on are excluded from auto-close even if they exceed the SLA window).
 4. For each stale ticket:
    a. Sets `tickets.status = 'closed'`, `closedDate = NOW()`, `substatus_id = category.autoCloseSubstatus_id`.
    b. Appends `ticketHistory` entry with action "closed", `notes = 'Auto-closed by scheduler'`.
@@ -2510,8 +2511,14 @@ Key columns:
 
 #### Audit Job
 1. `AuditScheduler` fires weekly (default: Sunday 3 AM, configurable).
-2. Checks for data integrity issues: orphaned history entries, tickets with null category, missing geo_point when lat/long present.
-3. Logs issues to application log; does not auto-correct.
+2. Checks for the following baseline data integrity conditions:
+   a. Tickets with `status = 'closed'` but `closedDate IS NULL`.
+   b. Tickets whose `substatus_id` status type does not match `tickets.status` (e.g., a closed ticket with an open-type substatus).
+   c. `ticketHistory` entries referencing a non-existent `ticket_id` (orphaned history rows).
+   d. `media` records whose `ticket_id` references a non-existent ticket (orphaned media).
+   e. `people` records with `role = 'staff'` but no `username` set.
+3. Logs each issue to application log with ticket ID (or entity ID) and condition name; does not auto-correct.
+4. Additional integrity checks may be added via configuration without a deployment.
 
 ---
 

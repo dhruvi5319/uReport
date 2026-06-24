@@ -45,7 +45,8 @@
 **Acceptance Criteria:**
 - [ ] POST `/api/v1/tickets` accepts category_id, description, location fields, reporter info, issueType_id, contactMethod_id, and customFields
 - [ ] System validates the category is active and the caller's role satisfies the category's `postingPermissionLevel`
-- [ ] If no existing person matches the reporter email, a new `people` record is auto-created
+- [ ] If a reporter email is provided and no existing person matches, a new `people` record is auto-created with `role = 'public'`
+- [ ] If no reporter email is provided (anonymous submission), the ticket is created with `reportedByPerson_id = null`; no `people` record is auto-created
 - [ ] Ticket is created with `status = 'open'`, `enteredDate = NOW()`, and default substatus for open
 - [ ] System assigns `assignedPerson_id` to the category's `defaultPerson_id` if one is configured
 - [ ] A `ticketHistory` entry is appended with action type "open"
@@ -125,7 +126,7 @@
 - [ ] PATCH `/api/v1/tickets/{id}/reopen` is available to staff only
 - [ ] System validates the ticket is currently closed
 - [ ] `status` is set to `'open'`, `closedDate` is cleared, and the default open substatus is assigned
-- [ ] An "update" history entry is appended with `notes = 'Reopened'`
+- [ ] An "update" history entry is appended; if the caller provides an optional `reason` field, its value is stored in `notes`; if `reason` is absent, `notes` defaults to `'Reopened'`
 - [ ] Attempting to reopen an already-open ticket returns 422 INVALID_TRANSITION
 
 **Priority:** P0 | **Feature Ref:** F0
@@ -414,7 +415,7 @@
 
 **Acceptance Criteria:**
 - [ ] POST `/api/v1/people` creates a person record with firstname, lastname, organization, username (for staff), role, and department
-- [ ] System validates no duplicate `username` exists; duplicate returns 422 DUPLICATE_USERNAME
+- [ ] System validates no duplicate `username` exists; duplicate returns 409 USERNAME_CONFLICT
 - [ ] `password` input is hashed with BCrypt (cost ≥ 10) before storage; plain-text password is never logged
 - [ ] PUT `/api/v1/people/{id}` updates all person fields
 - [ ] DELETE `/api/v1/people/{id}` deactivates or removes the record (staff only)
@@ -557,7 +558,7 @@
 - [ ] POST `/api/v1/substatuses` creates a substatus with name, description, status (open/closed), and isDefault flag
 - [ ] `status` must be exactly `'open'` or `'closed'`
 - [ ] Only one substatus can be marked `isDefault` per parent status; setting a new default clears the previous one
-- [ ] System substatuses (Resolved, Duplicate, Bogus) are seeded at install and cannot be deleted
+- [ ] System substatuses (Open, Resolved, Duplicate, Bogus) are seeded at install and cannot be deleted; "Open" is the default open-status substatus, and "Resolved" is the default closed-status substatus
 - [ ] Requires `role = 'staff'`
 
 **Priority:** P1 | **Feature Ref:** F8
@@ -636,7 +637,7 @@
 - [ ] POST `/api/v1/tickets/{id}/media` accepts one or more file uploads
 - [ ] File metadata is stored in the `media` table: filename, internalFilename, mime_type, uploaded timestamp, person_id
 - [ ] An "upload_media" history entry is appended on every upload
-- [ ] Upload permission is gated by user role per category configuration
+- [ ] Upload permission follows ticket posting permission: `staff` can always upload; `public` users can upload if the ticket's category `postingPermissionLevel` is `public` or `anonymous`; `anonymous` users cannot upload
 - [ ] Uploaded files are listed on the ticket detail view
 
 **Priority:** P1 | **Feature Ref:** F10
@@ -851,7 +852,8 @@
 **As a** Marcus Webb (case worker), **I want** constituents to receive digest email notifications when relevant ticket actions occur (open, close, assignment, response), **so that** reporters are kept informed without requiring staff to manually send emails.
 
 **Acceptance Criteria:**
-- [ ] Spring Scheduler job identifies ticket history entries with pending outbound notifications
+- [ ] Spring Scheduler digest job runs on a configurable interval; default schedule is every 5 minutes (configurable via `app.scheduler.digestInterval`, replacing the legacy `digestNotifications.cron` cadence)
+- [ ] Job identifies ticket history entries with pending outbound notifications (entries where `sentNotifications` is null/empty and the associated action type has an email template)
 - [ ] Notification emails are rendered using the action template with template variables resolved
 - [ ] `notificationReplyEmail` from category config is used as the reply-to address; per-action `replyEmail` override takes precedence where configured
 - [ ] Emails are sent to all `peopleEmails` records for the reporter that have `usedForNotifications = true`
@@ -865,7 +867,8 @@
 **As a** Diana Reyes (department administrator), **I want** stale tickets in my department to be automatically closed per category auto-close rules, **so that** my team's backlog stays current without manual housekeeping.
 
 **Acceptance Criteria:**
-- [ ] Spring Scheduler job (replacing `closeOldTickets.php`) evaluates open tickets against their category's `autoCloseIsActive` and `slaDays` configuration
+- [ ] Spring Scheduler job (replacing `closeOldTickets.php`) evaluates open tickets against their category's `autoCloseIsActive` flag and `slaDays` value
+- [ ] A ticket qualifies for auto-close when: `autoCloseIsActive = true` AND `tickets.lastModified < NOW() - INTERVAL category.slaDays DAYS` AND `tickets.status = 'open'` (i.e., the ticket has not been modified within the SLA window)
 - [ ] Qualifying tickets are closed with the category's `autoCloseSubstatus_id`
 - [ ] A "closed" history entry is appended for each auto-closed ticket
 - [ ] Job execution is logged with timestamp, job name, ticket count closed, and outcome
@@ -879,7 +882,8 @@
 
 **Acceptance Criteria:**
 - [ ] Spring Scheduler job replaces `auditTickets.php` cron script
-- [ ] Job checks for configurable data integrity conditions (e.g., orphaned records, tickets with invalid FK references)
+- [ ] Job checks for the following baseline data integrity conditions: (1) tickets with `status = 'closed'` but `closedDate IS NULL`; (2) tickets with a `substatus_id` whose `status` does not match `tickets.status`; (3) `ticketHistory` entries referencing a non-existent `ticket_id`; (4) orphaned `media` records whose `ticket_id` references a non-existent ticket; (5) `people` records with `role = 'staff'` but no `username`
+- [ ] Additional configurable checks may be added without a deployment by updating the audit job configuration
 - [ ] Audit results are written to logs with timestamp, job name, and findings
 - [ ] Job execution is observable without manual database queries
 

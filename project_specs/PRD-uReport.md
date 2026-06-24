@@ -237,7 +237,7 @@ Despite these pain points, uReport's **business logic is sound**. The Open311 Ge
 
 ### F8: Substatus System
 
-**Description:** The substatus table provides fine-grained lifecycle states beyond the binary `open`/`closed` status. Each substatus maps to either `open` or `closed` status and carries a name and description. System substatuses (Resolved, Duplicate, Bogus) are seeded; staff can define additional substatuses. One substatus can be flagged as the default.
+**Description:** The substatus table provides fine-grained lifecycle states beyond the binary `open`/`closed` status. Each substatus maps to either `open` or `closed` status and carries a name and description. Four system substatuses are seeded (Open, Resolved, Duplicate, Bogus); staff can define additional substatuses. One substatus per parent status can be flagged as the default.
 
 **Capabilities:**
 - Create, read, update, and delete substatus records
@@ -245,7 +245,7 @@ Despite these pain points, uReport's **business logic is sound**. The Open311 Ge
 - Mark one substatus as default (`isDefault`)
 - Assign a substatus to a ticket on close or update
 - Use substatuses as a filter in ticket search
-- Seed system substatuses: Resolved, Duplicate, Bogus
+- Seed system substatuses: Open (default open-type), Resolved (default closed-type), Duplicate, Bogus
 - Use a substatus as the target for category auto-close rules
 
 **Data Model:** `substatus` — id, name, description, status (enum: open/closed), isDefault
@@ -494,7 +494,7 @@ Despite these pain points, uReport's **business logic is sound**. The Open311 Ge
 - **Feature parity:** 100% of features listed in F0–F20 implemented and verified against the legacy PHP codebase behavior
 - **Open311 compliance:** All Open311 GeoReport v2 endpoint response shapes pass byte-level comparison tests against legacy XML/JSON fixtures
 - **Zero data loss:** Full MySQL → PostgreSQL schema migration with all records, relationships, and constraints intact
-- **Search equivalence:** PostgreSQL FTS returns identical result sets to Solr for a defined test query corpus (≥95% overlap on ranked results)
+- **Search equivalence:** PostgreSQL FTS returns identical result sets to Solr for a defined test query corpus (≥95% overlap on ranked results); test corpus is defined as: 50 representative queries drawn from production query logs covering keyword, location, category, date-range, and combined-filter query types, validated against a 100k-ticket Solr snapshot taken before cutover
 - **Auth migration:** All existing staff user accounts authenticate successfully via JWT after migration
 - **API key migration:** All existing registered API client keys authenticate successfully
 - **Test coverage:** ≥80% line coverage on Spring Boot service layer; ≥90% on Open311 controller
