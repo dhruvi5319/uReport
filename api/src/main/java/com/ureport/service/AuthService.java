@@ -4,6 +4,7 @@ import com.ureport.config.JwtConfig;
 import com.ureport.dto.response.AuthResponse;
 import com.ureport.entity.RefreshToken;
 import com.ureport.entity.TokenBlacklist;
+import com.ureport.exception.AuthenticationException;
 import com.ureport.exception.NotFoundException;
 import com.ureport.repository.PersonRepository;
 import com.ureport.repository.RefreshTokenRepository;
@@ -46,10 +47,10 @@ public class AuthService {
      */
     public AuthResponse login(String username, String password) {
         var person = personRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("AUTH_FAILED", "Invalid credentials"));
+                .orElseThrow(() -> new AuthenticationException("AUTH_FAILED", "Invalid credentials"));
 
         if (!passwordEncoder.matches(password, person.getPasswordHash())) {
-            throw new NotFoundException("AUTH_FAILED", "Invalid credentials");
+            throw new AuthenticationException("AUTH_FAILED", "Invalid credentials");
         }
 
         String accessToken = jwtTokenProvider.generateToken(person.getId().longValue(), person.getRole());
@@ -95,7 +96,7 @@ public class AuthService {
 
         // Get person details
         var person = personRepository.findById(oldToken.getPersonId())
-                .orElseThrow(() -> new NotFoundException("AUTH_FAILED", "Person not found"));
+                .orElseThrow(() -> new AuthenticationException("AUTH_FAILED", "Person not found"));
 
         // Generate new tokens
         String newAccessToken = jwtTokenProvider.generateToken(person.getId().longValue(), person.getRole());
