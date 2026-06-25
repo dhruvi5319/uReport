@@ -1,0 +1,15 @@
+{
+  "generator_version": "init-dev-server@1",
+  "catalog_entry": "compose",
+  "generated_at": "2026-06-24T19:47:39Z",
+  "inspection_inputs_hash": "145827ecf1a7bc01183f867be93b7e2bd72246e04ad105c87a913679e362d70b",
+  "inspection_inputs": {
+    "matched_globs": [
+      "docker-compose.yml"
+    ],
+    "manifest_signatures": [
+      "docker-compose.yml:services:api,db,mailhog,web"
+    ],
+    "existing_scripts": []
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "changeset": "PLACEHOLDER_DATE",
+  "contact": "PLACEHOLDER_CONTACT",
+  "key_service": "PLACEHOLDER_KEY_SERVICE",
+  "endpoints": [
+    {
+      "specification": "http://wiki.open311.org/GeoReport_v2",
+      "url": "PLACEHOLDER_URL/open311",
+      "changeset": "PLACEHOLDER_DATE",
+      "type": "test",
+      "formats": ["text/json", "text/xml"]
+    }
+  ]
+}

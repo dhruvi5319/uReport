@@ -1,0 +1,11 @@
+[
+  {
+    "service_code": "PLACEHOLDER_CODE",
+    "service_name": "PLACEHOLDER_NAME",
+    "description": "PLACEHOLDER_DESC",
+    "metadata": "false",
+    "type": "realtime",
+    "keywords": "PLACEHOLDER_NAME",
+    "group": null
+  }
+]

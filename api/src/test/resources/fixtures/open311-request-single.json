@@ -1,0 +1,20 @@
+[
+  {
+    "service_request_id": "PLACEHOLDER",
+    "status": "open",
+    "status_notes": null,
+    "service_name": "PLACEHOLDER",
+    "service_code": "PLACEHOLDER",
+    "description": "PLACEHOLDER",
+    "agency_responsible": null,
+    "requested_datetime": "PLACEHOLDER_ISO8601",
+    "updated_datetime": "PLACEHOLDER_ISO8601",
+    "expected_datetime": null,
+    "lat": null,
+    "long": null,
+    "address": null,
+    "address_id": null,
+    "zipcode": null,
+    "media_url": null
+  }
+]
