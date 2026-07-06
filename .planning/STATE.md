@@ -2,16 +2,16 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 02-authentication-security-01-PLAN.md
-last_updated: "2026-07-06T23:33:51.221Z"
-last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
+status: executing
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-07-06T23:38:20.501Z"
+last_activity: "2026-07-06 — Completed 02-01: Spring Security foundation (JWT, SecurityConfig, CSRF)"
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 14
-  completed_plans: 1
-  percent: 7
+  completed_plans: 2
+  percent: 14
 ---
 
 # Project State
@@ -26,29 +26,29 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 2 of 9 (Authentication & Security)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-07-06 — Completed 02-01: Spring Security foundation (JWT, SecurityConfig, CSRF)
+Last activity: 2026-07-06 — Completed 02-02: LDAP auth + AuthController (Person entity, PersonRepository, auth endpoints)
 
-Progress: [█░░░░░░░░░] 7%
+Progress: [██░░░░░░░░] 14%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
-- Average duration: 3 min
-- Total execution time: 0.05 hours
+- Total plans completed: 2
+- Average duration: 2.5 min
+- Total execution time: 0.08 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 02-authentication-security | 1 | 3min | 3min |
+| 02-authentication-security | 2 | 5min | 2.5min |
 
 **Recent Trend:**
 
-- Last 5 plans: 3min
+- Last 5 plans: 3min, 2min
 - Trend: -
 
 *Updated after each plan completion*
@@ -75,6 +75,8 @@ Recent decisions affecting current work:
 - Phase 9: Open311 golden-file tests generated from PHP reference before migration (critical regression guard)
 - [Phase 02-authentication-security]: HS256 JWT in auth_token httpOnly cookie using JJWT 0.12.x API — XSS-safe, stateless auth foundation
 - [Phase 02-authentication-security]: CSRF Double-Submit Cookie (XSRF-TOKEN non-httpOnly + X-XSRF-TOKEN header) via CookieCsrfTokenRepository in Spring Security 6
+- [Phase 02-authentication-security]: PersonMapper ignores expiresAt (not on Person entity) — set explicitly from JWT expiry in controller
+- [Phase 02-authentication-security]: LdapAuthService auto-creates Person with role=staff for new LDAP users — admin role never auto-granted from LDAP
 
 ### Pending Todos
 
@@ -87,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-06T23:33:51.219Z
-Stopped at: Completed 02-authentication-security-01-PLAN.md
+Last session: 2026-07-06T23:38:20.500Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
