@@ -38,6 +38,9 @@ exec > >(tee -a /tmp/pivota-dev.log) 2>&1
 echo "[pivota] $(date -Iseconds) start-dev.sh begin (catalog: compose)"
 
 # === D-11.1 + D-11.2: per-stack 0.0.0.0 binding + host allowlist relaxation ===
+# NOTE: env vars do NOT cover every stack. Vite / webpack-dev-server / Next.js
+# allowedHosts require CLI flags or config-file overlays — those live in
+# EXEC_CMD or PRE_EXEC_SNIPPET below, not here.
 # Compose services control their own bind addresses via the `ports:` block in
 # the compose file — there is no env-var lever the wrapper can pull to force
 # 0.0.0.0 binding for child containers. The wrapper preamble's per-stack env
