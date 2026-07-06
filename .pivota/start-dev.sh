@@ -81,13 +81,13 @@ fi
 # === Optional pre-exec snippet (JDK install, rustup, golang one-shot setup) ===
 # Catalog entries with PRE_EXEC_SNIPPET inject heavyweight one-time installs
 # here. Empty string when not needed.
-# (compose entry: no pre-exec snippet needed)
+# compose entry: no pre-exec snippet required.
 
 # === D-12: idempotent install via lockfile hash + presence check ===
 SENTINEL="/tmp/pivota-setup-sentinel"
 LOCK_FILE_PATH=""
 INSTALL_PRESENCE_CHECK=""
-INSTALL_CMD=''   # single-quoted: catalog must escape internal quotes correctly
+INSTALL_CMD=''   # compose: no install step; docker compose up handles image pulls/builds
 
 run_install() {
   echo "[pivota] running install: $INSTALL_CMD"
