@@ -1,70 +1,62 @@
+version: "3.9"
+
 services:
-  app:
-    build: .
-    container_name: ureport_app
-    ports:
-      - "8080:80"
-    volumes:
-      - .:/var/www/html
-      - ./infra/apache.conf:/etc/apache2/sites-available/000-default.conf
-    depends_on:
-      - db
-      - solr
-    environment:
-      LANG: en_US.UTF-8
-      LC_ALL: en_US.UTF-8
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: ureport
-      DB_PASS: ureport
-      SOLR_HOST: solr
-      SOLR_PORT: 8983
-      SOLR_CORE: ureport
-      INDEX_SCRIPT: crm/scripts/solr/indexSearch.php
-      WAIT_TIMEOUT: 120
-    command: ["./infra/docker-setup.sh", "apache2-foreground"]
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: ureport_phpmyadmin
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: db
-      PMA_USER: ureport
-      PMA_PASSWORD: ureport
-    depends_on:
-      - db
-
+  # --- PostgreSQL 16 ---
   db:
-    image: mariadb:10.4
-    container_name: ureport_db
+    image: postgres:16-alpine
+    container_name: ureport-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ureport
-      MYSQL_USER: ureport
-      MYSQL_PASSWORD: ureport
-    ports:
-      - "3307:3306"
+      POSTGRES_DB: ureport
+      POSTGRES_USER: ureport
+      POSTGRES_PASSWORD: ureport
     volumes:
-      - db_data:/var/lib/mysql
-      - ./crm/scripts/mysql.sql:/docker-entrypoint-initdb.d/01-mysql.sql:ro
-      - ./infra/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ureport_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ureport -d ureport"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
-  solr:
-    image: solr:8.11
-    container_name: ureport_solr
+  # --- Spring Boot API ---
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ureport-api
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      POSTGRES_USER: ureport
+      POSTGRES_PASSWORD: ureport
     ports:
-      - "8983:8983"
-    command:
-      - solr-create
-      - -c
-      - ureport
-      - -d
-      - /opt/solr/server/solr/configsets/ureport
-    volumes:
-      - ./crm/scripts/solr:/opt/solr/server/solr/configsets/ureport/conf
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # --- Nginx / React frontend (placeholder) ---
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ureport-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
 
 volumes:
-  db_data:
+  ureport_data:
+    driver: local
