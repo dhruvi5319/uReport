@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 01-infrastructure-foundation-GAP-01-PLAN.md
-last_updated: "2026-07-06T18:47:41.756Z"
+stopped_at: Completed 01-infrastructure-foundation-GAP-02-PLAN.md
+last_updated: "2026-07-06T23:13:41.795Z"
 last_activity: 2026-07-06 — Phase 1 complete; VERIFICATION.md status=passed
 progress:
   total_phases: 9
   completed_phases: 1
-  total_plans: 8
-  completed_plans: 4
+  total_plans: 16
+  completed_plans: 5
   percent: 14
 ---
 
@@ -59,6 +59,7 @@ Progress: [█░░░░░░░░░] 14%
 | Phase 01-infrastructure-foundation P01 | 2min | 2 tasks | 3 files |
 | Phase 01-infrastructure-foundation P03 | 9 min | 2 tasks | 8 files |
 | Phase 01-infrastructure-foundation PGAP-01 | 2 min | 2 tasks | 2 files |
+| Phase 01-infrastructure-foundation PGAP-02 | 1 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,7 @@ Recent decisions affecting current work:
 - [Phase 01-infrastructure-foundation]: Legacy PHP docker-compose.yml replaced by 3-service Spring Boot stack (db/api/web); Nginx proxy_pass for /api/ and /actuator/ with proper header forwarding
 - [Phase 01-infrastructure-foundation]: Use mvn spring-boot:run instead of docker compose up — K8s sandbox has no Docker daemon
 - [Phase 01-infrastructure-foundation]: DATABASE_URL normalization: platform mysql:// injection → jdbc:postgresql:// via PG* vars or application.yml default
+- [Phase 01-infrastructure-foundation]: DATABASE_URL normalization: mysql:// injection → jdbc:postgresql:// via PG* vars or application.yml default (never passes MySQL URL to org.postgresql.Driver)
 
 ### Pending Todos
 
@@ -90,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-06T18:47:41.754Z
-Stopped at: Completed 01-infrastructure-foundation-GAP-01-PLAN.md
+Last session: 2026-07-06T23:13:41.794Z
+Stopped at: Completed 01-infrastructure-foundation-GAP-02-PLAN.md
 Resume file: None
