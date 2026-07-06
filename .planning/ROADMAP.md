@@ -33,12 +33,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. The `search_vector` tsvector column and GIN index exist on `tickets`; the trigger fires on INSERT/UPDATE
   3. `docker compose up` starts three healthy containers (nginx/web, spring-boot/api, postgres/db) and the health-check endpoint at `/actuator/health` returns `{"status":"UP"}`
   4. Spring Boot connects to PostgreSQL via HikariCP; Flyway migration history is visible in the `flyway_schema_history` table
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: PostgreSQL DDL — Flyway V1 initial schema (all 18 tables, snake_case columns, constraints, indexes, seed data)
-- [ ] 01-02: PostgreSQL FTS — Flyway V2 search_vector column, GIN index, trigger
-- [ ] 01-03: Spring Boot project skeleton — Spring Boot 3.x, Spring Data JPA, Flyway, HikariCP, application.yml, Docker Compose three-container setup
+- [ ] 01-01-PLAN.md — Flyway V1 initial schema (all 21 tables, snake_case columns, constraints, indexes, seed data) + V1SchemaIT integration test
+- [ ] 01-02-PLAN.md — Flyway V2 search_vector TSVECTOR column, GIN index, trigger function + V2SearchVectorIT integration test
+- [ ] 01-03-PLAN.md — Spring Boot 3.x Maven skeleton (pom.xml, UReportApplication, application.yml) + Docker Compose three-container setup (db/api/web)
 
 ### Phase 2: Authentication & Security
 **Goal**: Staff can authenticate via LDAP or CAS, receive a JWT, and the API enforces route-level authorization for public, staff, and admin routes
@@ -187,7 +187,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure Foundation | 0/3 | Not started | - |
+| 1. Infrastructure Foundation | 0/3 | Planned | - |
 | 2. Authentication & Security | 0/4 | Not started | - |
 | 3. Open311 / GeoReport v2 API | 0/3 | Not started | - |
 | 4. Core Case Management Backend | 0/4 | Not started | - |
