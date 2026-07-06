@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Infrastructure Foundation
-**Status**: In Progress
+**Status**: executing
 **Goal**: The full PostgreSQL schema exists, migrations run cleanly, all three containers start, and the Spring Boot app connects to the database
 **Depends on**: Nothing (first phase)
 **Requirements**: F21, DB-01, ARCH-02
@@ -69,12 +69,12 @@ Plans:
   3. `POST /open311/v2/requests` with a valid `api_key` creates a ticket and returns the new `service_request_id`; a missing or invalid api_key returns 403
   4. `GET /open311/v2/requests/{id}` returns a single service request object or 404 if not found
   5. All Open311 endpoints are documented in the OpenAPI spec at `/v3/api-docs` and browsable at `/swagger-ui.html`
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Open311 service controller — GET /services, GET /services/{code}, content negotiation (JSON/XML/HTML), obsolete API key handling
-- [ ] 03-02: Open311 request controller — GET /requests (filters), GET /requests/{id}, POST /requests (api_key validation, field translation, media attach)
-- [ ] 03-03: OpenAPI/Swagger integration — springdoc-openapi, all controller annotations, JWT Bearer scheme, Open311 field descriptions
+- [ ] 03-01-PLAN.md — Open311 services controller: Category/CategoryGroup/Department JPA entities, Open311ServiceDto, Open311ServiceService (obsolete key handling), GET /services + GET /services/{code} with JSON/XML content negotiation
+- [ ] 03-02-PLAN.md — Open311 requests controller: Ticket/TicketHistory/Media/Client JPA entities, Open311ServiceRequestDto (all 18 GeoReport v2 fields), Open311RequestService (filters, api_key validation, field mapping), GET/POST /requests + GET /requests/{id}
+- [ ] 03-03-PLAN.md — OpenAPI/Swagger integration + golden-file tests: OpenApiConfig (JWT Bearer scheme), @Operation/@ApiResponse annotations on all 5 endpoints, Open311GoldenFileIT shape/content-negotiation tests
 
 ### Phase 4: Core Case Management Backend
 **Goal**: The Spring Boot API supports the full ticket lifecycle — create, assign, update, close, reopen, bulk operations, action logging, and media upload — with all business rules preserved
