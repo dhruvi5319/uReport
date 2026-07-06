@@ -2,15 +2,15 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 01-infrastructure-foundation-02-PLAN.md
-last_updated: "2026-07-06T17:43:17.333Z"
-last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
+status: executing
+stopped_at: Completed 01-infrastructure-foundation-01-PLAN.md
+last_updated: "2026-07-06T17:44:11.869Z"
+last_activity: 2026-07-06 — Completed plan 01-02 (V2 FTS migration + integration test)
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
   percent: 14
 ---
 
@@ -56,6 +56,7 @@ Progress: [█░░░░░░░░░] 14%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01-infrastructure-foundation P02 | 2 min | 2 tasks | 2 files |
+| Phase 01-infrastructure-foundation P01 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Recent decisions affecting current work:
 - Phase 3: Open311 controller shares service/repository layer with internal CRM; content negotiation via Accept header or format param
 - Phase 9: Open311 golden-file tests generated from PHP reference before migration (critical regression guard)
 - [Phase 01-infrastructure-foundation]: V2 trigger: weighted tsvector (A=id, B=description+location, C=reporter+category) matches TechArch spec verbatim
+- [Phase 01-infrastructure-foundation]: Flyway V1: 21 tables with SERIAL PKs, BOOLEAN types (DB-01), TIMESTAMPTZ, snake_case columns; forward-declare pattern resolves departments↔people circular FK
 
 ### Pending Todos
 
@@ -82,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-06T17:43:17.332Z
-Stopped at: Completed 01-infrastructure-foundation-02-PLAN.md
+Last session: 2026-07-06T17:44:11.867Z
+Stopped at: Completed 01-infrastructure-foundation-01-PLAN.md
 Resume file: None
