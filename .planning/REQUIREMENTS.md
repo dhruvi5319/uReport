@@ -100,52 +100,56 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Updated during roadmap creation.
+Updated during roadmap creation (2026-07-06).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| F21 (DB Migration) | Phase 1 | Pending |
-| DB-01 | Phase 1 | Pending |
-| DB-02 | Phase 1 | Pending |
-| F12 (Auth) | Phase 2 | Pending |
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| F0 (Open311 API) | Phase 3 | Pending |
-| API-01 (Context switching) | Phase 3 | Pending |
-| F20 (OpenAPI docs) | Phase 3 | Pending |
-| F1 (Case lifecycle) | Phase 4 | Pending |
-| F9 (Action logging) | Phase 4 | Pending |
-| F10 (Media upload) | Phase 4 | Pending |
-| F14 (Client management) | Phase 4 | Pending |
-| CASE-01 (Business rules) | Phase 4 | Pending |
-| F6 (People mgmt) | Phase 5 | Pending |
-| F7 (Dept mgmt) | Phase 5 | Pending |
-| F8 (Category mgmt) | Phase 5 | Pending |
-| F13 (Admin panels backend) | Phase 5 | Pending |
-| F11 (Full-text search) | Phase 6 | Pending |
-| SEARCH-01 (Bookmarks) | Phase 6 | Pending |
-| F16 (Geo-clustering) | Phase 6 | Pending |
-| F15 (Metrics) | Phase 6 | Pending |
-| F17 (Design system) | Phase 7 | Pending |
-| F18 (Navigation shell) | Phase 7 | Pending |
-| F19 (Accessibility) | Phase 7 | Pending |
-| ANIM-01 (Animations) | Phase 7 | Pending |
-| RESP-01 (Responsive) | Phase 7 | Pending |
-| F5 (Dashboard) | Phase 8 | Pending |
-| F3 (Case list) | Phase 8 | Pending |
-| F4 (Case detail) | Phase 8 | Pending |
-| F2 (Submission form) | Phase 8 | Pending |
-| ADMIN-01 (Admin panels UI) | Phase 9 | Pending |
-| SEARCH-02 (Search UI) | Phase 9 | Pending |
-| AUTH-03 (Auth screens) | Phase 9 | Pending |
-| ARCH-01 (Spring Boot + JPA) | Phase 2 | Pending |
-| ARCH-02 (Docker Compose) | Phase 1 | Pending |
+| F21 (DB Migration — Flyway) | Phase 1 — Infrastructure Foundation | Pending |
+| DB-01 (MySQL→PostgreSQL type mapping) | Phase 1 — Infrastructure Foundation | Pending |
+| ARCH-02 (Docker Compose) | Phase 1 — Infrastructure Foundation | Pending |
+| F12 (LDAP/CAS Auth + JWT) | Phase 2 — Authentication & Security | Pending |
+| AUTH-01 (JWT issuance, refresh, logout) | Phase 2 — Authentication & Security | Pending |
+| AUTH-02 (Route-level authorization) | Phase 2 — Authentication & Security | Pending |
+| ARCH-01 (Spring Boot + JPA + MapStruct) | Phase 2 — Authentication & Security | Pending |
+| F0 (Open311 / GeoReport v2 API) | Phase 3 — Open311 / GeoReport v2 API | Pending |
+| API-01 (Content negotiation JSON/XML/HTML) | Phase 3 — Open311 / GeoReport v2 API | Pending |
+| F20 (OpenAPI/Swagger documentation) | Phase 3 — Open311 / GeoReport v2 API | Pending |
+| F1 (Case lifecycle — create/assign/close/reopen) | Phase 4 — Core Case Management Backend | Pending |
+| F9 (Action/response logging + email notifications) | Phase 4 — Core Case Management Backend | Pending |
+| F10 (Media/photo upload) | Phase 4 — Core Case Management Backend | Pending |
+| F14 (Open311 client/API key management) | Phase 4 — Core Case Management Backend | Pending |
+| CASE-01 (CRM business rules — SLA, substatus, routing) | Phase 4 — Core Case Management Backend | Pending |
+| F6 (People management) | Phase 5 — Admin Configuration Backend | Pending |
+| F7 (Department management) | Phase 5 — Admin Configuration Backend | Pending |
+| F8 (Category & category group management) | Phase 5 — Admin Configuration Backend | Pending |
+| F13 (Admin panels — substatus, issue types, templates, contact methods) | Phase 5 — Admin Configuration Backend | Pending |
+| F11 (PostgreSQL full-text search — Solr replacement) | Phase 6 — Search, Geo & Metrics Backend | Pending |
+| SEARCH-01 (Bookmark/saved search) | Phase 6 — Search, Geo & Metrics Backend | Pending |
+| F16 (Geo-clustering for map views) | Phase 6 — Search, Geo & Metrics Backend | Pending |
+| F15 (Metrics and reporting) | Phase 6 — Search, Geo & Metrics Backend | Pending |
+| DB-02 (tsvector/tsquery + GIN indexes) | Phase 6 — Search, Geo & Metrics Backend | Pending |
+| F17 (Design system — Tailwind, shadcn/ui, design tokens) | Phase 7 — React Design System & Shell | Pending |
+| F18 (Navigation shell — navbar, sidebar, breadcrumbs) | Phase 7 — React Design System & Shell | Pending |
+| F19 (WCAG 2.1 AA + Section 508 accessibility) | Phase 7 — React Design System & Shell | Pending |
+| ANIM-01 (Framer Motion animations ≤300ms) | Phase 7 — React Design System & Shell | Pending |
+| RESP-01 (Responsive design 375/768/1280px) | Phase 7 — React Design System & Shell | Pending |
+| F5 (Dashboard) | Phase 8 — Core Frontend Screens | Pending |
+| F3 (Case list with search/filter/sort) | Phase 8 — Core Frontend Screens | Pending |
+| F4 (Case detail view) | Phase 8 — Core Frontend Screens | Pending |
+| F2 (Public case submission form) | Phase 8 — Core Frontend Screens | Pending |
+| ADMIN-01 (Admin panels UI — inline editing, toasts, dialogs) | Phase 9 — Admin Panels & Integration | Pending |
+| SEARCH-02 (Search UI — live search, highlights, filter chips) | Phase 9 — Admin Panels & Integration | Pending |
+| AUTH-03 (Auth screens — branded LDAP/CAS login) | Phase 9 — Admin Panels & Integration | Pending |
 
 **Coverage:**
 - v1 requirements: 36 total
 - Mapped to phases: 36
 - Unmapped: 0 ✓
 
+Note: DB-02 (tsvector/GIN indexes) is addressed in two phases:
+- Flyway V2 migration script created in Phase 1 (schema only)
+- SearchService implementation and FTS endpoints delivered in Phase 6
+
 ---
 *Requirements defined: 2026-07-06*
-*Last updated: 2026-07-06 after initial definition*
+*Last updated: 2026-07-06 after roadmap creation*
