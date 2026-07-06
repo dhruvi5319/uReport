@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Infrastructure Foundation
-**Status**: In Progress
+**Status**: executing
 **Goal**: The full PostgreSQL schema exists, migrations run cleanly, all three containers start, and the Spring Boot app connects to the database
 **Depends on**: Nothing (first phase)
 **Requirements**: F21, DB-01, ARCH-02
@@ -51,13 +51,13 @@ Plans:
   3. A valid JWT cookie grants access to protected `/api/*` endpoints; an expired or missing cookie returns 401
   4. Public routes (`/submit`, `GET /open311/*`) return data without a JWT; admin-only routes return 403 for staff-role JWT
   5. `POST /api/auth/refresh` issues a new JWT before expiry; `POST /api/auth/logout` invalidates the session
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: Spring Security config — JWT filter chain, CORS, httpOnly cookie strategy, SecurityConfig
-- [ ] 02-02: LDAP auth provider — LdapConfig, AuthController `/api/auth/ldap`, JwtService sign/validate
-- [ ] 02-03: CAS auth provider — CasConfig, CasCallbackController, callback flow, logout/single sign-out
-- [ ] 02-04: Route authorization — public vs. staff vs. admin path matchers, AUTH-02 rules, MapStruct DTOs, ARCH-01 Spring Data JPA wiring
+- [ ] 02-01-PLAN.md — Spring Security config + JWT filter chain (JwtService, JwtAuthFilter, SecurityConfig, CSRF double-submit, CORS)
+- [ ] 02-02-PLAN.md — LDAP auth provider + AuthController (Person entity, PersonRepository, LdapAuthService, POST /api/auth/ldap, GET /api/auth/me, POST /api/auth/refresh, POST /api/auth/logout)
+- [ ] 02-03-PLAN.md — CAS auth provider (CasAuthService ticket validation, CasAuthController GET /auth/cas + GET /auth/cas/callback, CAS XML parsing, unit tests)
+- [ ] 02-04-PLAN.md — Route authorization enforcement + integration tests (RoleHierarchyConfig ADMIN>STAFF>PUBLIC, AuthorizationIT covering all TechArch §5.4 rules)
 
 ### Phase 3: Open311 / GeoReport v2 API
 **Goal**: All four frozen Open311 endpoints return byte-compatible responses to the existing PHP implementation, with correct content negotiation and API key validation
