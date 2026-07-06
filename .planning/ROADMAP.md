@@ -12,7 +12,7 @@ The modernization replaces a PHP/MySQL/Solr stack with React + Java Spring Boot 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Infrastructure Foundation** - PostgreSQL schema via Flyway, Docker Compose three-container setup, Spring Boot skeleton
+- [x] **Phase 1: Infrastructure Foundation** - PostgreSQL schema via Flyway, Docker Compose three-container setup, Spring Boot skeleton
 - [ ] **Phase 2: Authentication & Security** - LDAP/CAS + JWT auth, Spring Security, route-level authorization
 - [ ] **Phase 3: Open311 / GeoReport v2 API** - All four frozen endpoints with content negotiation, API key auth, OpenAPI docs
 - [ ] **Phase 4: Core Case Management Backend** - Full ticket lifecycle, action logging, media upload, business rules
@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Infrastructure Foundation
-**Status**: In Progress
+**Status**: Complete
 **Goal**: The full PostgreSQL schema exists, migrations run cleanly, all three containers start, and the Spring Boot app connects to the database
 **Depends on**: Nothing (first phase)
 **Requirements**: F21, DB-01, ARCH-02
@@ -37,9 +37,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Flyway V1 initial schema (all 21 tables, snake_case columns, constraints, indexes, seed data) + V1SchemaIT integration test
-- [ ] 01-02-PLAN.md — Flyway V2 search_vector TSVECTOR column, GIN index, trigger function + V2SearchVectorIT integration test
-- [ ] 01-03-PLAN.md — Spring Boot 3.x Maven skeleton (pom.xml, UReportApplication, application.yml) + Docker Compose three-container setup (db/api/web)
+- [x] 01-01-PLAN.md — Flyway V1 initial schema (all 21 tables, snake_case columns, constraints, indexes, seed data) + V1SchemaIT integration test
+- [x] 01-02-PLAN.md — Flyway V2 search_vector TSVECTOR column, GIN index, trigger function + V2SearchVectorIT integration test
+- [x] 01-03-PLAN.md — Spring Boot 3.x Maven skeleton (pom.xml, UReportApplication, application.yml) + Docker Compose three-container setup (db/api/web)
 
 ### Phase 2: Authentication & Security
 **Goal**: Staff can authenticate via LDAP or CAS, receive a JWT, and the API enforces route-level authorization for public, staff, and admin routes
@@ -188,7 +188,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure Foundation | 0/3 | Planned | - |
+| 1. Infrastructure Foundation | 3/3 | Complete | 2026-07-06 |
 | 2. Authentication & Security | 0/4 | Not started | - |
 | 3. Open311 / GeoReport v2 API | 0/3 | Not started | - |
 | 4. Core Case Management Backend | 0/4 | Not started | - |
