@@ -147,6 +147,18 @@ None - no external service configuration required.
 - Ready for Phase 2 Plan 03: CAS authentication integration (02-03)
 - SecurityContextHolder populated with CustomUserDetails — downstream controllers can use `@AuthenticationPrincipal CustomUserDetails user` pattern
 
+## Self-Check: PASSED
+
+- ✅ `backend/src/main/java/com/ureport/security/JwtService.java` — exists
+- ✅ `backend/src/main/java/com/ureport/security/SecurityConfig.java` — exists
+- ✅ `backend/src/main/java/com/ureport/security/JwtAuthFilter.java` — exists
+- ✅ `backend/src/main/java/com/ureport/security/CustomUserDetails.java` — exists
+- ✅ `backend/src/test/java/com/ureport/security/SecurityConfigTest.java` — exists
+- ✅ `backend/pom.xml` — exists
+- ✅ Commit `19d2cc3` — feat(02-01): Task 1
+- ✅ Commit `3ad1d8b` — feat(02-01): Task 2
+- ✅ Commit `caba623` — docs(02-01): metadata
+
 ---
 *Phase: 02-authentication-security*
 *Completed: 2026-07-06*
