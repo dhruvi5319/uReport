@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/ureport
+    username: ${POSTGRES_USER:ureport}
+    password: ${POSTGRES_PASSWORD:ureport}
