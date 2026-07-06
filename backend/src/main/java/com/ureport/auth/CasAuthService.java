@@ -3,6 +3,7 @@ package com.ureport.auth;
 import com.ureport.domain.Person;
 import com.ureport.domain.PersonRepository;
 import com.ureport.security.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +29,7 @@ public class CasAuthService {
     @Value("${cas.service-url:https://ureport.city.gov}")
     private String casServiceUrl;
 
+    @Autowired
     public CasAuthService(JwtService jwtService, PersonRepository personRepository) {
         this.jwtService = jwtService;
         this.personRepository = personRepository;

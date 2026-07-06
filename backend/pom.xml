@@ -136,6 +136,19 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <!-- Include *IT.java tests in the standard test lifecycle -->
+            <!-- Maven Surefire excludes *IT.java by default (reserved for Failsafe). -->
+            <!-- Since we use @SpringBootTest + MockMvc (not full server), Surefire handles these. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
