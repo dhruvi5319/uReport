@@ -81,7 +81,7 @@ fi
 # === Optional pre-exec snippet (JDK install, rustup, golang one-shot setup) ===
 # Catalog entries with PRE_EXEC_SNIPPET inject heavyweight one-time installs
 # here. Empty string when not needed.
-# (no pre-exec snippet for compose entry)
+# (compose entry: no pre-exec snippet needed)
 
 # === D-12: idempotent install via lockfile hash + presence check ===
 SENTINEL="/tmp/pivota-setup-sentinel"
