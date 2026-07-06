@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 01-infrastructure-foundation
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md]
 started: 2026-07-06T18:17:58Z
-updated: 2026-07-06T18:22:10Z
+updated: 2026-07-06T18:25:00Z
 ---
 
 ## Current Test
@@ -58,7 +58,15 @@ skipped: 5
   reason: "User reported: It failed. Don't use docker in dev start script"
   severity: major
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Daytona K8s sandbox has no Docker daemon — `docker compose up` fails unconditionally. The .pivota/start-dev.sh was generated with catalog_entry=compose because docker-compose.yml exists, but this is the wrong exec strategy for a no-Docker sandbox. The correct approach is to run Spring Boot directly via Maven (`mvn spring-boot:run` in backend/), relying on the platform-injected DATABASE_URL for PostgreSQL."
+  artifacts:
+    - path: ".pivota/start-dev.sh"
+      issue: "EXEC_CMD='docker compose up' — requires Docker daemon which is absent in Daytona K8s; should use mvn spring-boot:run in backend/ instead"
+    - path: ".pivota/dev-script.meta.json"
+      issue: "catalog_entry=compose is wrong for this environment; should be agent-synthesized (java-spring without mvnw)"
+  missing:
+    - "Replace EXEC_CMD with Maven-based Spring Boot launch in backend/ directory"
+    - "Add PRE_EXEC_SNIPPET to install Java 21 + Maven via apt-get (not on PATH by default)"
+    - "Ensure DATABASE_URL env var points to a valid jdbc:postgresql:// URL (platform may inject mysql:// scheme)"
+    - "Update dev-script.meta.json catalog_entry from compose to null (agent-synthesized)"
+  debug_session: ".planning/debug/docker-compose-dev-script.md"
