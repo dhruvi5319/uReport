@@ -1,20 +1,20 @@
 {
   "generator_version": "init-dev-server@1",
   "catalog_entry": null,
-  "generated_at": "2026-07-06T18:46:22Z",
-  "inspection_inputs_hash": "b34f21bf1f38973b65b182c32fcb6a53e14350ce1419c7003ca11731680ab2d6",
+  "generated_at": "2026-07-06T19:26:03Z",
+  "inspection_inputs_hash": "51f7d01ea4515c0c8e5c86360fa8868ed69896c98ae1222bb5b23e3dda3fcb7a",
   "inspection_inputs": {
     "matched_globs": [
       "backend/pom.xml",
+      "crm/Makefile",
       "docker-compose.yml"
     ],
     "manifest_signatures": [
-      "backend/pom.xml:groupId=com.ureport:artifactId=ureport-api:java.version=21",
+      "backend/pom.xml:dep:org.flywaydb:flyway-core@10.15.0",
+      "backend/pom.xml:dep:org.springframework.boot:spring-boot-starter-parent@3.3.0",
+      "crm/composer.json:dep:php>=8.5",
       "docker-compose.yml:services:api,db,web"
     ],
-    "existing_scripts": [
-      ".pivota/start-dev.sh"
-    ]
-  },
-  "agent_synthesis_reason": "No mvnw wrapper present in backend/; catalog compose entry requires Docker daemon absent in Daytona K8s sandbox. Agent chose java-spring-direct strategy: mvn spring-boot:run with apt-get Java 21 + Maven pre-exec."
+    "existing_scripts": []
+  }
 }
