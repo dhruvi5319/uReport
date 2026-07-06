@@ -303,6 +303,8 @@ The case list at `/cases` is the primary staff workspace — a sortable, filtera
 - [ ] `start_date` must be ≤ `end_date` when both are provided; inline error shown otherwise
 - [ ] Filter changes take effect immediately (no "Apply" button needed)
 - [ ] Status badge pills are color-coded: open=blue, closed-resolved=green, closed-duplicate=gray, closed-bogus=red, closed-other=purple
+- [ ] Open tickets that have exceeded their category's `slaDays` threshold display a red "Overdue" badge in the case list row; the badge shows the number of elapsed days (e.g., "12 days") visible without opening the record
+- [ ] Tickets in categories with no `slaDays` configured do not display an overdue badge
 
 **Priority:** P0 | **Feature Ref:** F3
 
@@ -455,6 +457,8 @@ The dashboard at `/dashboard` is the landing screen for authenticated staff, pro
 - [ ] Each card is a link: clicking it navigates to `/cases` with the corresponding filter pre-applied
 - [ ] All stat cards load within ≤ 2 seconds
 - [ ] On API failure, card shows "—" with a retry icon
+- [ ] For users with a department assignment (e.g., `staff` role with a department), all four stat cards are scoped to show counts for that department only; system-wide totals are shown for `admin` role users without a department scope
+- [ ] The "Overdue" stat card link navigates to `/cases` pre-filtered to overdue cases for the current user's department (where applicable) — no additional manual filter setup is required
 
 **Priority:** P1 | **Feature Ref:** F5
 
@@ -692,6 +696,8 @@ Every significant event on a ticket is recorded as an immutable `ticket_history`
 - [ ] `sentNotifications` JSON field on the history entry records all email addresses actually notified
 - [ ] Email delivery failure is non-fatal: history entry is saved regardless; toast "Email notification failed to send" warns the user
 - [ ] Email is delivered via configured SMTP server (host/port/credentials in Spring Boot app config)
+- [ ] When a ticket is created via the public submission form and the reporter provided an email address, an acknowledgment email containing the case ID is sent within 2 minutes of successful submission (JTBD-04.3 success measure)
+- [ ] The acknowledgment email for public submissions uses the subject "[uReport] Your report has been received — Case #{id}" and includes the case ID prominently in the body
 
 **Priority:** P0 | **Feature Ref:** F9
 
@@ -862,6 +868,7 @@ Staff authenticate via LDAP or CAS. Spring Security issues a JWT stored in an ht
 - [ ] JWT is issued: `{sub, role, personId, exp}` and set as an httpOnly, SameSite=Strict cookie named `auth_token`
 - [ ] Browser is redirected to `returnTo` path (or `/dashboard` if none)
 - [ ] React loads current user from `GET /api/auth/me` to confirm authentication
+- [ ] When no `returnTo` path is present and the authenticated user has a department assignment, the dashboard stat cards and the "All Open Cases" quick-link navigate to case views pre-filtered to that user's department (the department filter preference is persisted in the session)
 
 **Priority:** P0 | **Feature Ref:** F12
 
@@ -875,7 +882,7 @@ Staff authenticate via LDAP or CAS. Spring Security issues a JWT stored in an ht
 - [ ] Submitting credentials via `POST /api/auth/ldap` (JSON body) triggers Spring Security LDAP bind
 - [ ] Successful bind creates/looks up `people` record by username; issues JWT httpOnly cookie
 - [ ] Response body returns `{personId, role, name}` — JWT is in cookie only, not response body (XSS mitigation)
-- [ ] React redirects to `returnTo` path after successful login
+- [ ] React redirects to `returnTo` path after successful login; same department-scoped view behavior as CAS login applies
 - [ ] Failed LDAP bind (wrong password/unknown user) shows error state on login screen
 - [ ] LDAP and CAS are independently configurable per deployment
 
@@ -1008,9 +1015,12 @@ External Open311 clients (mobile apps, aggregators) are registered in the system
 - [ ] An admin panel (within `/admin`) lists all registered Open311 clients with name, URL, contact person, and Actions (Edit / Delete)
 - [ ] "New Client" button opens a form: client name (required), client URL (optional), contact person (search/select from people), contact method (dropdown)
 - [ ] On save: `POST /api/clients` creates the record and auto-generates a UUID API key
-- [ ] The generated API key is displayed after creation so it can be copied and shared
+- [ ] The generated API key is displayed once on the post-creation confirmation screen in a copyable text input, accompanied by a clear "Shown only once — copy now" label
+- [ ] Navigating away from the confirmation screen does not show the full key again (subsequent view in edit form masks the key or shows a truncated prefix only)
+- [ ] The confirmation screen includes a "Copy" button that copies the key to the clipboard
 - [ ] Toast "Client registered"; list refreshes
 - [ ] API key is validated by Spring Security filter for `POST /open311/v2/requests`
+- [ ] The new API key is active immediately for `POST /open311/v2/requests` without requiring a service restart
 
 **Priority:** P1 | **Feature Ref:** F14
 

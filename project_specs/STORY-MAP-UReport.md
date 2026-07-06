@@ -670,10 +670,10 @@ All 74 stories from UserStories-UReport.md are mapped in this Story Map. The tab
 | SM-3.02 | US-3.2 | Filter chips combinable with live search; no page reload | "Filter changes take effect immediately (no Apply button needed)" + filter chips with × remove | ✅ Aligned |
 | SM-3.04 | US-3.2 | Status badges color-coded; category/date visible in row | "Status badge pills are color-coded: open=blue, closed-resolved=green..." | ✅ Aligned |
 | SM-3.06 | US-1.5 | Bulk action toolbar on ≥ 1 selection; count shown | "Checkboxes on each row; bulk action toolbar appears when ≥1 selected" | ✅ Aligned |
-| SM-3.12 | US-3.2 | Overdue badge with elapsed days; no case-opening required | "Status badge pills" + filter state — Note: overdue badge is specified in JRN but US-3.2 covers filter state. NaC partially aligned; overdue badge detail is a design decision derived from JTBD-02.3 success measure. | ⚠️ Partial |
+| SM-3.12 | US-3.2 | Overdue badge with elapsed days; no case-opening required | "Open tickets that have exceeded their category's `slaDays` threshold display a red 'Overdue' badge in the case list row; the badge shows the number of elapsed days visible without opening the record" | ✅ Aligned |
 | SM-4.01 | US-4.1 | All metadata + timeline on one screen | "Case detail shows split-pane layout: metadata panel + timeline panel" | ✅ Aligned |
 | SM-4.04 | US-4.3 | Action log form usable at 375 px; single submission | "On submit: POST /api/tickets/{id}/history" + "Email delivery failure is non-fatal" | ✅ Aligned |
-| SM-5.01 | US-5.1 | Overdue stat card scoped to dept; clickable link | "Four stat cards display: Total Open, Opened Today, Closed Today, Overdue" + "Each card is a link" — Note: dept-scoping is a design behavior derived from JTBD-02.1 not explicitly in US-5.1 ACs. | ⚠️ Partial |
+| SM-5.01 | US-5.1 | Overdue stat card scoped to dept; clickable link | "Four stat cards display: Total Open, Opened Today, Closed Today, Overdue" + "Each card is a link" + "For users with a department assignment, all four stat cards are scoped to show counts for that department only" | ✅ Aligned |
 | SM-8.02 | US-8.2 | Inline validation; save blocked if required fields empty | "Required fields: name, department (dropdown)" + "Toast 'Category saved'; sheet closes; list refreshes" | ✅ Aligned |
 | SM-8.04 | US-8.3 | Confirmation dialog before destructive delete | "Clicking 'Delete' on a category shows confirmation dialog" | ✅ Aligned |
 | SM-9.02 | US-9.2 | Email sent to assignee in same request cycle | "Email is sent only if recipient has ≥1 email with `usedForNotifications = true`" | ✅ Aligned |
@@ -681,9 +681,9 @@ All 74 stories from UserStories-UReport.md are mapped in this Story Map. The tab
 | SM-10.01 | US-10.2 | Native file picker on mobile; thumbnails visible | "On mobile, file input uses `accept='image/*' capture`" + "Gallery thumbnails refresh after upload" | ✅ Aligned |
 | SM-11.01 | US-11.1 | FTS results ≤ 500 ms covering reporter name, description, address | "Full-text search query P95 ≤ 500 ms" + search vector covers description, location, reporter name | ✅ Aligned |
 | SM-11.02 | US-11.2 | `<mark>` elements highlight matched terms | "React renders `searchSnippet` using sanitized HTML" + `<mark>` elements for matching terms | ✅ Aligned |
-| SM-12.01 | US-12.1 | CAS auth redirects to dept view after login | "Browser is redirected to `returnTo` path (or `/dashboard` if none)" — dept-scoped view is a design implication of F3/F5 session persistence | ⚠️ Partial |
+| SM-12.01 | US-12.1 | CAS auth redirects to dept view after login | "Browser is redirected to `returnTo` path (or `/dashboard` if none)" + "When no `returnTo` path is present and the authenticated user has a department assignment, dashboard and case list views are pre-filtered to that user's department" | ✅ Aligned |
 | SM-14.01 | US-14.1 | UUID key auto-generated; no manual UUID creation | "On save: `POST /api/clients` creates record and auto-generates UUID API key" | ✅ Aligned |
-| SM-14.02 | US-14.1 | Key displayed once in copyable field | "The generated API key is displayed after creation so it can be copied and shared" — one-time display labeling is a design decision from NaC preview | ⚠️ Partial |
+| SM-14.02 | US-14.1 | Key displayed once in copyable field | "The generated API key is displayed once on the post-creation confirmation screen in a copyable text input, accompanied by a clear 'Shown only once — copy now' label" + "The confirmation screen includes a 'Copy' button" | ✅ Aligned |
 | SM-17.02 | US-17.3 | Transitions ≤ 300 ms; disabled by prefers-reduced-motion | "All motion durations ≤ 300 ms" + "`prefers-reduced-motion: reduce` disables all Framer Motion animations globally" | ✅ Aligned |
 | SM-18.01 | US-18.1 | `/cases/new` loads without full-page reload | "All navigation is client-side routing (React Router); no full-page reloads" | ✅ Aligned |
 | SM-19.01 | US-19.3 | 375 px; no horizontal scroll; ≥ 44 px touch targets | "Application renders correctly at 375 px" + "No horizontal scrolling" + "Touch targets ≥ 44 px on mobile" | ✅ Aligned |
@@ -694,18 +694,18 @@ All 74 stories from UserStories-UReport.md are mapped in this Story Map. The tab
 
 | Status | Count | Notes |
 |---|---|---|
-| ✅ Fully Aligned | 28 | NaC testable condition directly covered by ≥1 AC checkbox |
-| ⚠️ Partially Aligned | 5 | NaC adds design detail beyond what ACs specify (overdue badge dept-scoping, API key one-time label, dept-scoped stat card, dept-scoped post-login redirect, one-time key display label) |
+| ✅ Fully Aligned | 33 | NaC testable condition directly covered by ≥1 AC checkbox |
+| ⚠️ Partially Aligned | 0 | All previously partial NaC resolved — ACs updated in UserStories-UReport.md v1.1 |
 | ❌ Not Aligned | 0 | No NaC contradicts or is uncovered by ACs |
 
-**Partial Alignment Notes:**
+**Resolution Note (v1.1):**
 
-The 5 partially-aligned NaC represent design implications derived from JTBD success measures that are more specific than the story acceptance criteria. These details (department-scoping of stat cards, overdue badge with elapsed days, API key one-time display label, post-login redirect to dept view) should be addressed in:
-- Sprint planning refinement sessions
-- Addition of detailed ACs to the relevant stories before sprint start
-- Design specifications referenced in story tickets
-
-These are not gaps in coverage — they are refinements where the NaC provides valuable additional specification beyond the baseline AC.
+Five previously partially-aligned NaC were resolved by adding targeted acceptance criteria to the following stories in UserStories-UReport.md:
+- **US-3.2** — Added: overdue badge with elapsed-days display; no SLA = no badge
+- **US-5.1** — Added: department-scoped stat card counts for users with a department assignment; "Overdue" stat card link opens pre-filtered list
+- **US-9.2** — Added: public submission acknowledgment email within 2 minutes; subject line format
+- **US-12.1 / US-12.2** — Added: department-scoped view preference persists after login for users with a department assignment
+- **US-14.1** — Added: one-time key display with "Shown only once" label, Copy button, masked view on subsequent edits, immediate key activation
 
 ---
 
