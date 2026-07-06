@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-07-06T23:38:20.501Z"
-last_activity: "2026-07-06 — Completed 02-01: Spring Security foundation (JWT, SecurityConfig, CSRF)"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-07-06T23:42:05.702Z"
+last_activity: "2026-07-06 — Completed 02-02: LDAP auth + AuthController (Person entity, PersonRepository, auth endpoints)"
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 14
-  completed_plans: 2
-  percent: 14
+  completed_plans: 3
+  percent: 21
 ---
 
 # Project State
@@ -26,30 +26,30 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 2 of 9 (Authentication & Security)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-07-06 — Completed 02-02: LDAP auth + AuthController (Person entity, PersonRepository, auth endpoints)
+Last activity: 2026-07-06 — Completed 02-03: CAS auth (CasAuthService, CasAuthController, 5 unit tests)
 
-Progress: [██░░░░░░░░] 14%
+Progress: [███░░░░░░░] 21%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 2
-- Average duration: 2.5 min
-- Total execution time: 0.08 hours
+- Total plans completed: 3
+- Average duration: 2.3 min
+- Total execution time: 0.12 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 02-authentication-security | 2 | 5min | 2.5min |
+| 02-authentication-security | 3 | 7min | 2.3min |
 
 **Recent Trend:**
 
-- Last 5 plans: 3min, 2min
-- Trend: -
+- Last 5 plans: 3min, 2min, 2min
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -77,6 +77,8 @@ Recent decisions affecting current work:
 - [Phase 02-authentication-security]: CSRF Double-Submit Cookie (XSRF-TOKEN non-httpOnly + X-XSRF-TOKEN header) via CookieCsrfTokenRepository in Spring Security 6
 - [Phase 02-authentication-security]: PersonMapper ignores expiresAt (not on Person entity) — set explicitly from JWT expiry in controller
 - [Phase 02-authentication-security]: LdapAuthService auto-creates Person with role=staff for new LDAP users — admin role never auto-granted from LDAP
+- [Phase 02-authentication-security]: XXE prevention via DocumentBuilderFactory.setFeature() (disallow-doctype-decl + external entities disabled) — mitigates T-02-14 CAS XML injection
+- [Phase 02-authentication-security]: CAS auto-creates Person with role=staff on first login — admin role never auto-granted from external auth providers
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-06T23:38:20.500Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-07-06T23:42:05.701Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
