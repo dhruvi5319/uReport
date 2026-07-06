@@ -87,13 +87,13 @@ Plans:
   4. An action/response can be logged on any ticket via `POST /api/tickets/{id}/history` with action type, notes, response template selection, and optional email notification flags
   5. Photos can be uploaded to a ticket via `POST /api/tickets/{id}/media`; MIME type and size are validated; the file is stored at `/var/ureport/media/{ticket_id}/{filename}` and a `media` record is created
   6. SLA overdue flag is computed from `categories.sla_days + tickets.entered_date`; Open311 client API key management CRUD is available at `/api/clients`
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: Ticket CRUD — TicketController, TicketService (create, get, patch, close, reopen, assign), ticket_history entries, email notification
-- [ ] 04-02: Bulk operations — POST /api/tickets/bulk, CASE-01 business rules (SLA tracking, substatus transitions, category routing)
-- [ ] 04-03: Action logging — TicketHistoryController, response template selection, NotificationService (SMTP), department_actions filtering
-- [ ] 04-04: Media upload — TicketMediaController, MediaService (file store, MIME validation, thumbnail), F14 client management CRUD
+- [ ] 04-01-PLAN.md — Ticket CRUD: TicketService + TicketController (create, get, patch, close, reopen, assign), ticket_history entries for all transitions, TicketDetailDto with isOverdue/slaDueDate
+- [ ] 04-02-PLAN.md — Bulk operations + CASE-01 rules: TicketBulkService + TicketBulkController (POST /api/tickets/bulk), SlaService (isOverdue, computeSlaDueDate, triggerAutoClose), BulkOperationResult DTO
+- [ ] 04-03-PLAN.md — Action logging + notifications: NotificationService (SMTP JavaMailSender, non-fatal), TicketHistoryService (department_actions filter, response templates), TicketHistoryController, ActionRepository, application.yml SMTP config
+- [ ] 04-04-PLAN.md — Media upload + client CRUD: MediaService (magic-byte MIME validation, Thumbnailator 150×150, file storage), TicketMediaController, ClientService + ClientController (/api/clients admin-only)
 
 ### Phase 5: Admin Configuration Backend
 **Goal**: All administrative configuration APIs exist — people, departments, categories, and all lookup-table entities — so admin panels can be built in Phase 9
