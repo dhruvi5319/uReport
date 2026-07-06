@@ -25,6 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Infrastructure Foundation
+**Status**: In Progress
 **Goal**: The full PostgreSQL schema exists, migrations run cleanly, all three containers start, and the Spring Boot app connects to the database
 **Depends on**: Nothing (first phase)
 **Requirements**: F21, DB-01, ARCH-02
