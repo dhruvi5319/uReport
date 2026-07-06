@@ -1,5 +1,11 @@
 {
   "sidecars": [
-    { "kind": "postgres" }
+    {
+      "kind": "postgres",
+      "version": "16",
+      "database": "ureport",
+      "username": "ureport",
+      "password": "ureport"
+    }
   ]
 }
