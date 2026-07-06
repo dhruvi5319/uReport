@@ -1,18 +1,13 @@
 {
   "generator_version": "init-dev-server@1",
-  "catalog_entry": null,
-  "generated_at": "2026-07-06T19:26:03Z",
-  "inspection_inputs_hash": "51f7d01ea4515c0c8e5c86360fa8868ed69896c98ae1222bb5b23e3dda3fcb7a",
+  "catalog_entry": "compose",
+  "generated_at": "2026-07-06T23:17:51Z",
+  "inspection_inputs_hash": "f1b0ce08bb7021a7eb14c9a0bd5f8a3b94c76d10dc3727b812d2d7340611f36b",
   "inspection_inputs": {
     "matched_globs": [
-      "backend/pom.xml",
-      "crm/Makefile",
       "docker-compose.yml"
     ],
     "manifest_signatures": [
-      "backend/pom.xml:dep:org.flywaydb:flyway-core@10.15.0",
-      "backend/pom.xml:dep:org.springframework.boot:spring-boot-starter-parent@3.3.0",
-      "crm/composer.json:dep:php>=8.5",
       "docker-compose.yml:services:api,db,web"
     ],
     "existing_scripts": []
