@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 01-infrastructure-foundation
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md, 01-GAP-01-SUMMARY.md]
 started: 2026-07-06T19:26:30Z
-updated: 2026-07-06T19:29:00Z
+updated: 2026-07-06T19:32:00Z
 ---
 
 ## Current Test
@@ -58,7 +58,17 @@ skipped: 5
   reason: "User reported: BeanCreationException on flywayInitializer — Connection to localhost:5432 refused. PostgreSQL sidecar not reachable at default address."
   severity: blocker
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "The Daytona sandbox injects a MySQL sidecar (PIVOTA_DB_MODE=sidecar-mysql, DATABASE_URL=mysql://ureport:ureport@localhost:3306/ureport) but the Spring Boot stack is hard-wired for PostgreSQL — driver-class-name=org.postgresql.Driver, no MySQL JDBC dep in pom.xml, and the dev script's mysql:// normalization branch hits the unknown-scheme warning and passes the raw mysql:// URL to the PostgreSQL JDBC driver, which cannot parse it and defaults to attempting localhost:5432 (nothing listening there)."
+  artifacts:
+    - path: "backend/src/main/resources/application.yml"
+      issue: "spring.datasource.url uses ${DATABASE_URL:...} which embeds the injected mysql:// URL verbatim; driver-class-name is hardcoded to org.postgresql.Driver"
+    - path: ".pivota/start-dev.sh"
+      issue: "DATABASE_URL normalization handles postgresql:// and postgres:// but mysql:// hits the unknown-scheme branch — exports SPRING_DATASOURCE_URL=mysql://... which PostgreSQL JDBC driver cannot parse"
+    - path: "backend/pom.xml"
+      issue: "Only contains org.postgresql:postgresql JDBC driver and flyway-database-postgresql; no MySQL JDBC driver or flyway-mysql module declared"
+  missing:
+    - "Add mysql:// normalization branch in start-dev.sh converting to jdbc:mysql:// and setting SPRING_DATASOURCE_URL"
+    - "Add com.mysql:mysql-connector-j dependency to pom.xml"
+    - "Add org.flywaydb:flyway-mysql dependency to pom.xml (Flyway 10+ requires separate MySQL plugin)"
+    - "Update application.yml driver-class-name and dialect to support MySQL, or switch sidecar to PostgreSQL via .planning/infrastructure.json"
+  debug_session: "mysql-sidecar-vs-postgres-stack-mismatch"
