@@ -27,9 +27,10 @@
 #   - SERVER_ADDRESS=0.0.0.0: Spring Boot reads server.address from this env var
 #     so the preview iframe can reach port 8080 from outside the sandbox loopback.
 #   - SPRING_DATASOURCE_URL: Spring Boot / HikariCP requires a jdbc:postgresql://
-#     URL. Platform injects DATABASE_URL (plain postgresql:// or similar); this
-#     wrapper converts it to the JDBC form so Spring picks it up without manual
-#     application.properties changes.
+#     URL. Platform may inject DATABASE_URL as postgresql://, postgres://, or
+#     mysql:// (PIVOTA_DB_MODE=sidecar-mysql). The mysql:// case is handled by
+#     constructing jdbc:postgresql:// from PG* env vars or falling back to the
+#     application.yml default — the MySQL URL is never passed to org.postgresql.Driver.
 #   - Flyway is declared in pom.xml and will run DB migrations automatically on
 #     Spring context startup (spring.flyway.enabled=true by default) — no separate
 #     migration step needed here; it runs before the app starts serving requests.
@@ -137,16 +138,15 @@ fi
 
 # --- Construct SPRING_DATASOURCE_URL from injected DATABASE_URL ---
 # Spring Boot / HikariCP requires jdbc:postgresql:// scheme.
-# Platform injects DATABASE_URL (may be postgresql:// or postgres:// prefix).
+# Platform injects DATABASE_URL (may be postgresql://, postgres://, or sidecar-mysql mysql:// prefix).
 if [[ -n "${DATABASE_URL:-}" ]]; then
   if [[ "${DATABASE_URL}" == jdbc:postgresql://* ]]; then
     export SPRING_DATASOURCE_URL="${DATABASE_URL}"
     echo "[pivota] SPRING_DATASOURCE_URL set from DATABASE_URL (already jdbc: scheme)"
   elif [[ "${DATABASE_URL}" == postgresql://* || "${DATABASE_URL}" == postgres://* ]]; then
-    # Convert postgresql://user:pass@host:port/db to jdbc:postgresql://host:port/db
+    # Convert postgresql://user:pass@host:port/db to jdbc:postgresql://host:port/db?user=...&password=...
     _stripped="${DATABASE_URL#postgresql://}"
     _stripped="${_stripped#postgres://}"
-    # Extract user:pass@ prefix if present
     if [[ "$_stripped" == *"@"* ]]; then
       _userpass="${_stripped%%@*}"
       _hostpart="${_stripped#*@}"
@@ -157,8 +157,39 @@ if [[ -n "${DATABASE_URL:-}" ]]; then
       export SPRING_DATASOURCE_URL="jdbc:postgresql://${_stripped}"
     fi
     echo "[pivota] SPRING_DATASOURCE_URL normalized from DATABASE_URL"
+  elif [[ "${DATABASE_URL}" == mysql://* || "${DATABASE_URL}" == mysql+*://* ]]; then
+    # Platform injected a MySQL sidecar URL (PIVOTA_DB_MODE=sidecar-mysql).
+    # This Spring Boot app is PostgreSQL-only (org.postgresql.Driver, tsvector, GIN indexes).
+    # Ignore the MySQL URL entirely and construct a PostgreSQL JDBC URL from PG* env vars.
+    # If PG* vars are not set, leave SPRING_DATASOURCE_URL unset so application.yml default
+    # (jdbc:postgresql://localhost:5432/ureport) applies via ${DATABASE_URL:...} fallback.
+    echo "[pivota] WARNING: DATABASE_URL is MySQL scheme (PIVOTA_DB_MODE=${PIVOTA_DB_MODE:-unset})"
+    echo "[pivota] This stack is PostgreSQL-only — ignoring MySQL URL, constructing PostgreSQL JDBC URL"
+    _PG_HOST="${PGHOST:-}"
+    _PG_PORT="${PGPORT:-5432}"
+    _PG_DB="${PGDATABASE:-ureport}"
+    _PG_USER="${PGUSER:-}"
+    _PG_PASS="${PGPASSWORD:-}"
+    if [[ -n "$_PG_HOST" ]]; then
+      # PG* sidecar vars are available — construct the full JDBC URL
+      if [[ -n "$_PG_USER" && -n "$_PG_PASS" ]]; then
+        export SPRING_DATASOURCE_URL="jdbc:postgresql://${_PG_HOST}:${_PG_PORT}/${_PG_DB}?user=${_PG_USER}&password=${_PG_PASS}"
+      elif [[ -n "$_PG_USER" ]]; then
+        export SPRING_DATASOURCE_URL="jdbc:postgresql://${_PG_HOST}:${_PG_PORT}/${_PG_DB}?user=${_PG_USER}"
+      else
+        export SPRING_DATASOURCE_URL="jdbc:postgresql://${_PG_HOST}:${_PG_PORT}/${_PG_DB}"
+      fi
+      echo "[pivota] SPRING_DATASOURCE_URL constructed from PG* vars: jdbc:postgresql://${_PG_HOST}:${_PG_PORT}/${_PG_DB}?<credentials-redacted>"
+    else
+      # No PG* vars — leave SPRING_DATASOURCE_URL unset.
+      # application.yml default: ${DATABASE_URL:jdbc:postgresql://localhost:5432/ureport}
+      # Since DATABASE_URL is set (but MySQL), Spring will try to use it unless we override.
+      # Export the PostgreSQL default explicitly so HikariCP never sees the mysql:// URL.
+      export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/ureport"
+      echo "[pivota] No PG* vars found — using application.yml default: jdbc:postgresql://localhost:5432/ureport"
+    fi
   else
-    # Unknown scheme — pass through and let Spring/Flyway report the error
+    # Truly unknown scheme — pass through so Spring/Flyway can surface the error clearly.
     export SPRING_DATASOURCE_URL="${DATABASE_URL}"
     echo "[pivota] WARNING: DATABASE_URL scheme unrecognized — passed as-is to SPRING_DATASOURCE_URL"
   fi
