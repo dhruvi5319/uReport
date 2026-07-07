@@ -71,7 +71,7 @@ Requirements for the full modernization release. Each maps to roadmap phases.
 ### Backend Architecture
 
 - [ ] **ARCH-01**: Java Spring Boot REST API with Spring Data JPA for database access and MapStruct for DTO mapping
-- [ ] **ARCH-02**: Docker Compose deployment with separate containers for React/Nginx, Spring Boot, and PostgreSQL
+- [ ] **ARCH-02**: Container image packaging — each service (React/Nginx, Spring Boot, PostgreSQL) has its own `Dockerfile`; no Docker Compose (sandbox runs on Kubernetes without Docker daemon); dev verification uses Maven with embedded PostgreSQL (`io.zonky.test:embedded-postgres`); production targets any OCI-compatible runtime
 
 ## v2 Requirements
 
@@ -106,7 +106,7 @@ Updated during roadmap creation (2026-07-06).
 |-------------|-------|--------|
 | F21 (DB Migration — Flyway) | Phase 1 — Infrastructure Foundation | Pending |
 | DB-01 (MySQL→PostgreSQL type mapping) | Phase 1 — Infrastructure Foundation | Pending |
-| ARCH-02 (Docker Compose) | Phase 1 — Infrastructure Foundation | Pending |
+| ARCH-02 (Dockerfiles + embedded-postgres) | Phase 1 — Infrastructure Foundation | Pending |
 | F12 (LDAP/CAS Auth + JWT) | Phase 2 — Authentication & Security | Pending |
 | AUTH-01 (JWT issuance, refresh, logout) | Phase 2 — Authentication & Security | Pending |
 | AUTH-02 (Route-level authorization) | Phase 2 — Authentication & Security | Pending |

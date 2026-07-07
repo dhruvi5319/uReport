@@ -74,7 +74,7 @@ All IDs in this document are extracted from the source specification documents a
 
 | SPEC Range | Domain |
 |---|---|
-| SPEC-001–005 | Three-Tier Architecture, Docker Compose Topology, JWT Security Model |
+| SPEC-001–005 | Three-Tier Architecture, OCI Container Topology (Dockerfiles), JWT Security Model |
 | SPEC-006–010 | React SPA Component Architecture, State Management, Animation System |
 | SPEC-011–015 | Spring Boot Layer Architecture (Controller/Service/Repository/Entity/DTO/Mapper) |
 | SPEC-016–020 | PostgreSQL Data Model, 18-Table Schema, DDL (Flyway V1) |
@@ -516,7 +516,7 @@ All IDs in this document are extracted from the source specification documents a
 | REQ-NFR-012 | API key auth for Open311 write ops | PRD F0, F14 | SPEC-034 (Open311ApiKeyFilter) | Security test: write without key returns 403 |
 | REQ-NFR-013 | HTTPS enforced in production | PRD §6 | SPEC-001 (Nginx TLS termination) | SSL handshake verification |
 | REQ-NFR-014 | SameSite=Strict cookie | PRD F12 | SPEC-001 (Nginx), SPEC-035 (JWT filter) | Cookie header inspection |
-| REQ-NFR-015 | ≥50 concurrent staff users | PRD §6 | SPEC-002 (Docker Compose, HikariCP pool) | Load test simulating 50 concurrent sessions |
+| REQ-NFR-015 | ≥50 concurrent staff users | PRD §6 | SPEC-002 (OCI containers, HikariCP pool) | Load test simulating 50 concurrent sessions |
 | REQ-NFR-016 | 100% endpoint OpenAPI coverage | PRD §6, F20 | SPEC-051, SPEC-052 | Static analysis of @Operation annotations |
 | REQ-NFR-017 | All schema changes via Flyway | PRD F21 | SPEC-056 (FlywayConfig) | Flyway history table completeness check |
 | REQ-NFR-018 | Latest 2 browser versions | PRD §6 | SPEC-006 (React SPA build) | Cross-browser automated test suite |

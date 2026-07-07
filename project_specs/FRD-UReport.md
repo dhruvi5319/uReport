@@ -4550,7 +4550,7 @@ spring.datasource.hikari.maximum-pool-size=20
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 ```
 
-**Failure Mode:** If PostgreSQL is unreachable, all API endpoints return 500. Spring Boot health endpoint `/actuator/health` reports `DOWN`. Docker Compose restart policy ensures auto-recovery.
+**Failure Mode:** If PostgreSQL is unreachable, all API endpoints return 500. Spring Boot health endpoint `/actuator/health` reports `DOWN`. OCI runtime restart policy (e.g., Kubernetes pod restart policy) ensures auto-recovery.
 
 ---
 
@@ -4576,7 +4576,7 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 **Feature:** F17, F18, F19  
 **Direction:** Inbound (clients → Nginx → React SPA / Spring Boot)  
 **Protocol:** HTTPS  
-**Configuration:** Docker Compose `react` service
+**Configuration:** `frontend/Dockerfile` (nginx:alpine image)
 
 **Integration Contract:**
 - Nginx serves the React SPA static files (built by `npm run build`).
@@ -4597,23 +4597,27 @@ location / { try_files $uri /index.html; }             # SPA fallback
 
 ---
 
-### INT-09: Docker Compose — Container Orchestration
+### INT-09: Container Images — OCI Packaging
 
-**Feature:** F21 (deployment)  
-**Services:**
-- `react` — Nginx serving built React SPA (port 80/443)
-- `springboot` — Spring Boot application (port 8080, internal only)
-- `postgres` — PostgreSQL 15 (port 5432, internal only)
+**Feature:** F21 (deployment)
+**Note:** No Docker Compose — the execution sandbox is Kubernetes (no Docker daemon at runtime). Each service is packaged as an independent OCI image via its own Dockerfile. Dev/test uses `io.zonky.test:embedded-postgres` in Maven — no container runtime needed for tests.
 
-**Volume Mounts:**
+**Images:**
+- `frontend/Dockerfile` — Nginx serving built React SPA (port 80/443)
+- `backend/Dockerfile` — Spring Boot application (port 8080, internal only)
+- `postgres:16-alpine` — PostgreSQL (port 5432, internal only; standard public image)
+
+**Persistent Volumes:**
 - `postgres_data` — Persistent PostgreSQL data volume
-- `media_files` — Shared volume between `springboot` and `react` (or served via Spring Boot) for uploaded photos
+- `media_files` — Shared volume between Spring Boot and Nginx for uploaded photos
 
-**Environment Variables (managed via `.env` file, never committed):**
+**Environment Variables (injected by OCI runtime; never in source):**
 ```
-DB_USERNAME=ureport
+DATABASE_URL=jdbc:postgresql://<host>:5432/ureport
+DB_USER=ureport
 DB_PASSWORD=<secret>
-MAIL_PASSWORD=<secret>
+SMTP_HOST=<host>
+SMTP_PASSWORD=<secret>
 JWT_SECRET=<secret>
 MAPBOX_TOKEN=<token>
 CAS_SERVER_URL=https://cas.city.gov
@@ -4634,4 +4638,4 @@ LDAP_URL=ldaps://ldap.city.gov:636
 | Mapbox | F2, F5, F16 | P2 | Map degrades to Leaflet/OSM |
 | Leaflet/OSM | F2, F5, F16 | P2 | Map unavailable if both fail |
 | Nginx | F17, F18 | P0 | Frontend inaccessible |
-| Docker Compose | All | P0 | Service restart handles transient failures |
+| OCI Runtime (Kubernetes/etc.) | All | P0 | Container restart policy handles transient failures |

@@ -86,15 +86,17 @@ The Open311 / GeoReport v2 API is implemented as a set of **content-negotiated c
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Deployment Topology (Docker Compose)
+### Deployment Topology (OCI Container Images)
+
+Each service is packaged as an OCI-compatible container image via its own `Dockerfile`. No Docker Compose is used — the execution sandbox is Kubernetes (no Docker daemon at runtime). Development verification uses Maven with `io.zonky.test:embedded-postgres` (no external infrastructure needed).
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Docker Compose Host (Single Server)                 │
+│  OCI Runtime (Kubernetes Pod / Any OCI Host)         │
 │                                                      │
 │  ┌────────────────────┐   ┌───────────────────────┐ │
-│  │  nginx:alpine      │   │  openjdk:21-jre-slim  │ │
-│  │  Container: web    │   │  Container: api        │ │
+│  │  nginx:alpine      │   │  eclipse-temurin:21   │ │
+│  │  Image: web        │   │  Image: api            │ │
 │  │  Port: 80 → 443    │──▶│  Port: 8080 (internal)│ │
 │  │  Serves React SPA  │   │  Spring Boot app.jar   │ │
 │  │  Proxy /api, /open │   │  SMTP: JavaMailSender  │ │
@@ -103,9 +105,9 @@ The Open311 / GeoReport v2 API is implemented as a set of **content-negotiated c
 │                                      │ JDBC 5432     │
 │  ┌───────────────────────────────────▼─────────────┐ │
 │  │  postgres:16-alpine                              │ │
-│  │  Container: db                                   │ │
+│  │  Image: db                                       │ │
 │  │  Port: 5432 (internal only)                      │ │
-│  │  Volume: postgres_data                           │ │
+│  │  PersistentVolume: postgres_data                 │ │
 │  └──────────────────────────────────────────────────┘ │
 │                                                      │
 │  Volumes:                                            │
@@ -114,6 +116,8 @@ The Open311 / GeoReport v2 API is implemented as a set of **content-negotiated c
 │    (shared: api + nginx for media serving)           │
 └─────────────────────────────────────────────────────┘
 ```
+
+**Dev/test environment:** Maven integration tests use `io.zonky.test:embedded-postgres` — an in-process PostgreSQL binary requiring no Docker daemon. Enables full Flyway migration and JPA testing in Kubernetes sandboxes.
 
 **Nginx responsibilities:**
 - Serve the React SPA static bundle (`build/` output)
@@ -132,7 +136,7 @@ The Open311 / GeoReport v2 API is implemented as a set of **content-negotiated c
 | Content negotiation in Open311 controllers | Preserves byte-compatible responses with PHP implementation; Open311 clients may request XML or JSON |
 | Flyway for all schema changes | Reproducible schema bootstrap; GitOps-compatible; mandatory for PostgreSQL migration from MySQL |
 | MapStruct for DTO mapping | Compile-time safe; no runtime reflection overhead; generated code is debuggable |
-| Docker Compose (not Kubernetes) | Continues existing deployment model; single-server city deployment; out of scope to introduce orchestration |
+| Dockerfiles (no Docker Compose) | Execution sandbox is Kubernetes (no Docker daemon); each service has its own Dockerfile for OCI image packaging; dev tests use embedded-postgres, no compose orchestration required |
 | File storage on shared volume (not object store) | Preserves existing file path structure from PHP; avoids introducing S3 dependency |
 
 ---
@@ -1730,8 +1734,8 @@ For defense in depth, Spring Security's CSRF protection is enabled for state-cha
 | **XML (Open311)** | JAXB / Jackson XML | — | XML serialization for Open311 XML responses |
 | **Test (Backend)** | JUnit 5, Mockito, Spring Boot Test | — | Unit and integration testing |
 | **Test (Frontend)** | Vitest, React Testing Library | — | Component and hook testing |
-| **Container** | Docker | Latest | Application containerization |
-| **Orchestration** | Docker Compose | v2 | Multi-container local + production deployment |
+| **Container** | Docker (Dockerfile only) | Latest | OCI image packaging via multi-stage Dockerfiles; no Docker daemon at runtime (sandbox is Kubernetes) |
+| **Test DB** | embedded-postgres (zonky) | 2.0.7 | In-process PostgreSQL 16 for Maven integration tests; no Docker daemon required |
 | **Web Server** | Nginx (Alpine) | Latest | Static SPA serving + reverse proxy |
 | **Logging** | SLF4J + Logback | 1.5.x | Structured JSON logging in production |
 
@@ -1960,7 +1964,7 @@ Future schema changes: `V5__*.sql`, `V6__*.sql`, etc. — never modify existing 
 | Mapbox GL JS | Map tiles + geocoding | Outbound (browser) | Soft | Leaflet + OpenStreetMap tiles |
 | Nominatim (OSM) | Geocoding fallback | Outbound (server-side proxy) | Soft | Manual address entry only |
 | Open311 Clients | API consumers | Inbound | N/A | N/A |
-| PostgreSQL | Database | Internal (same Docker Compose network) | Required | None |
+| PostgreSQL | Database | Internal (same OCI network / env var `DATABASE_URL`) | Required | None |
 
 ---
 
@@ -2057,7 +2061,7 @@ Mobile App / Aggregator → GET /open311/v2/services        → Spring Boot → 
 
 ### 7.7 File Storage
 
-Media files are stored on the host filesystem via a Docker volume:
+Media files are stored on the host filesystem via a persistent volume (mounted into the container):
 
 ```
 Volume: media_files → mounted at /var/ureport/media (api container)

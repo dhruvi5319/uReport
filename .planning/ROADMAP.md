@@ -2,7 +2,7 @@
 
 ## Overview
 
-The modernization replaces a PHP/MySQL/Solr stack with React + Java Spring Boot + PostgreSQL, preserving 100% of features, data, and Open311 API contracts. Work proceeds in dependency order: data foundation first (PostgreSQL schema, Docker Compose), then backend services (auth, Open311 API, core case management), then admin configuration backend, then search and geo, then React design system and shell, then all frontend screens, and finally integration hardening and deployment.
+The modernization replaces a PHP/MySQL/Solr stack with React + Java Spring Boot + PostgreSQL, preserving 100% of features, data, and Open311 API contracts. Work proceeds in dependency order: data foundation first (PostgreSQL schema, Dockerfiles, Spring Boot skeleton), then backend services (auth, Open311 API, core case management), then admin configuration backend, then search and geo, then React design system and shell, then all frontend screens, and finally integration hardening and deployment. Note: the sandbox execution environment is Kubernetes (no Docker daemon); all tests use embedded PostgreSQL via Maven — Dockerfiles are for image packaging only.
 
 ## Phases
 
@@ -12,7 +12,7 @@ The modernization replaces a PHP/MySQL/Solr stack with React + Java Spring Boot 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [x] **Phase 1: Infrastructure Foundation** - PostgreSQL schema via Flyway, Docker Compose three-container setup, Spring Boot skeleton
+- [ ] **Phase 1: Infrastructure Foundation** - PostgreSQL schema via Flyway, Dockerfiles for each service, Spring Boot skeleton (no Docker Compose — embedded-postgres for tests)
 - [ ] **Phase 2: Authentication & Security** - LDAP/CAS + JWT auth, Spring Security, route-level authorization
 - [ ] **Phase 3: Open311 / GeoReport v2 API** - All four frozen endpoints with content negotiation, API key auth, OpenAPI docs
 - [ ] **Phase 4: Core Case Management Backend** - Full ticket lifecycle, action logging, media upload, business rules
@@ -20,26 +20,26 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 6: Search, Geo & Metrics Backend** - PostgreSQL FTS with GIN indexes, bookmarks, geo-clustering, reporting
 - [ ] **Phase 7: React Design System & Shell** - Design tokens, shadcn/ui components, navbar, sidebar, animations, accessibility
 - [ ] **Phase 8: Core Frontend Screens** - Dashboard, case list, case detail, and public submission form
-- [ ] **Phase 9: Admin Panels & Integration** - Admin UI panels, search UI, auth screens, Docker deployment hardening
+- [ ] **Phase 9: Admin Panels & Integration** - Admin UI panels, search UI, auth screens, Dockerfile build verification, E2E tests
 
 ## Phase Details
 
 ### Phase 1: Infrastructure Foundation
 **Status**: failed
-**Goal**: The full PostgreSQL schema exists, migrations run cleanly, all three containers start, and the Spring Boot app connects to the database
+**Goal**: The full PostgreSQL schema exists, migrations run cleanly, the Spring Boot app connects to the database, and each service has a working Dockerfile for image packaging
 **Depends on**: Nothing (first phase)
 **Requirements**: F21, DB-01, ARCH-02
 **Success Criteria** (what must be TRUE):
   1. `flyway migrate` on a clean PostgreSQL instance creates all 18 tables with correct columns, types, foreign keys, and indexes — verified by automated row-count and constraint check
   2. The `search_vector` tsvector column and GIN index exist on `tickets`; the trigger fires on INSERT/UPDATE
-  3. `docker compose up` starts three healthy containers (nginx/web, spring-boot/api, postgres/db) and the health-check endpoint at `/actuator/health` returns `{"status":"UP"}`
+  3. Spring Boot starts with embedded PostgreSQL in test profile; `/actuator/health` returns `{"status":"UP"}` verified by Maven integration test (no Docker daemon required)
   4. Spring Boot connects to PostgreSQL via HikariCP; Flyway migration history is visible in the `flyway_schema_history` table
 **Plans**: 3 plans
 
 Plans:
-- [x] 01-01-PLAN.md — Flyway V1 initial schema (all 21 tables, snake_case columns, constraints, indexes, seed data) + V1SchemaIT integration test
-- [x] 01-02-PLAN.md — Flyway V2 search_vector TSVECTOR column, GIN index, trigger function + V2SearchVectorIT integration test
-- [x] 01-03-PLAN.md — Spring Boot 3.x Maven skeleton (pom.xml, UReportApplication, application.yml) + Docker Compose three-container setup (db/api/web)
+- [ ] 01-01-PLAN.md — Flyway V1 initial schema (all 21 tables, snake_case columns, constraints, indexes, seed data) + V1SchemaIT integration test
+- [ ] 01-02-PLAN.md — Flyway V2 search_vector TSVECTOR column, GIN index, trigger function + V2SearchVectorIT integration test
+- [ ] 01-03-PLAN.md — Spring Boot 3.x Maven skeleton (pom.xml, UReportApplication, application.yml) + Dockerfiles for each service (backend, frontend/nginx) + embedded-postgres test configuration
 
 ### Phase 2: Authentication & Security
 **Status**: In Progress
@@ -168,21 +168,21 @@ Plans:
 - [ ] 08-04: Public submission form — PublicSubmitPage, SubmissionWizard (5 steps + confirmation), StepLocation (pin-drop map), StepDescription (photo upload), Framer Motion step transitions
 
 ### Phase 9: Admin Panels & Integration
-**Goal**: All admin configuration panels are complete, search UI is integrated, auth screens are branded, and the full application deploys correctly from Docker Compose with E2E tests passing
+**Goal**: All admin configuration panels are complete, search UI is integrated, auth screens are branded, Dockerfile builds verify cleanly, and E2E tests pass
 **Depends on**: Phase 8
 **Requirements**: ADMIN-01, SEARCH-02, AUTH-03
 **Success Criteria** (what must be TRUE):
   1. An admin user can navigate to any admin panel (people, departments, categories, substatus, issue types, contact methods, response templates, API clients) and perform CRUD operations with inline editing, confirmation dialogs, and toast notifications
   2. The global search input produces live results with keyword highlighting, filter chips, and an empty state illustration; saved searches can be created and recalled from the bookmark dropdown
   3. The LDAP and CAS login screens display the branded city card layout with a loading spinner on submit and a clear error message on auth failure
-  4. `docker compose up` from a clean checkout bootstraps the full stack (Flyway migrations run, Spring Boot starts, React SPA serves) without manual intervention
+  4. `docker build` succeeds for both `backend/Dockerfile` and `frontend/Dockerfile` from a clean checkout; all Maven integration tests pass using embedded PostgreSQL
   5. Open311 golden-file integration tests pass against the Spring Boot implementation (all four endpoints match PHP reference responses); WCAG axe-core scan finds 0 critical violations across all screens
 **Plans**: TBD
 
 Plans:
 - [ ] 09-01: Admin panels UI — PeoplePage, DepartmentsPage, CategoriesPage, ClientsPage, LookupTableAdmin (substatus/issue-types/contact-methods); ADMIN-01 inline editing + toast + confirm dialogs
 - [ ] 09-02: Search UI and auth screens — SEARCH-02 live search with highlight/chips/empty state, BookmarkController integration; AUTH-03 LoginPage (LDAP/CAS branded card)
-- [ ] 09-03: Integration hardening and deployment — Docker Compose final wiring (Nginx config, volume mounts, env vars), Open311 golden-file tests, axe-core accessibility scan, E2E smoke tests
+- [ ] 09-03: Integration hardening — Dockerfile build verification (backend + frontend/nginx), Open311 golden-file tests, axe-core accessibility scan, E2E smoke tests against embedded Spring Boot
 
 ## Progress
 
