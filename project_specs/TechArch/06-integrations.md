@@ -12,7 +12,7 @@
 | Mapbox GL JS | Map tiles + geocoding | Outbound (browser) | Soft | Leaflet + OpenStreetMap tiles |
 | Nominatim (OSM) | Geocoding fallback | Outbound (server-side proxy) | Soft | Manual address entry only |
 | Open311 Clients | API consumers | Inbound | N/A | N/A |
-| PostgreSQL | Database | Internal (same Docker Compose network) | Required | None |
+| PostgreSQL | Database | Internal (same OCI network / env var `DATABASE_URL`) | Required | None |
 
 ---
 
@@ -109,7 +109,7 @@ Mobile App / Aggregator → GET /open311/v2/services        → Spring Boot → 
 
 ### 7.7 File Storage
 
-Media files are stored on the host filesystem via a Docker volume:
+Media files are stored on the host filesystem via a persistent volume (mounted into the container):
 
 ```
 Volume: media_files → mounted at /var/ureport/media (api container)

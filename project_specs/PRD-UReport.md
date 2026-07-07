@@ -78,7 +78,7 @@ uReport modernized is the definitive civic 311 CRM for smaller municipalities: a
 | **Migrations** | Flyway | Version-controlled schema evolution |
 | **Full-Text Search** | PostgreSQL tsvector / tsquery | GIN indexes; replaces Apache Solr |
 | **API Documentation** | OpenAPI / Swagger (springdoc) | Auto-generated from annotations |
-| **Containerization** | Docker Compose | React (Nginx), Spring Boot, PostgreSQL |
+| **Containerization** | Dockerfiles (OCI images) | React (Nginx), Spring Boot, PostgreSQL; no Docker Compose — sandbox is Kubernetes |
 | **Open311 API** | GeoReport v2 (unchanged) | Paths and response formats frozen |
 
 **Domain Model Summary (18 tables → PostgreSQL)**
@@ -580,7 +580,7 @@ The following are explicitly excluded from this modernization project. Any reque
 - Removing any UI screen, admin panel, or user-facing feature present in the PHP application
 - Changing the case / ticket / people / location domain model (entity relationships or semantics)
 - Introducing new features not present in the original PHP application (e.g., new report types, new notification channels, new integrations)
-- Replacing the Docker Compose deployment topology with Kubernetes or other orchestration
+- Introducing Kubernetes orchestration manifests or Helm charts (deployment uses Dockerfiles only; runtime environment is already Kubernetes)
 
 ---
 
@@ -591,7 +591,7 @@ The following are explicitly excluded from this modernization project. Any reque
 - `UserStories-UReport.md` — User Stories (acceptance criteria per feature)
 - `crm/scripts/mysql.sql` — Authoritative source MySQL schema
 - `crm/src/Application/Controllers/Open311Controller.php` — Existing Open311 implementation (golden reference)
-- `docker-compose.yml` — Existing deployment configuration
+- `backend/Dockerfile`, `frontend/Dockerfile` — OCI image packaging for each service
 
 ---
 

@@ -76,7 +76,7 @@ Every existing feature, screen, API contract, and Open311 endpoint must continue
 
 **Auth:** LDAP and CAS (`crm/src/Domain/Auth/`). Staff log in via CAS or LDAP; public users submit cases anonymously or with email.
 
-**Deployment:** Currently Docker-based (`docker-compose.yml`). New stack will use Docker Compose with separate containers for React (Nginx), Spring Boot, and PostgreSQL.
+**Deployment:** Each service (React/Nginx, Spring Boot, PostgreSQL) is packaged as a container image via a `Dockerfile`. The sandbox execution environment is Kubernetes (no Docker daemon available at runtime), so verification during development uses Maven with embedded PostgreSQL (via `embedded-postgres`) rather than `docker compose up`. Production deployment targets any OCI-compatible runtime (Kubernetes, Podman, etc.) — no Docker Compose dependency.
 
 ## Constraints
 
@@ -100,7 +100,7 @@ Every existing feature, screen, API contract, and Open311 endpoint must continue
 | MapStruct for DTO mapping | Compile-time safety over runtime reflection (e.g., ModelMapper) | — Pending |
 | Framer Motion for animations | Best-in-class React animation library; supports prefers-reduced-motion | — Pending |
 | Mapbox GL JS / Leaflet for maps | Interactive map widget with pin-drop; Leaflet as fallback if Mapbox key unavailable | — Pending |
-| Docker Compose for deployment | Continues existing Docker-based deployment pattern | — Pending |
+| Dockerfiles for container images (no Docker Compose) | Sandbox is Kubernetes (no Docker daemon); each service has its own Dockerfile; dev verification uses embedded PostgreSQL in Maven tests; production targets any OCI runtime | — Pending |
 
 ---
 *Last updated: 2026-07-06 after initialization*

@@ -43,8 +43,8 @@
 | **XML (Open311)** | JAXB / Jackson XML | — | XML serialization for Open311 XML responses |
 | **Test (Backend)** | JUnit 5, Mockito, Spring Boot Test | — | Unit and integration testing |
 | **Test (Frontend)** | Vitest, React Testing Library | — | Component and hook testing |
-| **Container** | Docker | Latest | Application containerization |
-| **Orchestration** | Docker Compose | v2 | Multi-container local + production deployment |
+| **Container** | Docker (Dockerfile only) | Latest | OCI image packaging via multi-stage Dockerfiles; no Docker daemon at runtime (sandbox is Kubernetes) |
+| **Test DB** | embedded-postgres (zonky) | 2.0.7 | In-process PostgreSQL 16 for Maven integration tests; no Docker daemon required |
 | **Web Server** | Nginx (Alpine) | Latest | Static SPA serving + reverse proxy |
 | **Logging** | SLF4J + Logback | 1.5.x | Structured JSON logging in production |
 
