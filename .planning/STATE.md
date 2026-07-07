@@ -3,7 +3,7 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 04-core-case-management-backend-04-01-PLAN.md
+stopped_at: Completed 04-core-case-management-backend-04-03-PLAN.md
 last_updated: "2026-07-07T04:00:00.000Z"
 last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
 progress:
@@ -82,5 +82,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-07-07T04:00:00.000Z
-Stopped at: Completed 04-core-case-management-backend-04-01-PLAN.md
+Stopped at: Completed 04-core-case-management-backend-04-03-PLAN.md
 Resume file: None
