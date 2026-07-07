@@ -6,6 +6,7 @@ import com.ureport.crm.dto.CreateTicketRequest;
 import com.ureport.crm.dto.TicketDetailDto;
 import com.ureport.crm.dto.TicketHistoryEntryDto;
 import com.ureport.crm.dto.UpdateTicketRequest;
+import com.ureport.crm.service.TicketHistoryService;
 import com.ureport.crm.service.TicketService;
 import com.ureport.security.PersonDetails;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +37,11 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
+    private final TicketHistoryService ticketHistoryService;
 
-    public TicketController(TicketService ticketService) {
+    public TicketController(TicketService ticketService, TicketHistoryService ticketHistoryService) {
         this.ticketService = ticketService;
+        this.ticketHistoryService = ticketHistoryService;
     }
 
     /**
@@ -110,15 +113,12 @@ public class TicketController {
     }
 
     /**
-     * GET /api/tickets/{id}/history — return ticket history timeline.
-     * Stubbed: returns empty list. Plan 04-03 (TicketHistoryService) fills this in.
+     * GET /api/tickets/{id}/history — return ticket history timeline sorted by entered_date DESC.
+     * Delegates to TicketHistoryService.getTimeline() (implemented in plan 04-03).
      */
     @GetMapping("/{id}/history")
     public ResponseEntity<List<TicketHistoryEntryDto>> getHistory(@PathVariable Long id) {
-        // Verify ticket exists (throws 404 if not)
-        ticketService.getTicket(id);
-        // Stub: plan 04-03 implements TicketHistoryService.getTimeline()
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(ticketHistoryService.getTimeline(id));
     }
 
     // -----------------------------------------------------------------------
