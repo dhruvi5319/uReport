@@ -26,6 +26,13 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(eh -> eh
+                // Return 401 for unauthenticated requests to protected endpoints
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED,
+                        "Unauthorized");
+                })
+            )
             .authorizeHttpRequests(auth -> auth
                 // Open311 endpoints are public
                 .requestMatchers("/open311/**").permitAll()
