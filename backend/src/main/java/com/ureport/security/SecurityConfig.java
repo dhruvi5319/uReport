@@ -104,7 +104,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // Allow React dev server (Vite default port 5173) and production origin
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://localhost:3000", "${CAS_SERVICE_URL:https://ureport.city.gov}"));
+        config.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://localhost:3000", "https://ureport.city.gov"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("X-XSRF-TOKEN"));
