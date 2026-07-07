@@ -3,8 +3,8 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-07-07T01:38:31.601Z"
+stopped_at: Completed 03-open311-georeport-v2-api-02-PLAN.md
+last_updated: "2026-07-07T01:38:37.989Z"
 last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
 progress:
   total_phases: 9
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - Phase 9: Open311 golden-file tests generated from PHP reference before migration (critical regression guard)
 - [Phase 03-open311-georeport-v2-api]: Content negotiation via URL suffix (.json/.xml) priority over format query param priority over Accept header for Open311 endpoints
 - [Phase 03-open311-georeport-v2-api]: Tests use native-sidecar PostgreSQL (not H2) since DATABASE_URL is injected by platform and overrides H2 test config
+- [Phase 03-open311-georeport-v2-api]: JPA Specification for dynamic filter queries (service_code, status, date ranges, bbox) — parameterized predicates prevent SQL injection
+- [Phase 03-open311-georeport-v2-api]: api_key validated before any DB write — throws 403 FORBIDDEN if missing or not found in clients table
+- [Phase 03-open311-georeport-v2-api]: @JsonProperty('long') on Double lon field — GeoReport v2 JSON key must be 'long' (reserved Java word)
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-07T01:38:31.599Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-07-07T01:38:37.988Z
+Stopped at: Completed 03-open311-georeport-v2-api-02-PLAN.md
 Resume file: None
