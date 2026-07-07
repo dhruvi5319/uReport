@@ -3,8 +3,8 @@ package com.ureport.domain;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "substatus")
-public class Substatus {
+@Table(name = "actions")
+public class Action {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,10 +12,11 @@ public class Substatus {
 
     private String name;
     private String description;
-    private String status;
+    private String type;
+    private String template;
 
-    @Column(name = "is_default")
-    private Boolean isDefault;
+    @Column(name = "reply_email")
+    private String replyEmail;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -23,8 +24,10 @@ public class Substatus {
     public void setName(String name) { this.name = name; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public Boolean getIsDefault() { return isDefault; }
-    public void setIsDefault(Boolean isDefault) { this.isDefault = isDefault; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+    public String getTemplate() { return template; }
+    public void setTemplate(String template) { this.template = template; }
+    public String getReplyEmail() { return replyEmail; }
+    public void setReplyEmail(String replyEmail) { this.replyEmail = replyEmail; }
 }

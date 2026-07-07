@@ -11,10 +11,12 @@ public class CategoryGroup {
     private Long id;
 
     private String name;
+    private Short ordering;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public Short getOrdering() { return ordering; }
+    public void setOrdering(Short ordering) { this.ordering = ordering; }
 }
