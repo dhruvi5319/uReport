@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 02-authentication-security
 source: [02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md]
 started: 2026-07-07T00:44:13Z
-updated: 2026-07-07T00:46:00Z
+updated: 2026-07-07T00:48:00Z
 ---
 
 ## Current Test
@@ -73,7 +73,11 @@ skipped: 8
   reason: "User reported: dev server log shows: sudo: command not found; then JAVA_HOME: unbound variable — start-dev.sh crashes before the app starts"
   severity: blocker
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "Sandbox runs as root (uid=0) — sudo is not installed. The JDK install snippet used sudo apt-get, which exits non-zero immediately. Because the install command was chained with &&, the subsequent JAVA_HOME= assignment never ran, leaving JAVA_HOME unset. The next line `export PATH=${JAVA_HOME}/bin:$PATH` then triggered bash `set -u` unbound variable abort."
+  artifacts:
+    - path: ".pivota/start-dev.sh"
+      issue: "sudo apt-get used in JDK install block; JAVA_HOME referenced unconditionally after potentially-failed install"
+  missing:
+    - "Replace sudo apt-get with direct apt-get (root has direct access)"
+    - "Guard JAVA_HOME/PATH export behind a successful java install check"
   debug_session: ""
