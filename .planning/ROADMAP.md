@@ -42,8 +42,12 @@ Plans:
 - [x] 01-03-PLAN.md — Spring Boot 3.x Maven skeleton (pom.xml, UReportApplication, application.yml) + Docker Compose three-container setup (db/api/web)
 
 ### Phase 2: Authentication & Security
+<<<<<<< HEAD
 **Status**: completed (2026-07-07)
 **Last Updated**: 2026-07-07T01:26:12Z
+=======
+**Status**: In Progress
+>>>>>>> c1d19b5 (docs: phase 2 status → In Progress)
 **Goal**: Staff can authenticate via LDAP or CAS, receive a JWT, and the API enforces route-level authorization for public, staff, and admin routes
 **Depends on**: Phase 1
 **Requirements**: F12, AUTH-01, AUTH-02, ARCH-01
@@ -63,6 +67,7 @@ Plans:
 - [ ] 02-05-PLAN.md — [GAP CLOSURE] Fix dev server startup: rewrite start-dev.sh (no Docker/sudo, Maven install, Spring Boot with dev profile), add application-dev.yml (H2 in-memory), fix H2 scope to runtime
 
 ### Phase 3: Open311 / GeoReport v2 API
+**Status**: In Progress
 **Goal**: All four frozen Open311 endpoints return byte-compatible responses to the existing PHP implementation, with correct content negotiation and API key validation
 **Depends on**: Phase 2
 **Requirements**: F0, API-01, F20
