@@ -62,17 +62,17 @@
             <version>${flyway.version}</version>
         </dependency>
 
-        <!-- Flyway PostgreSQL support (required for Flyway 10+) -->
+        <!-- Flyway MySQL support (required for Flyway 10+) -->
         <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
+            <artifactId>flyway-mysql</artifactId>
             <version>${flyway.version}</version>
         </dependency>
 
-        <!-- PostgreSQL JDBC driver -->
+        <!-- MySQL JDBC driver -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
 
