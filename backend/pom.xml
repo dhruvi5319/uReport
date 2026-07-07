@@ -113,6 +113,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Thumbnailator for 150x150 thumbnails -->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.20</version>
+        </dependency>
+
         <!-- Spring Mail (SMTP) for NotificationService -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

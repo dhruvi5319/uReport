@@ -15,8 +15,10 @@ public class Media {
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
+    /** Original filename as supplied by the uploader (never used as disk path). */
     private String filename;
 
+    /** UUID-based internal filename stored on disk (e.g. "xxxxxxxx-xxxx.jpg"). */
     @Column(name = "internal_filename")
     private String internalFilename;
 
@@ -28,6 +30,10 @@ public class Media {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
     private Person person;
+
+    /** File size in bytes (V3 migration adds this column). */
+    @Column(name = "size_bytes")
+    private Long sizeBytes;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -43,4 +49,6 @@ public class Media {
     public void setUploaded(LocalDateTime uploaded) { this.uploaded = uploaded; }
     public Person getPerson() { return person; }
     public void setPerson(Person person) { this.person = person; }
+    public Long getSizeBytes() { return sizeBytes; }
+    public void setSizeBytes(Long sizeBytes) { this.sizeBytes = sizeBytes; }
 }
