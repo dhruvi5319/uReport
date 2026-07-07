@@ -62,7 +62,7 @@ Plans:
 - [ ] 02-05-PLAN.md — [GAP CLOSURE] Fix dev server startup: rewrite start-dev.sh (no Docker/sudo, Maven install, Spring Boot with dev profile), add application-dev.yml (H2 in-memory), fix H2 scope to runtime
 
 ### Phase 3: Open311 / GeoReport v2 API
-**Status**: executing
+**Status**: In Progress
 **Goal**: All four frozen Open311 endpoints return byte-compatible responses to the existing PHP implementation, with correct content negotiation and API key validation
 **Depends on**: Phase 2
 **Requirements**: F0, API-01, F20
