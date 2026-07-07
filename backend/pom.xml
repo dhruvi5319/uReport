@@ -113,6 +113,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Mail (SMTP) for NotificationService -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- Lombok for reducing boilerplate (optional but useful) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
