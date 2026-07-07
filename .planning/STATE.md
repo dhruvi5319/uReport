@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-open311-georeport-v2-api-02-PLAN.md
-last_updated: "2026-07-07T01:38:37.989Z"
+stopped_at: Completed 03-GAP-01-PLAN.md
+last_updated: "2026-07-07T02:29:08.622Z"
 last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
 progress:
   total_phases: 9
-  completed_phases: 0
-  total_plans: 14
-  completed_plans: 2
+  completed_phases: 1
+  total_plans: 15
+  completed_plans: 4
   percent: 14
 ---
 
@@ -54,6 +54,7 @@ Progress: [█░░░░░░░░░] 14%
 *Updated after each plan completion*
 | Phase 03-open311-georeport-v2-api P01 | 8min | 2 tasks | 15 files |
 | Phase 03-open311-georeport-v2-api P02 | 8 min | 2 tasks | 31 files |
+| Phase 03-open311-georeport-v2-api PGAP-01 | 2 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase 03-open311-georeport-v2-api]: JPA Specification for dynamic filter queries (service_code, status, date ranges, bbox) — parameterized predicates prevent SQL injection
 - [Phase 03-open311-georeport-v2-api]: api_key validated before any DB write — throws 403 FORBIDDEN if missing or not found in clients table
 - [Phase 03-open311-georeport-v2-api]: @JsonProperty('long') on Double lon field — GeoReport v2 JSON key must be 'long' (reserved Java word)
+- [Phase 03-GAP-01]: EXEC_CMD changed from docker compose up to mvn spring-boot:run — K8s sandbox has no Docker daemon
+- [Phase 03-GAP-01]: catalog_entry reset to null — docker-compose.yml describes legacy PHP stack, not the Spring Boot backend
 
 ### Pending Todos
 
@@ -84,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-07T01:38:37.988Z
-Stopped at: Completed 03-open311-georeport-v2-api-02-PLAN.md
+Last session: 2026-07-07T02:29:08.621Z
+Stopped at: Completed 03-GAP-01-PLAN.md
 Resume file: None
