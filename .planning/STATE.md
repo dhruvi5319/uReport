@@ -2,16 +2,16 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-07-06T23:50:51.990Z"
-last_activity: "2026-07-06 — Completed 02-03: CAS auth (CasAuthService, CasAuthController, 5 unit tests)"
+status: planning
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-07-07T01:38:31.601Z"
+last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
 progress:
   total_phases: 9
-  completed_phases: 1
+  completed_phases: 0
   total_plans: 14
-  completed_plans: 4
-  percent: 21
+  completed_plans: 2
+  percent: 14
 ---
 
 # Project State
@@ -30,15 +30,15 @@ Plan: 3 of 4 in current phase
 Status: In progress
 Last activity: 2026-07-06 — Completed 02-03: CAS auth (CasAuthService, CasAuthController, 5 unit tests)
 
-Progress: [███░░░░░░░] 21%
+Progress: [█░░░░░░░░░] 14%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
-- Average duration: 2.3 min
-- Total execution time: 0.12 hours
+- Total plans completed: 0
+- Average duration: -
+- Total execution time: 0 hours
 
 **By Phase:**
 
@@ -48,19 +48,12 @@ Progress: [███░░░░░░░] 21%
 
 **Recent Trend:**
 
-- Last 5 plans: 3min, 2min, 2min
-- Trend: stable
+- Last 5 plans: -
+- Trend: -
 
 *Updated after each plan completion*
-| Phase 02-authentication-security P04 | 6min | 2 tasks | 4 files |
-
-| Plan | Duration | Tasks | Files |
-|------|----------|-------|-------|
-| Phase 01-infrastructure-foundation P02 | 2 min | 2 tasks | 2 files |
-| Phase 01-infrastructure-foundation P01 | 2min | 2 tasks | 3 files |
-| Phase 01-infrastructure-foundation P03 | 9 min | 2 tasks | 8 files |
-| Phase 01-infrastructure-foundation PGAP-01 | 2 min | 2 tasks | 2 files |
-| Phase 01-infrastructure-foundation PGAP-02 | 1 min | 2 tasks | 2 files |
+| Phase 03-open311-georeport-v2-api P01 | 8min | 2 tasks | 15 files |
+| Phase 03-open311-georeport-v2-api P02 | 8 min | 2 tasks | 31 files |
 
 ## Accumulated Context
 
@@ -74,12 +67,8 @@ Recent decisions affecting current work:
 - Phase 1: Flyway V1 uses snake_case column names (MySQL camelCase → PostgreSQL snake_case per TechArch §3.4 mapping table)
 - Phase 3: Open311 controller shares service/repository layer with internal CRM; content negotiation via Accept header or format param
 - Phase 9: Open311 golden-file tests generated from PHP reference before migration (critical regression guard)
-- [Phase 02-authentication-security]: HS256 JWT in auth_token httpOnly cookie using JJWT 0.12.x API — XSS-safe, stateless auth foundation
-- [Phase 02-authentication-security]: CSRF Double-Submit Cookie (XSRF-TOKEN non-httpOnly + X-XSRF-TOKEN header) via CookieCsrfTokenRepository in Spring Security 6
-- [Phase 02-authentication-security]: PersonMapper ignores expiresAt (not on Person entity) — set explicitly from JWT expiry in controller
-- [Phase 02-authentication-security]: LdapAuthService auto-creates Person with role=staff for new LDAP users — admin role never auto-granted from LDAP
-- [Phase 02-authentication-security]: XXE prevention via DocumentBuilderFactory.setFeature() (disallow-doctype-decl + external entities disabled) — mitigates T-02-14 CAS XML injection
-- [Phase 02-authentication-security]: CAS auto-creates Person with role=staff on first login — admin role never auto-granted from external auth providers
+- [Phase 03-open311-georeport-v2-api]: Content negotiation via URL suffix (.json/.xml) priority over format query param priority over Accept header for Open311 endpoints
+- [Phase 03-open311-georeport-v2-api]: Tests use native-sidecar PostgreSQL (not H2) since DATABASE_URL is injected by platform and overrides H2 test config
 
 ### Pending Todos
 
@@ -92,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-06T23:42:05.701Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-07-07T01:38:31.599Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
