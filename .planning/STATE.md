@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 03-GAP-01-PLAN.md
-last_updated: "2026-07-07T02:29:08.622Z"
+stopped_at: Completed 04-core-case-management-backend-04-02-PLAN.md
+last_updated: "2026-07-07T03:06:17.604Z"
 last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
 progress:
   total_phases: 9
-  completed_phases: 1
-  total_plans: 15
-  completed_plans: 4
-  percent: 14
+  completed_phases: 0
+  total_plans: 14
+  completed_plans: 1
+  percent: 7
 ---
 
 # Project State
@@ -30,7 +30,7 @@ Plan: 3 of 4 in current phase
 Status: In progress
 Last activity: 2026-07-06 — Completed 02-03: CAS auth (CasAuthService, CasAuthController, 5 unit tests)
 
-Progress: [█░░░░░░░░░] 14%
+Progress: [█░░░░░░░░░] 7%
 
 ## Performance Metrics
 
@@ -52,9 +52,7 @@ Progress: [█░░░░░░░░░] 14%
 - Trend: -
 
 *Updated after each plan completion*
-| Phase 03-open311-georeport-v2-api P01 | 8min | 2 tasks | 15 files |
-| Phase 03-open311-georeport-v2-api P02 | 8 min | 2 tasks | 31 files |
-| Phase 03-open311-georeport-v2-api PGAP-01 | 2 min | 2 tasks | 2 files |
+| Phase 04-core-case-management-backend P02 | 52min | 2 tasks | 47 files |
 
 ## Accumulated Context
 
@@ -68,13 +66,9 @@ Recent decisions affecting current work:
 - Phase 1: Flyway V1 uses snake_case column names (MySQL camelCase → PostgreSQL snake_case per TechArch §3.4 mapping table)
 - Phase 3: Open311 controller shares service/repository layer with internal CRM; content negotiation via Accept header or format param
 - Phase 9: Open311 golden-file tests generated from PHP reference before migration (critical regression guard)
-- [Phase 03-open311-georeport-v2-api]: Content negotiation via URL suffix (.json/.xml) priority over format query param priority over Accept header for Open311 endpoints
-- [Phase 03-open311-georeport-v2-api]: Tests use native-sidecar PostgreSQL (not H2) since DATABASE_URL is injected by platform and overrides H2 test config
-- [Phase 03-open311-georeport-v2-api]: JPA Specification for dynamic filter queries (service_code, status, date ranges, bbox) — parameterized predicates prevent SQL injection
-- [Phase 03-open311-georeport-v2-api]: api_key validated before any DB write — throws 403 FORBIDDEN if missing or not found in clients table
-- [Phase 03-open311-georeport-v2-api]: @JsonProperty('long') on Double lon field — GeoReport v2 JSON key must be 'long' (reserved Java word)
-- [Phase 03-GAP-01]: EXEC_CMD changed from docker compose up to mvn spring-boot:run — K8s sandbox has no Docker daemon
-- [Phase 03-GAP-01]: catalog_entry reset to null — docker-compose.yml describes legacy PHP stack, not the Spring Boot backend
+- [Phase 04-core-case-management-backend]: No class-level @Transactional on bulk methods — per-ticket try/catch ensures one failure does not abort others
+- [Phase 04-core-case-management-backend]: Native sidecar PostgreSQL for integration tests (no Docker daemon in K8s sandbox — Testcontainers not viable)
+- [Phase 04-core-case-management-backend]: DatabaseUrlEnvironmentPostProcessor converts platform-injected postgres:// URL to jdbc:postgresql:// before Spring datasource init
 
 ### Pending Todos
 
@@ -87,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-07T02:29:08.621Z
-Stopped at: Completed 03-GAP-01-PLAN.md
+Last session: 2026-07-07T03:06:17.603Z
+Stopped at: Completed 04-core-case-management-backend-04-02-PLAN.md
 Resume file: None
