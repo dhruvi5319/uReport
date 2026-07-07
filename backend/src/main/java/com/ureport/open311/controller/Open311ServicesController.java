@@ -3,6 +3,12 @@ package com.ureport.open311.controller;
 import com.ureport.open311.dto.Open311ErrorDto;
 import com.ureport.open311.dto.Open311ServiceDto;
 import com.ureport.open311.service.Open311ServiceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +19,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/open311/v2")
+@Tag(name = "Open311 Services", description = "GeoReport v2 service discovery endpoints")
+@SecurityRequirement(name = "bearerAuth")
 public class Open311ServicesController {
 
     private final Open311ServiceService serviceService;
@@ -36,6 +44,13 @@ public class Open311ServicesController {
         value = {"/services", "/services.{ext}"},
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
     )
+    @Operation(summary = "List all services",
+        description = "Returns all active service categories. If api_key matches an obsolete key, returns 3 mobile shutdown notice entries.")
+    @Parameter(name = "api_key", description = "Open311 client API key (optional; obsolete keys trigger shutdown notice)", required = false)
+    @Parameter(name = "format", description = "Response format: json (default) or xml", required = false)
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Array of Open311 service objects"),
+    })
     public ResponseEntity<?> getServices(
         @RequestParam(name = "api_key", required = false) String apiKey,
         @RequestParam(name = "format", required = false) String formatParam,
@@ -58,6 +73,13 @@ public class Open311ServicesController {
         value = {"/services/{serviceCode}", "/services/{serviceCode}.{ext}"},
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
     )
+    @Operation(summary = "Get service by code",
+        description = "Returns a single service category by service_code (category id)")
+    @Parameter(name = "serviceCode", description = "The service_code (numeric category id)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Single Open311 service object"),
+        @ApiResponse(responseCode = "404", description = "Service not found"),
+    })
     public ResponseEntity<?> getService(
         @PathVariable String serviceCode,
         @RequestParam(name = "format", required = false) String formatParam,
