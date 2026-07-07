@@ -52,13 +52,14 @@ Plans:
   3. A valid JWT cookie grants access to protected `/api/*` endpoints; an expired or missing cookie returns 401
   4. Public routes (`/submit`, `GET /open311/*`) return data without a JWT; admin-only routes return 403 for staff-role JWT
   5. `POST /api/auth/refresh` issues a new JWT before expiry; `POST /api/auth/logout` invalidates the session
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [ ] 02-01-PLAN.md — Spring Security config + JWT filter chain (JwtService, JwtAuthFilter, SecurityConfig, CSRF double-submit, CORS)
 - [ ] 02-02-PLAN.md — LDAP auth provider + AuthController (Person entity, PersonRepository, LdapAuthService, POST /api/auth/ldap, GET /api/auth/me, POST /api/auth/refresh, POST /api/auth/logout)
 - [ ] 02-03-PLAN.md — CAS auth provider (CasAuthService ticket validation, CasAuthController GET /auth/cas + GET /auth/cas/callback, CAS XML parsing, unit tests)
 - [ ] 02-04-PLAN.md — Route authorization enforcement + integration tests (RoleHierarchyConfig ADMIN>STAFF>PUBLIC, AuthorizationIT covering all TechArch §5.4 rules)
+- [ ] 02-05-PLAN.md — [GAP CLOSURE] Fix dev server startup: rewrite start-dev.sh (no Docker/sudo, Maven install, Spring Boot with dev profile), add application-dev.yml (H2 in-memory), fix H2 scope to runtime
 
 ### Phase 3: Open311 / GeoReport v2 API
 **Goal**: All four frozen Open311 endpoints return byte-compatible responses to the existing PHP implementation, with correct content negotiation and API key validation
