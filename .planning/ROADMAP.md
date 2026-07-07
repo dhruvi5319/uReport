@@ -82,7 +82,8 @@ Plans:
 - [ ] 03-03-PLAN.md — OpenAPI/Swagger integration + golden-file tests: OpenApiConfig (JWT Bearer scheme), @Operation/@ApiResponse annotations on all 5 endpoints, Open311GoldenFileIT shape/content-negotiation tests
 
 ### Phase 4: Core Case Management Backend
-**Status**: In Progress
+**Status**: completed (2026-07-07)
+**Last Updated**: 2026-07-07T23:23:56Z
 **Goal**: The Spring Boot API supports the full ticket lifecycle — create, assign, update, close, reopen, bulk operations, action logging, and media upload — with all business rules preserved
 **Depends on**: Phase 3
 **Requirements**: F1, F9, F10, F14, CASE-01
