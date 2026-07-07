@@ -77,13 +77,20 @@ fi
 # === JDK install for Spring Boot backend (backend/pom.xml present) ===
 # Daytona base snapshot does not ship OpenJDK (RESEARCH.md Pitfall 7).
 # Idempotent: skipped if `java` is already on PATH.
-(command -v java >/dev/null 2>&1 \
-    || (echo "[pivota] installing OpenJDK 21 (one-time, ~30s)" \
-        && sudo apt-get update -qq \
-        && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openjdk-21-jdk-headless)) \
-    && export JAVA_HOME=$(readlink -f $(command -v java) 2>/dev/null | sed -E "s%/bin/java$%%") \
-    && echo "[pivota] JAVA_HOME=$JAVA_HOME"
-export PATH="${JAVA_HOME}/bin:$PATH"
+# Note: sandbox runs as root (uid=0) — apt-get is invoked directly (no sudo).
+if ! command -v java >/dev/null 2>&1; then
+  echo "[pivota] installing OpenJDK 21 (one-time, ~30s)"
+  apt-get update -qq
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openjdk-21-jdk-headless
+fi
+if command -v java >/dev/null 2>&1; then
+  JAVA_HOME=$(readlink -f "$(command -v java)" 2>/dev/null | sed -E "s%/bin/java$%%")
+  export JAVA_HOME
+  export PATH="${JAVA_HOME}/bin:$PATH"
+  echo "[pivota] JAVA_HOME=$JAVA_HOME"
+else
+  echo "[pivota] WARNING: java not found after install attempt; Spring Boot backend may fail" >&2
+fi
 
 # === D-12: idempotent install via lockfile hash + presence check ===
 # Primary stack is Docker Compose — no separate package install step needed;
