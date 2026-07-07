@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 03-open311-georeport-v2-api
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md]
 started: 2026-07-07T01:47:55Z
-updated: 2026-07-07T01:53:00Z
+updated: 2026-07-07T01:55:00Z
 ---
 
 ## Current Test
@@ -73,7 +73,15 @@ skipped: 8
   reason: "User reported: dev server log shows: docker: command not found — all 3 attempts failed. Docker is not available in the K8s sandbox."
   severity: blocker
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "start-dev.sh was generated under the 'compose' catalog entry (triggered by docker-compose.yml detection), hardcoding EXEC_CMD='docker compose up' — but the K8s sandbox has no Docker daemon. The real backend is a Spring Boot 3.3 Maven project in backend/ requiring JDK 21 + Maven, neither pre-installed. The docker-compose.yml is a legacy PHP/Apache stack; the Spring Boot backend uses a native PostgreSQL sidecar injected by the platform."
+  artifacts:
+    - path: ".pivota/start-dev.sh"
+      issue: "EXEC_CMD='docker compose up' — Docker unavailable in K8s sandbox; INSTALL_CMD, LOCK_FILE_PATH, INSTALL_PRESENCE_CHECK all empty (no JDK/Maven install attempted)"
+    - path: ".pivota/dev-script.meta.json"
+      issue: "catalog_entry='compose' — wrong catalog selected; docker-compose.yml describes a legacy PHP stack, not the Spring Boot backend"
+  missing:
+    - "JDK 21 install step (java, mvn, mvnw all absent in sandbox)"
+    - "Maven install step (no system maven, no mvnw in repo)"
+    - "Correct EXEC_CMD: cd backend && mvn spring-boot:run"
+    - "LOCK_FILE_PATH=backend/pom.xml and INSTALL_PRESENCE_CHECK=/root/.m2/repository"
   debug_session: ""
