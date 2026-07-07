@@ -1,8 +1,27 @@
 open311:
   obsolete-api-keys: test-obsolete-key
 
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ureport
+    driver-class-name: org.postgresql.Driver
+    username: ureport
+    password: ureport
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    clean-disabled: false
+
 jwt:
-  secret: test-secret-32-characters-minimum-length-here
+  secret: test-secret-key-for-testing-only-must-be-at-least-32-chars
   expiry-seconds: 3600
   issuer: ureport-test
 
@@ -11,20 +30,3 @@ ldap:
 
 cas:
   enabled: false
-
-spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DEFAULT_NULL_ORDERING=HIGH
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-  flyway:
-    enabled: false

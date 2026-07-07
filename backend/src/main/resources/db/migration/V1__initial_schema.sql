@@ -1,3 +1,7 @@
+-- V1: Initial PostgreSQL schema for uReport CRM
+-- Converted from MySQL — all types updated: AUTO_INCREMENT→SERIAL, TINYINT(1)→BOOLEAN,
+-- camelCase column names→snake_case per TechArch §3.4
+
 -- CONTACT METHODS
 CREATE TABLE contact_methods (
     id   SERIAL       PRIMARY KEY,
