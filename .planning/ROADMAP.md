@@ -111,13 +111,13 @@ Plans:
   2. Department CRUD at `/api/departments` supports creating departments, setting a default assignee, and managing `department_actions` and `department_categories` associations
   3. Category and category group CRUD at `/api/categories` and `/api/category-groups` supports full taxonomy management including `posting_permission_level`, `sla_days`, and `category_action_responses` templates
   4. All lookup-table entities (substatus, issue types, contact methods, response templates) have full CRUD endpoints at `/api/substatus`, `/api/issue-types`, `/api/contact-methods`, `/api/actions`
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 05-01: People management API — PeopleController, PeopleService, people_emails/phones/addresses sub-resources, department assignment
-- [ ] 05-02: Department management API — DepartmentController, DepartmentService, department_actions, department_categories
-- [ ] 05-03: Category management API — CategoryController, CategoryGroupController, CategoryService, category_action_responses
-- [ ] 05-04: Lookup table admin APIs — LookupController for substatus, issue_types, contact_methods; F13 admin panel endpoints
+- [ ] 05-01-PLAN.md — People management API: PeoplePhone/PeopleAddress entities, Person @OneToMany sub-resources, PeopleService (reconciliation, uniqueness, delete safety), PeopleController (5 endpoints + /tickets), PeopleCrudIT
+- [ ] 05-02-PLAN.md — Department management API: Department @OneToMany DepartmentActions, DepartmentService (action reconciliation, category-count, delete safety), DepartmentController (5 endpoints + /categories), DepartmentCrudIT
+- [ ] 05-03-PLAN.md — Category management API: Category @OneToMany CategoryActionResponses, CategoryService (permission validation, autoClose rules, actionResponse reconciliation), CategoryController (8 endpoints incl. /public + /action-responses), CategoryGroupController, CategoryCrudIT
+- [ ] 05-04-PLAN.md — Lookup table admin APIs: SubstatusService (isDefault auto-clearing, seeded protection ids 1-3), IssueTypeService (seeded ids 1-6), ContactMethodService (seeded ids 1-4), ActionService (dept-type create, system-type delete block), 4 controllers, LookupTableCrudIT
 
 ### Phase 6: Search, Geo & Metrics Backend
 **Goal**: PostgreSQL full-text search works at parity with the existing Solr implementation, bookmarks persist per user, geo-cluster data serves the map widget, and metrics/reporting endpoints are live
