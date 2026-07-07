@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Infrastructure Foundation
-**Status**: Complete
+**Status**: failed
 **Goal**: The full PostgreSQL schema exists, migrations run cleanly, all three containers start, and the Spring Boot app connects to the database
 **Depends on**: Nothing (first phase)
 **Requirements**: F21, DB-01, ARCH-02
@@ -42,6 +42,8 @@ Plans:
 - [x] 01-03-PLAN.md — Spring Boot 3.x Maven skeleton (pom.xml, UReportApplication, application.yml) + Docker Compose three-container setup (db/api/web)
 
 ### Phase 2: Authentication & Security
+**Status**: completed (2026-07-07)
+**Last Updated**: 2026-07-07T01:26:12Z
 **Goal**: Staff can authenticate via LDAP or CAS, receive a JWT, and the API enforces route-level authorization for public, staff, and admin routes
 **Depends on**: Phase 1
 **Requirements**: F12, AUTH-01, AUTH-02, ARCH-01
@@ -51,13 +53,14 @@ Plans:
   3. A valid JWT cookie grants access to protected `/api/*` endpoints; an expired or missing cookie returns 401
   4. Public routes (`/submit`, `GET /open311/*`) return data without a JWT; admin-only routes return 403 for staff-role JWT
   5. `POST /api/auth/refresh` issues a new JWT before expiry; `POST /api/auth/logout` invalidates the session
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [ ] 02-01-PLAN.md — Spring Security config + JWT filter chain (JwtService, JwtAuthFilter, SecurityConfig, CSRF double-submit, CORS)
 - [ ] 02-02-PLAN.md — LDAP auth provider + AuthController (Person entity, PersonRepository, LdapAuthService, POST /api/auth/ldap, GET /api/auth/me, POST /api/auth/refresh, POST /api/auth/logout)
 - [ ] 02-03-PLAN.md — CAS auth provider (CasAuthService ticket validation, CasAuthController GET /auth/cas + GET /auth/cas/callback, CAS XML parsing, unit tests)
 - [ ] 02-04-PLAN.md — Route authorization enforcement + integration tests (RoleHierarchyConfig ADMIN>STAFF>PUBLIC, AuthorizationIT covering all TechArch §5.4 rules)
+- [ ] 02-05-PLAN.md — [GAP CLOSURE] Fix dev server startup: rewrite start-dev.sh (no Docker/sudo, Maven install, Spring Boot with dev profile), add application-dev.yml (H2 in-memory), fix H2 scope to runtime
 
 ### Phase 3: Open311 / GeoReport v2 API
 **Goal**: All four frozen Open311 endpoints return byte-compatible responses to the existing PHP implementation, with correct content negotiation and API key validation

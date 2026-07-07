@@ -1,14 +1,14 @@
 {
   "generator_version": "init-dev-server@1",
   "catalog_entry": "compose",
-  "generated_at": "2026-07-06T23:23:47Z",
-  "inspection_inputs_hash": "f1b0ce08bb7021a7eb14c9a0bd5f8a3b94c76d10dc3727b812d2d7340611f36b",
+  "generated_at": "2026-07-07T01:13:41Z",
+  "inspection_inputs_hash": "8b5060a2ea9bf58ccb68afd854a703d9664c2629a9c054134ea4c126b6b8c0e0",
   "inspection_inputs": {
     "matched_globs": [
       "docker-compose.yml"
     ],
     "manifest_signatures": [
-      "docker-compose.yml:services:api,db,web"
+      "docker-compose.yml:services:app,db,phpmyadmin,solr"
     ],
     "existing_scripts": []
   }

@@ -1,0 +1,46 @@
+# Spring Boot 'dev' profile — for sandbox / local development without PostgreSQL
+# Overrides application.yml — H2 in-memory DB, no Flyway, default JWT secret
+spring:
+  datasource:
+    url: jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+  h2:
+    console:
+      enabled: false
+
+management:
+  health:
+    db:
+      enabled: false
+    ldap:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+# JWT — default dev secret (32+ chars for HS256)
+jwt:
+  secret: ${JWT_SECRET:dev-secret-32-characters-minimum-for-hs256}
+  expiry-seconds: 28800
+  issuer: ureport
+
+# LDAP + CAS disabled — not available in dev sandbox
+ldap:
+  enabled: false
+
+cas:
+  enabled: false
