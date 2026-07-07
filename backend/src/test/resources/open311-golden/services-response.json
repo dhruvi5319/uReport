@@ -1,0 +1,11 @@
+[
+  {
+    "service_code": "1",
+    "service_name": "Example Service",
+    "description": "",
+    "metadata": false,
+    "type": "realtime",
+    "keywords": "",
+    "group": "Example Group"
+  }
+]
