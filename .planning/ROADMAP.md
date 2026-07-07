@@ -129,11 +129,11 @@ Plans:
   3. A user can save a search as a bookmark via `POST /api/bookmarks` with name and current query string; saved bookmarks are retrieved via `GET /api/bookmarks`
   4. `GET /api/geoclusters?zoom={level}` returns pre-computed cluster data from `geoclusters` and `ticket_geodata` tables
   5. `GET /api/dashboard/stats` returns open count, opened today, closed today, and overdue count; `GET /api/metrics` returns case volume, resolution time, and category breakdown with date-range filtering
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: Full-text search — SearchService (tsvector queries, ts_headline, search + filter combine), TicketRepository @Query for FTS, SEARCH-01 bookmark CRUD
-- [ ] 06-02: Geo and metrics — GeoclusterController/Service, DashboardController/Service (stat counts, chart aggregations), metrics/reporting endpoints
+- [ ] 06-01-PLAN.md — Full-text search: extend TicketRepository with FTS native @Query methods, TicketService FTS routing, searchSnippet DTO field, Bookmark entity/repository/service/controller (GET/POST/DELETE /api/bookmarks), SearchIT integration test
+- [ ] 06-02-PLAN.md — Geo and metrics: Geocluster/TicketGeodata entities, GeoclusterService (zoom whitelist switch), GeoclusterController, DashboardService (dept-scoped stats), DashboardController, MetricsService (volume/resolution/overdue/reports/CSV), MetricsController, DashboardMetricsIT integration test
 
 ### Phase 7: React Design System & Shell
 **Goal**: The React application has a complete design system, working navigation shell, and accessible responsive layout so all screens can be built consistently on top of it
