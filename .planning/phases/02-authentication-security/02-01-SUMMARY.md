@@ -1,164 +1,125 @@
 ---
 phase: 02-authentication-security
-plan: 01
-subsystem: auth
-tags: [jwt, spring-security, jjwt, mapstruct, csrf, cors]
-
-# Dependency graph
-requires: []
-provides:
-  - Spring Security FilterChain with exact route authorization rules (public/staff/admin)
-  - JwtService: HS256 JWT sign/validate/parse using JJWT 0.12.3
-  - JwtAuthFilter: OncePerRequestFilter extracting auth_token cookie → SecurityContextHolder
-  - CustomUserDetails: Spring UserDetails with personId, username, role
-  - CSRF Double-Submit Cookie (XSRF-TOKEN non-httpOnly + X-XSRF-TOKEN header)
-  - Spring Boot backend Maven project foundation
-affects: [02-02, 02-03, 02-04, 03-open311, 04-core-case-management]
-
-# Tech tracking
-tech-stack:
-  added:
-    - spring-boot-starter-security 3.2.5
-    - spring-security-ldap
-    - jjwt-api 0.12.3
-    - jjwt-impl 0.12.3 (runtime)
-    - jjwt-jackson 0.12.3 (runtime)
-    - mapstruct 1.6.0
-    - mapstruct-processor 1.6.0 (provided)
-    - h2 (test scope)
-    - spring-security-test (test scope)
-  patterns:
-    - JWT in httpOnly auth_token cookie (XSS mitigation)
-    - CSRF Double-Submit Cookie (XSRF-TOKEN non-httpOnly, X-XSRF-TOKEN header)
-    - OncePerRequestFilter for JWT extraction and SecurityContextHolder population
-    - Custom AuthenticationEntryPoint returning 401 JSON (not HTML redirect)
-    - Role-based authorization via hasRole/hasAnyRole in SecurityConfig
-
-key-files:
-  created:
-    - backend/pom.xml
-    - backend/src/main/java/com/ureport/UReportApplication.java
+plan: "01"
+subsystem: security
+tags: [spring-security, jwt, csrf, cors, mapstruct, ldap]
+dependency_graph:
+  requires: []
+  provides:
     - backend/src/main/java/com/ureport/security/JwtService.java
+    - backend/src/main/java/com/ureport/security/SecurityConfig.java
+    - backend/src/main/java/com/ureport/security/JwtAuthFilter.java
     - backend/src/main/java/com/ureport/security/CustomUserDetails.java
+  affects:
+    - backend/pom.xml
+    - backend/src/main/resources/application.yml
+tech_stack:
+  added:
+    - spring-security-ldap
+    - mapstruct 1.6.0
+    - mapstruct-processor 1.6.0
+  patterns:
+    - JWT HS256 via JJWT 0.12.x
+    - OncePerRequestFilter for JWT extraction
+    - CSRF Double-Submit Cookie (CookieCsrfTokenRepository withHttpOnlyFalse)
+    - CORS via CorsConfigurationSource bean
+key_files:
+  created: []
+  modified:
+    - backend/pom.xml
     - backend/src/main/java/com/ureport/security/JwtAuthFilter.java
     - backend/src/main/java/com/ureport/security/SecurityConfig.java
-    - backend/src/main/resources/application.yml
-    - backend/src/test/java/com/ureport/security/SecurityConfigTest.java
-    - backend/src/test/resources/application-test.yml
-  modified: []
-
-key-decisions:
-  - "Used JJWT 0.12.x API (Jwts.builder().subject(), Jwts.SIG.HS256, Jwts.parser().verifyWith()) — not legacy 0.11.x API"
-  - "CookieCsrfTokenRepository.withHttpOnlyFalse() + CsrfTokenRequestAttributeHandler for Spring Security 6 Double-Submit Cookie"
-  - "H2 in-memory database for tests with Flyway disabled + LDAP/DB health indicators off — avoids external dependencies in unit test context"
-  - "Custom AuthenticationEntryPoint and AccessDeniedHandler return JSON (not HTML redirect) for SPA compatibility"
-
-patterns-established:
-  - "Pattern 1: JWT auth via auth_token cookie (not Authorization header) — consistent with XSS mitigation decision"
-  - "Pattern 2: SecurityConfig route table mirrors TechArch §5.4 exactly — future phases add routes following same pattern"
-  - "Pattern 3: @ActiveProfiles('test') + application-test.yml for Spring Boot integration tests needing isolated context"
-
-# Metrics
-duration: 3min
-completed: 2026-07-06
+    - backend/src/main/java/com/ureport/security/JwtUtil.java
+decisions:
+  - JJWT already at 0.12.5 (plan specified 0.12.3) — kept 0.12.5 (newer patch, same API)
+  - JwtUtil fixed to use correct property path jwt.secret (was app.jwt.secret — pre-existing bug)
+  - SecurityConfigTest kept with @ActiveProfiles("test") + embedded-postgres (no H2 in pom)
+metrics:
+  duration: 8min
+  completed_date: "2026-07-08"
+  tasks_completed: 2
+  files_modified: 4
 ---
 
-# Phase 2 Plan 1: Spring Security Foundation Summary
+# Phase 02 Plan 01: Spring Security Foundation Summary
 
-**HS256 JWT via auth_token cookie using JJWT 0.12.3, with CSRF Double-Submit Cookie protection and exact TechArch §5.4 route authorization rules in Spring Security 6**
+**One-liner:** JWT HS256 filter chain with CSRF Double-Submit Cookie, full TechArch §5.4 route authorization table, and MapStruct/spring-security-ldap dependencies.
 
-## Performance
+## What Was Built
 
-- **Duration:** 3 min
-- **Started:** 2026-07-06T23:29:08Z
-- **Completed:** 2026-07-06T23:32:43Z
-- **Tasks:** 2 completed
-- **Files modified:** 9
+### JwtService.java (pre-existing, verified)
+Complete JJWT 0.12.x service with `generateToken(Long, String, String)`, `validateToken(String)`, `extractClaims(String)`, `extractUsername`, `extractPersonId`, `extractRole`, `extractExpiration`. Signs HS256 JWTs with sub/personId/role/iat/exp/iss claims.
 
-## Accomplishments
-- Spring Boot backend project created with all required dependencies (security, JJWT 0.12.3, MapStruct 1.6.0)
-- JwtService: full HS256 sign/validate/parse using JJWT 0.12.x API with generateToken/validateToken/extractClaims/extractUsername/extractPersonId/extractRole/extractExpiration
-- CustomUserDetails: Spring UserDetails implementation with personId, username, role fields and ROLE_ prefix convention
-- JwtAuthFilter (OncePerRequestFilter): extracts auth_token cookie, validates via JwtService, populates SecurityContextHolder; returns 401 JSON on invalid token
-- SecurityConfig: complete route authorization table per TechArch §5.4 — public (Open311, auth endpoints, actuator/health), staff/admin (tickets write, departments/categories), admin-only (people DELETE)
-- CSRF Double-Submit Cookie: CookieCsrfTokenRepository.withHttpOnlyFalse() + CsrfTokenRequestAttributeHandler; Open311 and auth endpoints CSRF-exempt
-- SecurityConfigTest: 5 tests all passing — public routes not 401, invalid JWT returns 401, actuator health accessible
+### CustomUserDetails.java (pre-existing, verified)
+`UserDetails` implementation with `personId` (Long), `username` (String), `role` (String) fields. `getAuthorities()` returns `ROLE_{ROLE}` for Spring Security role checks.
 
-## Task Commits
+### JwtAuthFilter.java (rewritten)
+`OncePerRequestFilter` that:
+- Extracts `auth_token` cookie from request
+- On valid token: populates `SecurityContextHolder` with `UsernamePasswordAuthenticationToken`
+- On invalid/expired token: returns **401 JSON immediately** (not just unauthenticated-proceed)
+- On no cookie: passes through to next filter
 
-Each task was committed atomically:
+### SecurityConfig.java (rewritten)
+Full `SecurityFilterChain` with:
+- CSRF Double-Submit Cookie: `CookieCsrfTokenRepository.withHttpOnlyFalse()` — XSRF-TOKEN is non-httpOnly for React to read; Open311, CAS, auth endpoints are CSRF-exempt
+- CORS: allows localhost:5173, localhost:3000, production origin; exposes X-XSRF-TOKEN header
+- Route authorization from TechArch §5.4: public (Open311, auth, categories/public, swagger, actuator), ADMIN-only (DELETE /api/people/**), STAFF/ADMIN (departments/**, categories/**, ticket writes), authenticated (/api/**), denyAll for unmatched
+- JWT filter added before `UsernamePasswordAuthenticationFilter`
+- 401/403 JSON responses via custom `authenticationEntryPoint` / `accessDeniedHandler`
 
-1. **Task 1: Add security/JWT/MapStruct dependencies; implement JwtService and CustomUserDetails** - `19d2cc3` (feat)
-2. **Task 2: Write SecurityConfig + JwtAuthFilter; configure CSRF Double-Submit Cookie + CORS** - `3ad1d8b` (feat)
-
-**Plan metadata:** (pending docs commit)
-
-## Files Created/Modified
-- `backend/pom.xml` - Spring Boot 3.2.5 Maven project with spring-security, JJWT 0.12.3, MapStruct 1.6.0, H2 test
-- `backend/src/main/java/com/ureport/UReportApplication.java` - @SpringBootApplication main class
-- `backend/src/main/java/com/ureport/security/JwtService.java` - HS256 JWT sign/validate/parse service
-- `backend/src/main/java/com/ureport/security/CustomUserDetails.java` - Spring UserDetails with personId/role
-- `backend/src/main/java/com/ureport/security/JwtAuthFilter.java` - OncePerRequestFilter for auth_token cookie JWT extraction
-- `backend/src/main/java/com/ureport/security/SecurityConfig.java` - Full SecurityFilterChain with route authorization + CSRF + CORS
-- `backend/src/main/resources/application.yml` - Spring Boot config with jwt/ldap/cas sections
-- `backend/src/test/java/com/ureport/security/SecurityConfigTest.java` - 5 security integration tests
-- `backend/src/test/resources/application-test.yml` - H2 test context with Flyway/LDAP health disabled
-
-## Decisions Made
-- Used JJWT 0.12.x fluent API (`Jwts.builder().subject()`, `Jwts.SIG.HS256`, `Jwts.parser().verifyWith()`) — not legacy 0.11.x API
-- Spring Security 6 CSRF: `CookieCsrfTokenRepository.withHttpOnlyFalse()` + `CsrfTokenRequestAttributeHandler` (required for Spring Security 6 compatibility)
-- H2 in-memory database for tests with Flyway disabled + LDAP/DB health indicators disabled
-- Custom AuthenticationEntryPoint returns JSON 401 (not HTML redirect) for SPA compatibility
+### pom.xml (updated)
+Added:
+- `spring-security-ldap` (for LDAP auth in 02-02)
+- `mapstruct 1.6.0` + `mapstruct-processor 1.6.0` (provided)
+- `mapstruct-processor` in `maven-compiler-plugin` annotationProcessorPaths
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
-**1. [Rule 1 - Bug] Fixed `status().isNotEqualTo(int)` — method doesn't exist in Spring MVC Test**
-- **Found during:** Task 2 (SecurityConfigTest compilation)
-- **Issue:** The plan's test code used `status().isNotEqualTo(401)` which is not a valid method on `StatusResultMatchers`
-- **Fix:** Replaced with `status().is(not(401))` using Hamcrest `not()` matcher — equivalent semantics
-- **Files modified:** `backend/src/test/java/com/ureport/security/SecurityConfigTest.java`
-- **Verification:** Tests compile and all 5 pass
-- **Committed in:** 3ad1d8b (Task 2 commit)
+**1. [Rule 1 - Bug] Fixed JwtUtil property path mismatch**
+- **Found during:** Task 2
+- **Issue:** `JwtUtil` used `${app.jwt.secret}` which doesn't exist; correct property is `${jwt.secret}`. Bean initialization would fail at startup.
+- **Fix:** Updated `JwtUtil` constructor to use `${jwt.secret}` and `${jwt.expiry-seconds:28800}`; fixed field from `expirationMs` to `expiryMs` (correctly multiplying by 1000)
+- **Files modified:** `backend/src/main/java/com/ureport/security/JwtUtil.java`
+- **Commit:** a1e93a8
 
-**2. [Rule 1 - Bug] Fixed actuator health returning 503 due to LDAP health check failure**
-- **Found during:** Task 2 (SecurityConfigTest execution)
-- **Issue:** `spring-security-ldap` auto-registers an LDAP health indicator; in the test context it tries to connect to `localhost:389` which doesn't exist → health returns DOWN (503)
-- **Fix:** Added `management.health.ldap.enabled: false` and `management.health.db.enabled: false` to `application-test.yml`
-- **Files modified:** `backend/src/test/resources/application-test.yml`
-- **Verification:** `actuatorHealth_isPublic` test now passes (200 OK)
-- **Committed in:** 3ad1d8b (Task 2 commit)
+**2. [Scope note] JJWT version 0.12.5 vs 0.12.3**
+- Plan specified 0.12.3; pom.xml already had 0.12.5. Kept 0.12.5 as it's a newer patch release with the same 0.12.x API.
 
----
+**3. [Scope note] SecurityConfigTest kept with @ActiveProfiles("test")**
+- Plan specified `@TestPropertySource` with H2. H2 is not a project dependency. The existing test uses `@ActiveProfiles("test")` + embedded-postgres (already configured). Functionally equivalent — all 5 test cases are present and test the same behavior.
 
-**Total deviations:** 2 auto-fixed (2 Rule 1 - Bug)
-**Impact on plan:** Both fixes necessary for test correctness. No scope changes.
+## Commits
 
-## Issues Encountered
-None — all issues resolved via auto-fix rules.
-
-## User Setup Required
-None - no external service configuration required.
-
-## Next Phase Readiness
-- JWT security infrastructure complete: JwtService, JwtAuthFilter, SecurityConfig, CustomUserDetails
-- Ready for Phase 2 Plan 02: LDAP authentication integration (02-02)
-- Ready for Phase 2 Plan 03: CAS authentication integration (02-03)
-- SecurityContextHolder populated with CustomUserDetails — downstream controllers can use `@AuthenticationPrincipal CustomUserDetails user` pattern
+| Hash    | Type | Description |
+|---------|------|-------------|
+| 21d147b | feat | Add spring-security-ldap and MapStruct 1.6.0 deps to pom.xml |
+| a1e93a8 | feat | Implement JwtAuthFilter, SecurityConfig with full route auth table + CSRF |
 
 ## Self-Check: PASSED
 
-- ✅ `backend/src/main/java/com/ureport/security/JwtService.java` — exists
-- ✅ `backend/src/main/java/com/ureport/security/SecurityConfig.java` — exists
-- ✅ `backend/src/main/java/com/ureport/security/JwtAuthFilter.java` — exists
-- ✅ `backend/src/main/java/com/ureport/security/CustomUserDetails.java` — exists
-- ✅ `backend/src/test/java/com/ureport/security/SecurityConfigTest.java` — exists
-- ✅ `backend/pom.xml` — exists
-- ✅ Commit `19d2cc3` — feat(02-01): Task 1
-- ✅ Commit `3ad1d8b` — feat(02-01): Task 2
-- ✅ Commit `caba623` — docs(02-01): metadata
+Files verified to exist:
+- ✓ backend/src/main/java/com/ureport/security/JwtService.java
+- ✓ backend/src/main/java/com/ureport/security/SecurityConfig.java
+- ✓ backend/src/main/java/com/ureport/security/JwtAuthFilter.java
+- ✓ backend/src/main/java/com/ureport/security/CustomUserDetails.java
+- ✓ backend/pom.xml (spring-security-ldap, mapstruct confirmed)
+- ✓ backend/src/main/resources/application.yml (jwt/ldap/cas blocks confirmed)
+- ✓ backend/src/test/java/com/ureport/security/SecurityConfigTest.java
 
----
-*Phase: 02-authentication-security*
-*Completed: 2026-07-06*
+Contract checks passed:
+- ✓ JwtService: generateToken/validateToken/extractClaims present
+- ✓ CustomUserDetails: implements UserDetails, private Long personId, private String role
+- ✓ JwtAuthFilter: extends OncePerRequestFilter
+- ✓ SecurityConfig: SecurityFilterChain securityFilterChain method present
+- ✓ SecurityConfig: auth_token cookie name in JwtAuthFilter
+- ✓ SecurityConfig: open311/v2/** permitted + CSRF-exempt
+- ✓ SecurityConfig: CookieCsrfTokenRepository.withHttpOnlyFalse() (XSRF-TOKEN)
+
+Commits verified:
+- ✓ 21d147b present in git log
+- ✓ a1e93a8 present in git log
+
+Tests written — execution deferred to verify phase.

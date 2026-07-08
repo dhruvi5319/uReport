@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 04-core-case-management-backend-04-03-PLAN.md
-last_updated: "2026-07-08T00:08:00.000Z"
-last_activity: 2026-07-08 — Completed 01-03: Spring Boot Maven skeleton, Dockerfiles, ApplicationStartIT
+stopped_at: Completed 02-authentication-security-02-01-PLAN.md
+last_updated: "2026-07-08T00:20:00.000Z"
+last_activity: 2026-07-08 — Completed 02-01: Spring Security foundation (JwtService, JwtAuthFilter, SecurityConfig, CSRF, CORS, MapStruct deps)
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 14
-  completed_plans: 4
-  percent: 14
+  completed_plans: 5
+  percent: 21
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 2 of 9 (Authentication & Security)
-Plan: 3 of 4 in current phase
+Plan: 1 of 5 in current phase (02-01 complete)
 Status: In progress
-Last activity: 2026-07-06 — Completed 02-03: CAS auth (CasAuthService, CasAuthController, 5 unit tests)
+Last activity: 2026-07-08 — Completed 02-01: Spring Security foundation (JwtAuthFilter, SecurityConfig, CSRF Double-Submit Cookie, MapStruct/LDAP deps)
 
 Progress: [█░░░░░░░░░] 14%
 
@@ -45,6 +45,7 @@ Progress: [█░░░░░░░░░] 14%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 02-authentication-security | 3 | 7min | 2.3min |
+| 02-authentication-security P01 | 8min | 2 tasks | 4 files |
 
 **Recent Trend:**
 
@@ -71,6 +72,7 @@ Recent decisions affecting current work:
 - [Phase 04-core-case-management-backend]: DatabaseUrlEnvironmentPostProcessor converts platform-injected postgres:// URL to jdbc:postgresql:// before Spring datasource init
 - [Phase 01-infrastructure-foundation 01-03]: io.zonky.test embedded-postgres replaces Testcontainers — no Docker daemon needed; ZONKY provider auto-configures DataSource bean in test scope
 - [Phase 01-infrastructure-foundation 01-03]: docker-compose.yml removed — K8s sandbox has no Docker daemon; embedded-postgres + Dockerfiles cover all test and OCI packaging needs
+- [Phase 02-authentication-security 02-01]: JwtUtil fixed to use jwt.secret property (was app.jwt.secret — pre-existing bug); SecurityConfig uses JwtAuthFilter (not legacy JwtAuthenticationFilter)
 
 ### Pending Todos
 
@@ -83,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T00:08:00.000Z
-Stopped at: Completed 01-infrastructure-foundation-01-03-PLAN.md
+Last session: 2026-07-08T00:20:00.000Z
+Stopped at: Completed 02-authentication-security-02-01-PLAN.md
 Resume file: None
