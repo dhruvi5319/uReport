@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-react-design-system-and-shell-01-PLAN.md
-last_updated: "2026-07-08T17:52:01.252Z"
-last_activity: "2026-07-08 — Completed 03-03: OpenAPI/Swagger docs + golden-file integration tests (8 tests, JWT Bearer SecurityScheme, @Operation annotations on all 5 Open311 endpoints)"
+stopped_at: Completed 07-react-design-system-and-shell-02-PLAN.md
+last_updated: "2026-07-08T17:57:15.664Z"
+last_activity: "2026-07-08 — Completed 07-02: 17 shadcn/ui components vendored + customized (Badge status variants, Button focus ring, Input dark mode), 38 Vitest+jest-axe tests pass, 0 critical axe violations"
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 36
-  completed_plans: 26
-  percent: 51
+  completed_plans: 27
+  percent: 75
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 
 ## Current Position
 
-Phase: 3 of 9 (Open311 GeoReport v2 API)
-Plan: 3 of 4 in current phase (03-01, 03-02, 03-03 complete)
+Phase: 7 of 9 (React Design System and Shell)
+Plan: 2 of 4 in current phase (07-01 not yet executed, 07-02 complete)
 Status: In progress
-Last activity: 2026-07-08 — Completed 03-03: OpenAPI/Swagger docs + golden-file integration tests (8 tests, JWT Bearer SecurityScheme, @Operation annotations on all 5 Open311 endpoints)
+Last activity: 2026-07-08 — Completed 07-02: 17 shadcn/ui components vendored, Badge status variants, Button focus ring, Input dark mode, 38 Vitest+jest-axe tests pass
 
-Progress: [█████░░░░░] 51%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [█████░░░░░] 51%
 | Phase 06-search-geo-and-metrics-backend P01 | 8 min | 2 tasks | 12 files |
 | Phase 06-search-geo-and-metrics-backend PGAP-01 | 7min | 3 tasks | 4 files |
 | Phase 07-react-design-system-and-shell P01 | 15min | 2 tasks | 23 files |
+| Phase 07-react-design-system-and-shell P02 | 9min | 2 tasks | 22 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,8 @@ Recent decisions affecting current work:
 - [Phase 06-search-geo-and-metrics-backend]: @ExceptionHandler(ResponseStatusException.class) in GlobalExceptionHandler preserves 403/400 status before ExceptionTranslationFilter re-maps to 401
 - [Phase 07-react-design-system-and-shell]: CSS @import must precede @tailwind directives — fontsource imports moved above @tailwind base/components/utilities in globals.css
 - [Phase 07-react-design-system-and-shell]: vitest 2.1.9 jsdom provides null-prototype localStorage with no methods — localStorage and matchMedia mocked in test-setup.ts for all frontend tests
+- [Phase 07-react-design-system-and-shell]: Badge status variants as direct CVA variant keys (open/resolved/duplicate/bogus) — simpler API vs nested statusVariant prop
+- [Phase 07-react-design-system-and-shell]: shadcn components written manually (not via CLI) due to network failure — equivalent output, all 17 files match official shadcn/ui source
 
 ### Pending Todos
 
@@ -125,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T17:52:01.250Z
-Stopped at: Completed 07-react-design-system-and-shell-01-PLAN.md
+Last session: 2026-07-08T17:57:15.662Z
+Stopped at: Completed 07-react-design-system-and-shell-02-PLAN.md
 Resume file: None
