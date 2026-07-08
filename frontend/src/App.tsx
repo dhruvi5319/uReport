@@ -7,6 +7,7 @@ import AppShell from "./components/shell/AppShell";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
+import { CaseListPage } from "./pages/CaseListPage";
 
 export default function App() {
   const location = useLocation();
@@ -21,6 +22,7 @@ export default function App() {
               <Route element={<AppShell />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/" element={<DashboardPage />} />
+                <Route path="/cases" element={<CaseListPage />} />
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
             </Routes>
