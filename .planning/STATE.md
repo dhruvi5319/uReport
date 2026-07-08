@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-admin-configuration-backend-05-04-PLAN.md
-last_updated: "2026-07-08T13:48:46.727Z"
+stopped_at: Completed 05-admin-configuration-backend-05-02-PLAN.md
+last_updated: "2026-07-08T13:49:23.882Z"
 last_activity: "2026-07-08 — Completed 03-03: OpenAPI/Swagger docs + golden-file integration tests (8 tests, JWT Bearer SecurityScheme, @Operation annotations on all 5 Open311 endpoints)"
 progress:
   total_phases: 9
   completed_phases: 4
   total_plans: 35
-  completed_plans: 19
+  completed_plans: 20
   percent: 51
 ---
 
@@ -60,6 +60,7 @@ Progress: [█████░░░░░] 51%
 *Updated after each plan completion*
 | Phase 04-core-case-management-backend P02 | 52min | 2 tasks | 47 files |
 | Phase 05-admin-configuration-backend P04 | 20min | 2 tasks | 20 files |
+| Phase 05-admin-configuration-backend P02 | 6min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 05-admin-configuration-backend]: Reused com.ureport.crm.dto.ActionDto for ActionController to avoid duplicate record type
 - [Phase 05-admin-configuration-backend]: SEEDED_* constants use Set.of() for O(1) in-memory guard before DB lookup in all 3 lookup services
 - [Phase 05-admin-configuration-backend]: clearDefaultForStatus runs within same @Transactional scope for Postgres row-level lock safety on isDefault exclusivity
+- [Phase 05-admin-configuration-backend]: Department action reconciliation via orphanRemoval: getDepartmentActions().clear() + add new entries — no manual deleteByDepartmentId needed
+- [Phase 05-admin-configuration-backend]: Department.departmentActions uses @JoinColumn (not mappedBy) because DepartmentAction has composite @IdClass with no @ManyToOne back-reference
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T13:48:46.725Z
-Stopped at: Completed 05-admin-configuration-backend-05-04-PLAN.md
+Last session: 2026-07-08T13:49:23.881Z
+Stopped at: Completed 05-admin-configuration-backend-05-02-PLAN.md
 Resume file: None
