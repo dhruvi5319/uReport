@@ -18,12 +18,25 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+// UAT_MOCK_USER: temporary mock for Phase 7 UAT (backend not running yet).
+// Remove after Phase 9 auth is complete.
+const UAT_MOCK_USER: User = {
+  personId: 1,
+  username: "uat_admin",
+  role: "admin",
+  firstname: "UAT",
+  lastname: "Admin",
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(UAT_MOCK_USER);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // UAT_MOCK_USER active — skip real auth check while backend is not running.
+    // Restore to real API call once backend is available.
+    if (UAT_MOCK_USER) return;
     api
       .get<User>("/auth/me")
       .then((res) => setUser(res.data))

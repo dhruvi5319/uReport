@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 07-react-design-system-and-shell
 source: [07-01-SUMMARY.md, 07-02-SUMMARY.md, 07-03-SUMMARY.md, 07-04-SUMMARY.md]
 started: 2026-07-08T18:35:00Z
@@ -128,9 +128,12 @@ advisory: "🤖 Auto-check: All 65 Vitest unit tests pass (npm run test). Code i
   severity: minor
   test: 2
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "Wrong HSL value on --color-status-duplicate in globals.css lines 35 and 60. Value is 215 16% 47% (same as --color-muted-foreground, a desaturated blue-grey). Should be amber e.g. 38 92% 50%."
+  artifacts:
+    - path: "frontend/src/globals.css"
+      issue: "Line 35 (:root) and line 60 (.dark) — --color-status-duplicate has grey/muted HSL value instead of amber/orange"
+  missing:
+    - "Change --color-status-duplicate to amber HSL in :root and .dark blocks in globals.css"
   debug_session: ""
 
 - truth: "Tabbing to a Button shows a visible 2px civic-blue focus ring (focus-visible:ring-2)"
@@ -139,9 +142,18 @@ advisory: "🤖 Auto-check: All 65 Vitest unit tests pass (npm run test). Code i
   severity: major
   test: 3
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "Two compounding issues: (1) tailwind.config.ts missing ringOffsetColor config — ring-offset-2 defaults to white, visually collapsing on light backgrounds; button.tsx line 7 missing focus-visible:ring-offset-background class so offset doesn't adapt to surface color. (2) Sidebar.tsx line 78 overflow-hidden clips CSS box-shadow focus rings on nav links."
+  artifacts:
+    - path: "frontend/tailwind.config.ts"
+      issue: "Missing ringOffsetColor: { DEFAULT: 'hsl(var(--color-background))' } in theme.extend"
+    - path: "frontend/src/components/ui/button.tsx"
+      issue: "Line 7 base class missing focus-visible:ring-offset-background"
+    - path: "frontend/src/components/shell/Sidebar.tsx"
+      issue: "Line 78 overflow-hidden clips box-shadow focus rings; should be overflow-x-hidden"
+  missing:
+    - "Add ringOffsetColor to tailwind.config.ts theme.extend"
+    - "Add focus-visible:ring-offset-background to buttonVariants base class in button.tsx"
+    - "Change overflow-hidden to overflow-x-hidden in Sidebar.tsx nav element"
   debug_session: ""
 
 - truth: "Navigating via Sidebar links shows correct breadcrumb and page content at each route"
@@ -150,11 +162,13 @@ advisory: "🤖 Auto-check: All 65 Vitest unit tests pass (npm run test). Code i
   severity: major
   test: 7
   source: user
-  root_cause: "Phase 8 page components not built yet — App.tsx only registers /dashboard and / routes; all other Sidebar nav links navigate to unregistered routes rendering blank"
+  root_cause: "App.tsx lines 19-23 registers only /dashboard and / routes. 11 of 12 Sidebar nav items link to unregistered routes. React Router v6 renders Outlet as null silently when no child route matches. No catch-all <Route path='*'> fallback exists."
   artifacts:
     - path: "frontend/src/App.tsx"
-      issue: "Only /dashboard and / routes registered; all other routes unregistered"
+      issue: "Lines 19-23: only /dashboard and / routes registered under AppShell; no catch-all fallback"
+    - path: "frontend/src/components/shell/Sidebar.tsx"
+      issue: "Lines 25-57: 11 nav hrefs (/cases, /admin/*, /metrics, /reports) have no matching Route"
   missing:
-    - "Phase 8 screen components (CaseListPage, CaseDetailPage, etc.)"
-    - "Fallback/404 route or placeholder pages for unregistered routes"
+    - "Add catch-all <Route path='*' element={<ComingSoonPage />} /> inside AppShell route group in App.tsx"
+    - "Create frontend/src/pages/ComingSoonPage.tsx placeholder with descriptive heading"
   debug_session: ""
