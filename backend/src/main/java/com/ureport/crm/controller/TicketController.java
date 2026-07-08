@@ -5,12 +5,16 @@ import com.ureport.crm.dto.CloseTicketRequest;
 import com.ureport.crm.dto.CreateTicketRequest;
 import com.ureport.crm.dto.TicketDetailDto;
 import com.ureport.crm.dto.TicketHistoryEntryDto;
+import com.ureport.crm.dto.TicketListItem;
 import com.ureport.crm.dto.UpdateTicketRequest;
 import com.ureport.crm.service.TicketHistoryService;
 import com.ureport.crm.service.TicketService;
 import com.ureport.security.PersonDetails;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +46,33 @@ public class TicketController {
     public TicketController(TicketService ticketService, TicketHistoryService ticketHistoryService) {
         this.ticketService = ticketService;
         this.ticketHistoryService = ticketHistoryService;
+    }
+
+    /**
+     * GET /api/tickets — list tickets with optional full-text search and filters.
+     *
+     * When {@code q} is present and non-blank, routes to the PostgreSQL FTS path
+     * (search_vector @@ plainto_tsquery) and returns results with searchSnippet.
+     * When {@code q} is absent or blank, returns all tickets via JPA Specification
+     * with searchSnippet = null (unchanged behavior).
+     *
+     * Query params:
+     *   q          — optional full-text search string (trimmed to 255 chars)
+     *   status     — optional status filter (combined with AND when q is present)
+     *   categoryId — optional category filter (combined with AND when q is present)
+     *   page       — 0-based page index (default 0)
+     *   pageSize   — page size (default 25)
+     */
+    @GetMapping
+    public ResponseEntity<Page<TicketListItem>> listTickets(
+            @RequestParam(required = false, defaultValue = "") String q,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int pageSize,
+            @AuthenticationPrincipal PersonDetails currentUser) {
+        return ResponseEntity.ok(
+                ticketService.listTickets(q, status, categoryId, PageRequest.of(page, pageSize)));
     }
 
     /**

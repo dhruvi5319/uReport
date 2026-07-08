@@ -1,5 +1,6 @@
 package com.ureport.security;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -98,6 +99,31 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+
+    /**
+     * Prevent Spring Boot from auto-registering JwtAuthFilter as a servlet-level filter.
+     * It must ONLY run inside the Spring Security filter chain (via addFilterBefore).
+     * Auto-registration causes it to run BEFORE SecurityContextHolderFilter clears the context,
+     * making SecurityContextHolder-based auth resolution fail in the chain.
+     */
+    @Bean
+    public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistration(JwtAuthFilter filter) {
+        FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
+
+    /**
+     * Prevent legacy JwtAuthenticationFilter from also running at the servlet level.
+     * It uses PersonDetails (not CustomUserDetails) and would conflict with JwtAuthFilter.
+     */
+    @Bean
+    public FilterRegistrationBean<JwtAuthenticationFilter> jwtAuthenticationFilterRegistration(
+            JwtAuthenticationFilter filter) {
+        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
     @Bean
