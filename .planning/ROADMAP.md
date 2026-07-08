@@ -145,13 +145,13 @@ Plans:
   3. The persistent top navbar, collapsible sidebar (w-64 ↔ w-16, state persisted), breadcrumbs, and mobile hamburger Sheet drawer render and navigate correctly at 375px, 768px, and 1280px+ viewports
   4. Framer Motion page transitions, stagger animations, and micro-interactions fire within 300ms; `prefers-reduced-motion` disables all motion globally
   5. All shell components pass axe-core WCAG 2.1 AA scan (0 critical/serious violations); keyboard navigation and visible focus rings work throughout
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 07-01: Design tokens and Tailwind config — globals.css, tokens.css, CSS variables (light + dark), Inter/JetBrains Mono fonts, 4px grid, shadow system
-- [ ] 07-02: shadcn/ui component library — install and customize all 12 components; Badge status color variants; dark mode testing
-- [ ] 07-03: Navigation shell — Navbar, Sidebar (collapsible), Breadcrumb, MobileDrawer; React Router integration; active route highlighting
-- [ ] 07-04: Animation system and accessibility — lib/animations.ts Framer Motion variants, useReducedMotion hook; ARIA labels, focus rings, skip-to-main; responsive breakpoint smoke tests
+- [ ] 07-01-PLAN.md — Design tokens + Tailwind config: scaffold Vite+React+TS project, globals.css CSS variables (light+dark), tailwind.config.ts with token colors, animations.ts, ThemeContext, AuthContext, unit tests
+- [ ] 07-02-PLAN.md — shadcn/ui component library: vendor 16 components via npx shadcn@latest add, customize Badge (status variants), Button (focus ring), Input (dark mode), axe accessibility test suite
+- [ ] 07-03-PLAN.md — Navigation shell: AppShell (skip link, auth redirect), Navbar (logo, user menu, dark toggle), Sidebar (w-64/w-16 collapsible, role-based nav), Breadcrumb (route-aware), MobileDrawer (Sheet)
+- [ ] 07-04-PLAN.md — Animation system + accessibility: useReducedMotion hook, AnimationProvider (MotionConfig), full shell axe WCAG 2.1 AA test suite (0 critical violations), responsive smoke tests (375/768/1280px), Dockerfile multi-stage build
 
 ### Phase 8: Core Frontend Screens
 **Goal**: The four primary user-facing screens are complete — dashboard, case list, case detail, and public submission form — delivering the full staff and public workflow in the React UI
