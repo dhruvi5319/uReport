@@ -138,6 +138,7 @@ Plans:
 - [ ] 06-02-PLAN.md — Geo and metrics: Geocluster/TicketGeodata entities, GeoclusterService (zoom whitelist switch), GeoclusterController, DashboardService (dept-scoped stats), DashboardController, MetricsService (volume/resolution/overdue/reports/CSV), MetricsController, DashboardMetricsIT integration test
 
 ### Phase 7: React Design System & Shell
+**Status**: In Progress
 **Goal**: The React application has a complete design system, working navigation shell, and accessible responsive layout so all screens can be built consistently on top of it
 **Depends on**: Phase 6
 **Requirements**: F17, F18, F19, ANIM-01, RESP-01
