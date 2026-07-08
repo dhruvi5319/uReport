@@ -6,7 +6,6 @@ import com.ureport.domain.*;
 import com.ureport.repository.*;
 import com.ureport.security.JwtUtil;
 import com.ureport.security.PersonDetails;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for the People management CRUD API (F6 / 05-01).
  *
- * Uses Zonky embedded PostgreSQL — works in all environments (Daytona and native-sidecar).
- * @AutoConfigureEmbeddedDatabase replaces the DataSource with an in-process PostgreSQL.
+ * Uses native sidecar PostgreSQL (same as DepartmentCrudIT/CategoryCrudIT/LookupTableCrudIT).
+ * @AutoConfigureEmbeddedDatabase removed — Zonky initdb cannot run as root in Docker container.
  *
  * Test cases:
  * 1. POST /api/people with emails + phones → 201; GET /{id} has emails[0].email
@@ -43,11 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@AutoConfigureEmbeddedDatabase(
-    provider = AutoConfigureEmbeddedDatabase.DatabaseProvider.ZONKY,
-    type = AutoConfigureEmbeddedDatabase.DatabaseType.POSTGRES
-)
-@Transactional
 class PeopleCrudIT {
 
     @Autowired MockMvc mockMvc;

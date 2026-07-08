@@ -46,11 +46,11 @@ public class Ticket {
     @JoinColumn(name = "substatus_id")
     private Substatus substatus;
 
-    @Column(name = "entered_date")
-    private LocalDateTime enteredDate;
+    @Column(name = "entered_date", nullable = false)
+    private LocalDateTime enteredDate = java.time.LocalDateTime.now();
 
-    @Column(name = "last_modified")
-    private LocalDateTime lastModified;
+    @Column(name = "last_modified", nullable = false)
+    private LocalDateTime lastModified = java.time.LocalDateTime.now();
 
     @Column(name = "closed_date")
     private LocalDateTime closedDate;
@@ -64,7 +64,7 @@ public class Ticket {
     private String city;
     private String state;
     private String zip;
-    private String status;
+    private String status = "open";
 
     @Column(name = "additional_fields")
     private String additionalFields;

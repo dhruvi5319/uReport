@@ -24,8 +24,10 @@ public class Department {
      * without a @ManyToOne back-reference, so we use @JoinColumn instead of mappedBy.
      * CascadeType.ALL + orphanRemoval ensures that clearing this list removes the DB rows.
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    // Transient list — NOT persisted by Hibernate (managed directly via DepartmentActionRepository).
+    // Loaded from repository after save for DTO mapping. Using @Transient avoids the
+    // Hibernate NULL-FK-then-delete problem on composite PK join tables.
+    @Transient
     private List<DepartmentAction> departmentActions = new ArrayList<>();
 
     public Long getId() { return id; }

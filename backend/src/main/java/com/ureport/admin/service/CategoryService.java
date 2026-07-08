@@ -42,19 +42,22 @@ public class CategoryService {
     private final PersonRepository personRepository;
     private final ActionsRepository actionsRepository;
     private final TicketRepository ticketRepository;
+    private final CategoryActionResponseRepository categoryActionResponseRepository;
 
     public CategoryService(CategoryRepository categoryRepository,
                            CategoryGroupRepository categoryGroupRepository,
                            DepartmentRepository departmentRepository,
                            PersonRepository personRepository,
                            ActionsRepository actionsRepository,
-                           TicketRepository ticketRepository) {
+                           TicketRepository ticketRepository,
+                           CategoryActionResponseRepository categoryActionResponseRepository) {
         this.categoryRepository = categoryRepository;
         this.categoryGroupRepository = categoryGroupRepository;
         this.departmentRepository = departmentRepository;
         this.personRepository = personRepository;
         this.actionsRepository = actionsRepository;
         this.ticketRepository = ticketRepository;
+        this.categoryActionResponseRepository = categoryActionResponseRepository;
     }
 
     // -----------------------------------------------------------------------
@@ -108,18 +111,12 @@ public class CategoryService {
         category.setAutoCloseIsActive(req.autoCloseIsActive);
         category.setAutoCloseSubstatusId(req.autoCloseSubstatusId);
 
-        // Populate actionResponses collection
-        if (req.actionResponses != null) {
-            for (CategoryActionResponseDto dto : req.actionResponses) {
-                CategoryActionResponse car = new CategoryActionResponse();
-                car.setActionId(dto.actionId());
-                car.setTemplate(dto.template());
-                car.setReplyEmail(dto.replyEmail());
-                category.getCategoryActionResponses().add(car);
-            }
-        }
-
+        // Save first to get the generated category ID
         category = categoryRepository.save(category);
+
+        // Persist actionResponses directly (categoryActionResponses is @Transient)
+        reconcileActionResponses(category.getId(), req.actionResponses);
+
         return toDetailDto(category);
     }
 
@@ -174,42 +171,11 @@ public class CategoryService {
         category.setAutoCloseIsActive(req.autoCloseIsActive);
         category.setAutoCloseSubstatusId(req.autoCloseSubstatusId);
 
-        // actionResponses reconciliation (T-05-14):
-        // Build a map of existing entries by id for efficient lookup
-        List<CategoryActionResponse> existingList = category.getCategoryActionResponses();
-
-        // Build index of existing entries by id
-        Map<Long, CategoryActionResponse> existingById = existingList.stream()
-                .filter(car -> car.getId() != null)
-                .collect(Collectors.toMap(CategoryActionResponse::getId, car -> car));
-
-        // Collect updated entries to keep/add
-        List<CategoryActionResponse> updatedList = new ArrayList<>();
-        if (req.actionResponses != null) {
-            for (CategoryActionResponseDto dto : req.actionResponses) {
-                if (dto.id() != null && existingById.containsKey(dto.id())) {
-                    // Update existing entry
-                    CategoryActionResponse existing = existingById.get(dto.id());
-                    existing.setActionId(dto.actionId());
-                    existing.setTemplate(dto.template());
-                    existing.setReplyEmail(dto.replyEmail());
-                    updatedList.add(existing);
-                } else {
-                    // New entry (id is null or doesn't exist in this category)
-                    CategoryActionResponse car = new CategoryActionResponse();
-                    car.setActionId(dto.actionId());
-                    car.setTemplate(dto.template());
-                    car.setReplyEmail(dto.replyEmail());
-                    updatedList.add(car);
-                }
-            }
-        }
-
-        // Replace the collection — orphanRemoval will delete removed entries
-        existingList.clear();
-        existingList.addAll(updatedList);
-
         category = categoryRepository.save(category);
+
+        // Reconcile actionResponses via direct repository (T-05-14)
+        reconcileActionResponses(category.getId(), req.actionResponses);
+
         return toDetailDto(category);
     }
 
@@ -227,6 +193,8 @@ public class CategoryService {
                     HttpStatus.CONFLICT);
         }
 
+        // Delete action responses before deleting category (@Transient means no cascade)
+        categoryActionResponseRepository.deleteByCategoryId(id);
         categoryRepository.delete(category);
     }
 
@@ -236,23 +204,21 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public CategoryActionResponseDto getActionResponse(Long categoryId, Long actionId) {
-        Category category = findCategoryOrThrow(categoryId);
+        findCategoryOrThrow(categoryId);
 
-        // First: look for category-specific override
-        for (CategoryActionResponse car : category.getCategoryActionResponses()) {
-            if (actionId.equals(car.getActionId())) {
-                return new CategoryActionResponseDto(car.getId(), car.getActionId(),
-                        car.getTemplate(), car.getReplyEmail());
-            }
-        }
-
-        // Fallback: use the action's default template
-        Action action = actionsRepository.findById(actionId)
-                .orElseThrow(() -> new BusinessException("ACTION_NOT_FOUND",
-                        "Action not found: " + actionId, HttpStatus.NOT_FOUND));
-
-        return new CategoryActionResponseDto(null, action.getId(),
-                action.getTemplate(), action.getReplyEmail());
+        // First: look for category-specific override via repository (categoryActionResponses is @Transient)
+        return categoryActionResponseRepository
+                .findByCategoryIdAndActionId(categoryId, actionId)
+                .map(car -> new CategoryActionResponseDto(car.getId(), car.getActionId(),
+                        car.getTemplate(), car.getReplyEmail()))
+                .orElseGet(() -> {
+                    // Fallback: use the action's default template
+                    Action action = actionsRepository.findById(actionId)
+                            .orElseThrow(() -> new BusinessException("ACTION_NOT_FOUND",
+                                    "Action not found: " + actionId, HttpStatus.NOT_FOUND));
+                    return new CategoryActionResponseDto(null, action.getId(),
+                            action.getTemplate(), action.getReplyEmail());
+                });
     }
 
     // -----------------------------------------------------------------------
@@ -360,11 +326,33 @@ public class CategoryService {
                     c.getCategoryGroup().getId(), c.getCategoryGroup().getName());
         }
 
-        dto.actionResponses = c.getCategoryActionResponses().stream()
+        // Load from repository since categoryActionResponses is @Transient
+        dto.actionResponses = categoryActionResponseRepository.findByCategoryId(c.getId())
+                .stream()
                 .map(car -> new CategoryActionResponseDto(
                         car.getId(), car.getActionId(), car.getTemplate(), car.getReplyEmail()))
                 .collect(Collectors.toList());
 
         return dto;
+    }
+
+    /**
+     * Replaces all category_action_responses for a category.
+     * Deletes existing rows via repository, then inserts new ones.
+     * Avoids Hibernate's NULL-FK-then-delete issue with @JoinColumn @OneToMany collections.
+     */
+    private void reconcileActionResponses(Long categoryId, List<CategoryActionResponseDto> actionResponses) {
+        categoryActionResponseRepository.deleteByCategoryId(categoryId);
+
+        if (actionResponses != null) {
+            for (CategoryActionResponseDto dto : actionResponses) {
+                CategoryActionResponse car = new CategoryActionResponse();
+                car.setCategoryId(categoryId);
+                car.setActionId(dto.actionId());
+                car.setTemplate(dto.template());
+                car.setReplyEmail(dto.replyEmail());
+                categoryActionResponseRepository.save(car);
+            }
+        }
     }
 }

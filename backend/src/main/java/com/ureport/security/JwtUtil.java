@@ -28,7 +28,8 @@ public class JwtUtil {
     public String generateToken(PersonDetails user) {
         return Jwts.builder()
             .subject(user.getUsername())
-            .claim("id", user.getId())
+            .claim("personId", user.getId())   // matches JwtService claim name for filter compatibility
+            .claim("id", user.getId())         // keep legacy claim for backward compat
             .claim("role", user.getRole())
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + expiryMs))

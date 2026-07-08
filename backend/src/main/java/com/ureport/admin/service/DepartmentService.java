@@ -75,10 +75,9 @@ public class DepartmentService {
         // Save first to get the generated ID
         dept = departmentRepository.save(dept);
 
-        // Create DepartmentAction join rows
-        reconcileActions(dept, req.actionIds);
+        // Persist DepartmentAction join rows directly via repository
+        reconcileActions(dept.getId(), req.actionIds);
 
-        dept = departmentRepository.save(dept);
         return toDto(dept);
     }
 
@@ -111,11 +110,11 @@ public class DepartmentService {
 
         dept.setName(req.name);
         dept.setDefaultPerson(defaultPerson);
-
-        // Reconcile action associations: clear old, add new (orphanRemoval handles delete)
-        reconcileActions(dept, req.actionIds);
-
         dept = departmentRepository.save(dept);
+
+        // Reconcile action associations directly via repository (avoids Hibernate NULL-FK issue)
+        reconcileActions(dept.getId(), req.actionIds);
+
         return toDto(dept);
     }
 
@@ -135,7 +134,9 @@ public class DepartmentService {
                     HttpStatus.CONFLICT);
         }
 
-        // CascadeType.ALL will remove department_actions rows
+        // Manually delete department_actions before deleting department
+        // (@Transient means no cascade; @JoinColumn-based approach removed)
+        departmentActionRepository.deleteByDepartmentId(id);
         departmentRepository.delete(dept);
     }
 
@@ -197,19 +198,19 @@ public class DepartmentService {
 
     /**
      * Reconcile the department_actions join table.
-     * Clears the existing collection (orphanRemoval deletes old rows),
-     * then adds new DepartmentAction entries for each actionId.
+     * Deletes existing department_actions rows directly via repository, then inserts new ones.
+     * Does NOT use the @Transient departmentActions collection on Department — manages the
+     * join table rows directly to avoid Hibernate's NULL-FK update on composite PK tables.
      */
-    private void reconcileActions(Department dept, List<Long> actionIds) {
-        // Clear existing — orphanRemoval will delete the DB rows on flush
-        dept.getDepartmentActions().clear();
+    private void reconcileActions(Long departmentId, List<Long> actionIds) {
+        departmentActionRepository.deleteByDepartmentId(departmentId);
 
         if (actionIds != null) {
             for (Long actionId : actionIds) {
                 DepartmentAction da = new DepartmentAction();
-                da.setDepartmentId(dept.getId());
+                da.setDepartmentId(departmentId);
                 da.setActionId(actionId);
-                dept.getDepartmentActions().add(da);
+                departmentActionRepository.save(da);
             }
         }
     }
@@ -226,7 +227,8 @@ public class DepartmentService {
 
         long categoryCount = categoryRepository.countByDepartmentId(dept.getId());
 
-        List<Long> actionIds = dept.getDepartmentActions()
+        // Load from repository since departmentActions is @Transient (not managed by Hibernate)
+        List<Long> actionIds = departmentActionRepository.findByDepartmentId(dept.getId())
                 .stream()
                 .map(DepartmentAction::getActionId)
                 .collect(Collectors.toList());
