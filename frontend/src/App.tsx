@@ -6,6 +6,7 @@ import { AnimationProvider } from "./components/AnimationProvider";
 import AppShell from "./components/shell/AppShell";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import ComingSoonPage from "./pages/ComingSoonPage";
 
 export default function App() {
   const location = useLocation();
@@ -20,6 +21,7 @@ export default function App() {
               <Route element={<AppShell />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/" element={<DashboardPage />} />
+                <Route path="*" element={<ComingSoonPage />} />
               </Route>
             </Routes>
           </AnimatePresence>
