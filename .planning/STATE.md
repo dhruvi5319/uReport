@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-07-08T19:48:40.881Z"
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-07-08T19:51:52.305Z"
 last_activity: "2026-07-08 — Completed 07-02: 17 shadcn/ui components vendored, Badge status variants, Button focus ring, Input dark mode, 38 Vitest+jest-axe tests pass"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 37
-  completed_plans: 31
+  completed_plans: 32
   percent: 75
 ---
 
@@ -72,6 +72,7 @@ Progress: [████████░░] 75%
 | Phase 07-react-design-system-and-shell P04 | 15min | 2 tasks | 11 files |
 | Phase 07-react-design-system-and-shell PGAP-01 | 2min | 2 tasks | 6 files |
 | Phase 08-core-frontend-screens P01 | 7min | 2 tasks | 16 files |
+| Phase 08-core-frontend-screens P02 | 11min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,8 @@ Recent decisions affecting current work:
 - [Phase 07-react-design-system-and-shell]: Catch-all <Route path='*'> nested inside AppShell group for auth-protected ComingSoonPage on unregistered routes
 - [Phase 08-core-frontend-screens]: mapbox-gl installed as production dep; runtime VITE_MAPBOX_TOKEN check ensures Leaflet fallback when absent
 - [Phase 08-core-frontend-screens]: ResizeObserver mock added to test-setup.ts for recharts ResponsiveContainer jsdom compatibility
+- [Phase 08-core-frontend-screens]: URL-as-state for all filter params in CaseListPage — useSearchParams reads/writes all filter, sort, page state; enables bookmarkable filter URLs
+- [Phase 08-core-frontend-screens]: Framer Motion height 0→auto for BulkActionBar slide-down; itemVariants AnimatePresence for FilterChips stagger enter/exit
 
 ### Pending Todos
 
@@ -138,6 +141,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T19:48:40.879Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-07-08T19:51:52.303Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
