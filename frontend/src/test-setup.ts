@@ -1,5 +1,13 @@
 import "@testing-library/jest-dom";
 
+// Provide a working ResizeObserver mock for vitest/jsdom environment
+// (jsdom does not implement ResizeObserver — required by recharts ResponsiveContainer)
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 // Provide a working localStorage mock for vitest/jsdom environment
 // (jsdom in this vitest version provides a proxy with no methods)
 const localStorageMock = (() => {
