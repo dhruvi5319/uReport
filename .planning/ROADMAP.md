@@ -163,13 +163,13 @@ Plans:
   3. The case detail screen shows the split-pane layout; staff can close a ticket (with substatus), log an action/response, upload a photo, and view the complete action timeline — all without a page reload
   4. A public user can complete all five steps of the submission wizard (contact → category → location/pin-drop → description/photos → review), submit the form, and see a confirmation screen with their case ID
   5. All four screens are fully responsive at 375px, 768px, and 1280px+; skeleton loading states appear while data fetches; empty states render when no results
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 08-01: Dashboard — DashboardPage, StatCard, RecentCasesFeed, StatusDonut (Recharts), MapWidget (Mapbox/Leaflet), parallel data fetching
-- [ ] 08-02: Case list — CaseListPage, CaseTable (sortable columns), FilterPanel, FilterChips, BulkActionBar, SearchInput with debounce, skeleton loading, empty state
-- [ ] 08-03: Case detail — CaseDetailPage, MetadataPanel (inline editing), TimelinePanel, ActionLogForm (templates, email toggles), MediaGallery, Lightbox
-- [ ] 08-04: Public submission form — PublicSubmitPage, SubmissionWizard (5 steps + confirmation), StepLocation (pin-drop map), StepDescription (photo upload), Framer Motion step transitions
+- [ ] 08-01-PLAN.md — TanStack Query setup + DashboardPage (4 parallel useQueries), StatCard, RecentCasesFeed, StatusDonut (Recharts + a11y table), MapWidget (Mapbox primary / Leaflet fallback), QuickLinks + MSW integration tests
+- [ ] 08-02-PLAN.md — CaseListPage (URL-encoded filter state), CaseTable (sortable, skeleton, status badges), FilterPanel, FilterChips (Framer Motion stagger), BulkActionBar (slide-down animation, POST bulk), SearchInput (300ms debounce), EmptyState, Pagination + integration tests
+- [ ] 08-03-PLAN.md — CaseDetailPage (split-pane, 3 parallel queries), MetadataPanel (inline edit PATCH + optimistic update), CloseDialog (substatus required), ReopenDialog, SlaProgressBar, ActionLogForm (optimistic timeline prepend), Timeline (newest-first, lucide icons), MediaGallery (HTML5 drag-drop, Radix Lightbox) + integration tests
+- [ ] 08-04-PLAN.md — PublicSubmitPage (public route, no auth), WizardContext (direction state), WizardProgress (step dots + checkmarks), StepContact (Zod email, Skip), StepCategory (GET /api/categories/public tiles), StepLocation (geocode autocomplete 300ms debounce + draggable MapWidget pin), StepDescription (react-dropzone, 10 files/10MB, Zod min 10 chars), StepReview (POST /api/tickets/public FormData), ConfirmationScreen (case ID + Open311 link) + integration tests
 
 ### Phase 9: Admin Panels & Integration
 **Goal**: All admin configuration panels are complete, search UI is integrated, auth screens are branded, Dockerfile builds verify cleanly, and E2E tests pass
