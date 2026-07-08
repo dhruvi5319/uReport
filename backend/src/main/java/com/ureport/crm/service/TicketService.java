@@ -7,6 +7,7 @@ import com.ureport.crm.dto.CloseTicketRequest;
 import com.ureport.crm.dto.CreateTicketRequest;
 import com.ureport.crm.dto.TicketDetailDto;
 import com.ureport.crm.dto.TicketDetailDto.RefDto;
+import com.ureport.crm.dto.TicketListItem;
 import com.ureport.crm.dto.UpdateTicketRequest;
 import com.ureport.crm.exception.BusinessException;
 import com.ureport.crm.exception.TicketNotFoundException;
@@ -30,6 +31,10 @@ import com.ureport.repository.TicketRepository;
 import com.ureport.security.PersonDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +43,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Core ticket lifecycle service — create, read, update, close, reopen, assign.
@@ -178,6 +185,176 @@ public class TicketService {
         }
 
         return mapToDto(ticket);
+    }
+
+    // -----------------------------------------------------------------------
+    // LIST (with FTS routing)
+    // -----------------------------------------------------------------------
+
+    /**
+     * GET /api/tickets — list tickets with optional full-text search.
+     *
+     * When {@code q} is blank/absent, returns results via the existing JPA Specification path
+     * (unchanged behavior) with searchSnippet = null on every item.
+     *
+     * When {@code q} is non-blank, routes to the native PostgreSQL FTS path using
+     * plainto_tsquery on the search_vector GIN index (Phase 1 V2 migration).
+     * Results are ordered by ts_rank_cd DESC, entered_date DESC.
+     * searchSnippet contains ts_headline HTML with &lt;mark&gt; tags.
+     *
+     * Security note (T-06-01): q is passed as a named PreparedStatement bind parameter;
+     * plainto_tsquery treats the value as plain phrase input (no operator injection).
+     * Combined with the 255-char trim, there is no SQL injection surface.
+     */
+    @Transactional(readOnly = true)
+    public Page<TicketListItem> listTickets(String q, String status, Long categoryId, Pageable pageable) {
+        // Normalize q: null-safe trim, max 255 chars (T-06-05 — DoS guard)
+        String trimmedQ = (q != null) ? q.trim() : "";
+        if (trimmedQ.length() > 255) {
+            trimmedQ = trimmedQ.substring(0, 255);
+        }
+
+        if (trimmedQ.isEmpty()) {
+            // --- JPA Specification path (unchanged behavior) ---
+            Specification<Ticket> spec = Specification.where(null);
+            if (status != null && !status.isBlank()) {
+                String s = status;
+                spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), s));
+            }
+            if (categoryId != null) {
+                Long cid = categoryId;
+                spec = spec.and((root, query, cb) -> cb.equal(root.get("category").get("id"), cid));
+            }
+            Page<Ticket> page = ticketRepository.findAll(spec, pageable);
+            List<TicketListItem> items = page.getContent().stream()
+                    .map(t -> mapTicketToListItem(t, null))
+                    .collect(Collectors.toList());
+            return new PageImpl<>(items, pageable, page.getTotalElements());
+        } else {
+            // --- Native FTS path ---
+            int pageSize = pageable.getPageSize();
+            int offset = (int) pageable.getOffset();
+
+            List<Object[]> rows = ticketRepository.searchTicketsWithFilters(
+                    trimmedQ,
+                    (status != null && !status.isBlank()) ? status : null,
+                    categoryId,
+                    pageSize,
+                    offset);
+            long total = ticketRepository.countSearchTickets(
+                    trimmedQ,
+                    (status != null && !status.isBlank()) ? status : null,
+                    categoryId);
+
+            List<TicketListItem> items = rows.stream()
+                    .map(this::mapFtsRowToTicketListItem)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(items, pageable, total);
+        }
+    }
+
+    /**
+     * Maps a native FTS query result row (Object[]) to TicketListItem.
+     *
+     * Native query column order (based on SELECT t.*, search_snippet, rank):
+     *   The tickets table columns come first in their DDL order, then
+     *   search_snippet is the second-to-last column and rank is the last.
+     *
+     * Column indices by DDL order from V1 migration:
+     *   [0]  id
+     *   [1]  parent_id
+     *   [2]  category_id
+     *   [3]  issue_type_id
+     *   [4]  client_id
+     *   [5]  entered_by_person_id
+     *   [6]  reported_by_person_id
+     *   [7]  assigned_person_id
+     *   [8]  contact_method_id
+     *   [9]  substatus_id
+     *   [10] entered_date
+     *   [11] last_modified
+     *   [12] closed_date
+     *   [13] address_id
+     *   [14] latitude
+     *   [15] longitude
+     *   [16] location
+     *   [17] city
+     *   [18] state
+     *   [19] zip
+     *   [20] status
+     *   [21] additional_fields
+     *   [22] custom_fields
+     *   [23] description
+     *   [24] search_vector  (tsvector — opaque)
+     *   [25] search_snippet (String — ts_headline output with &lt;mark&gt; tags)
+     *   [26] rank           (Double — ts_rank_cd value)
+     *
+     * We use row.length - 2 for search_snippet to be robust if column count changes.
+     */
+    private TicketListItem mapFtsRowToTicketListItem(Object[] row) {
+        TicketListItem item = new TicketListItem();
+
+        // id — column 0
+        if (row[0] != null) {
+            item.setId(((Number) row[0]).longValue());
+        }
+
+        // status — column 20
+        if (row.length > 20 && row[20] != null) {
+            item.setStatus(row[20].toString());
+        }
+
+        // description — column 23
+        if (row.length > 23 && row[23] != null) {
+            item.setDescription(row[23].toString());
+        }
+
+        // location — column 16
+        if (row.length > 16 && row[16] != null) {
+            item.setLocation(row[16].toString());
+        }
+
+        // entered_date — column 10
+        if (row.length > 10 && row[10] != null) {
+            item.setEnteredDate(row[10].toString());
+        }
+
+        // search_snippet — second-to-last column (robust to schema evolution)
+        int snippetIdx = row.length - 2;
+        if (snippetIdx >= 0 && row[snippetIdx] != null) {
+            item.setSearchSnippet(row[snippetIdx].toString());
+        }
+
+        return item;
+    }
+
+    /**
+     * Maps a Ticket entity to TicketListItem for the non-FTS path.
+     * searchSnippet is always null here (no FTS active).
+     */
+    private TicketListItem mapTicketToListItem(Ticket ticket, String searchSnippet) {
+        TicketListItem item = new TicketListItem();
+        item.setId(ticket.getId());
+        item.setStatus(ticket.getStatus());
+        item.setDescription(ticket.getDescription());
+        item.setLocation(ticket.getLocation());
+        if (ticket.getEnteredDate() != null) {
+            item.setEnteredDate(ticket.getEnteredDate().atOffset(ZoneOffset.UTC)
+                    .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        }
+        if (ticket.getCategory() != null) {
+            item.setCategory(new TicketListItem.CategoryRef(
+                    ticket.getCategory().getId(),
+                    ticket.getCategory().getName()));
+        }
+        if (ticket.getAssignedPerson() != null) {
+            Person p = ticket.getAssignedPerson();
+            String name = ((p.getFirstname() != null ? p.getFirstname() : "")
+                    + (p.getLastname() != null ? " " + p.getLastname() : "")).trim();
+            item.setAssignedPerson(new TicketListItem.PersonRef(p.getId(), name));
+        }
+        item.setSearchSnippet(searchSnippet);
+        return item;
     }
 
     // -----------------------------------------------------------------------
