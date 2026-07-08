@@ -103,6 +103,7 @@ Plans:
 - [ ] 04-04-PLAN.md — Media upload + client CRUD: MediaService (magic-byte MIME validation, Thumbnailator 150×150, file storage), TicketMediaController, ClientService + ClientController (/api/clients admin-only)
 
 ### Phase 5: Admin Configuration Backend
+**Status**: In Progress
 **Goal**: All administrative configuration APIs exist — people, departments, categories, and all lookup-table entities — so admin panels can be built in Phase 9
 **Depends on**: Phase 4
 **Requirements**: F6, F7, F8, F13
