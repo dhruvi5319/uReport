@@ -3,8 +3,8 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-search-geo-and-metrics-backend-06-02-PLAN.md
-last_updated: "2026-07-08T17:16:11.449Z"
+stopped_at: Completed 06-search-geo-and-metrics-backend-GAP-01-PLAN.md
+last_updated: "2026-07-08T17:16:25.223Z"
 last_activity: "2026-07-08 — Completed 03-03: OpenAPI/Swagger docs + golden-file integration tests (8 tests, JWT Bearer SecurityScheme, @Operation annotations on all 5 Open311 endpoints)"
 progress:
   total_phases: 9
@@ -65,6 +65,7 @@ Progress: [█████░░░░░] 51%
 | Phase 05-admin-configuration-backend P03 | 6min | 2 tasks | 16 files |
 | Phase 06-search-geo-and-metrics-backend P02 | 7min | 2 tasks | 21 files |
 | Phase 06-search-geo-and-metrics-backend P01 | 8 min | 2 tasks | 12 files |
+| Phase 06-search-geo-and-metrics-backend PGAP-01 | 7min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ Recent decisions affecting current work:
 - [Phase 06-search-geo-and-metrics-backend]: response_method_id column at index [9] in tickets DDL (absent from JPA entity) shifts description to [24], location to [15], status to [19] — mapFtsRowToTicketListItem uses row.length-2 for snippet column
 - [Phase 06-search-geo-and-metrics-backend]: FTS routing in TicketService.listTickets: blank q uses JPA Specification (unchanged behavior), non-blank q uses native plainto_tsquery FTS — preserves backward compatibility
 - [Phase 06-search-geo-and-metrics-backend]: Bookmark personId sourced exclusively from JWT PersonDetails.getId() — never from request body/params (T-06-02 ownership guarantee)
+- [Phase 06-search-geo-and-metrics-backend]: MIN(CAST(g.center AS TEXT)) AS center_text aggregate avoids GROUP BY on POINT (no equality operator in PostgreSQL)
+- [Phase 06-search-geo-and-metrics-backend]: CAST(AVG(...) AS DOUBLE PRECISION) in MetricsService.buildReportSql enables JDBC Double.class mapping (numeric type not auto-converted)
+- [Phase 06-search-geo-and-metrics-backend]: @ExceptionHandler(ResponseStatusException.class) in GlobalExceptionHandler preserves 403/400 status before ExceptionTranslationFilter re-maps to 401
 
 ### Pending Todos
 
@@ -118,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T16:09:58.326Z
-Stopped at: Completed 06-search-geo-and-metrics-backend-06-02-PLAN.md
+Last session: 2026-07-08T17:16:25.220Z
+Stopped at: Completed 06-search-geo-and-metrics-backend-GAP-01-PLAN.md
 Resume file: None
