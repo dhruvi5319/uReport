@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-authentication-security-02-01-PLAN.md
-last_updated: "2026-07-08T00:20:00.000Z"
-last_activity: 2026-07-08 — Completed 02-01: Spring Security foundation (JwtService, JwtAuthFilter, SecurityConfig, CSRF, CORS, MapStruct deps)
+stopped_at: Completed 02-authentication-security-02-03-PLAN.md
+last_updated: "2026-07-08T12:00:00.000Z"
+last_activity: 2026-07-08 — Completed 02-02: LDAP auth + Person entity + auth endpoints; 02-03: CAS auth + CasAuthController + unit tests
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 14
-  completed_plans: 5
-  percent: 21
+  completed_plans: 7
+  percent: 29
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 2 of 9 (Authentication & Security)
-Plan: 1 of 5 in current phase (02-01 complete)
+Plan: 3 of 5 in current phase (02-01, 02-02, 02-03 complete)
 Status: In progress
-Last activity: 2026-07-08 — Completed 02-01: Spring Security foundation (JwtAuthFilter, SecurityConfig, CSRF Double-Submit Cookie, MapStruct/LDAP deps)
+Last activity: 2026-07-08 — Completed 02-02: LDAP bind auth + JWT cookie + auth endpoints; 02-03: CAS ticket validation + redirect flow + unit tests
 
-Progress: [█░░░░░░░░░] 14%
+Progress: [███░░░░░░░] 29%
 
 ## Performance Metrics
 
@@ -46,6 +46,8 @@ Progress: [█░░░░░░░░░] 14%
 |-------|-------|-------|----------|
 | 02-authentication-security | 3 | 7min | 2.3min |
 | 02-authentication-security P01 | 8min | 2 tasks | 4 files |
+| 02-authentication-security P02 | 5min | 2 tasks | 1 file modified (Person constructor) |
+| 02-authentication-security P03 | 5min | 2 tasks | 0 files (pre-existing, verified) |
 
 **Recent Trend:**
 
@@ -73,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase 01-infrastructure-foundation 01-03]: io.zonky.test embedded-postgres replaces Testcontainers — no Docker daemon needed; ZONKY provider auto-configures DataSource bean in test scope
 - [Phase 01-infrastructure-foundation 01-03]: docker-compose.yml removed — K8s sandbox has no Docker daemon; embedded-postgres + Dockerfiles cover all test and OCI packaging needs
 - [Phase 02-authentication-security 02-01]: JwtUtil fixed to use jwt.secret property (was app.jwt.secret — pre-existing bug); SecurityConfig uses JwtAuthFilter (not legacy JwtAuthenticationFilter)
+- [Phase 02-authentication-security 02-02]: Person entity kept full schema (all DB columns); Person(String, String) constructor added to enable auto-create in LdapAuthService/CasAuthService
+- [Phase 02-authentication-security 02-03]: CAS ticket validated server-to-server via /serviceValidate; XXE prevention via DocumentBuilderFactory features; RestTemplate injected via constructor for unit test mockability
 
 ### Pending Todos
 
@@ -80,11 +84,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- CAS/LDAP integration complexity with Spring Security — prototype auth flow early in Phase 2 before UI work begins (risk from PRD §8)
 - Open311 response format must be byte-compatible with PHP implementation — generate golden files before Phase 3 implementation
 
 ## Session Continuity
 
-Last session: 2026-07-08T00:20:00.000Z
-Stopped at: Completed 02-authentication-security-02-01-PLAN.md
+Last session: 2026-07-08T12:00:00.000Z
+Stopped at: Completed 02-authentication-security-02-03-PLAN.md
 Resume file: None
