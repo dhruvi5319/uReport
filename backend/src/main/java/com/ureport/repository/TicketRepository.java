@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecificationExecutor<Ticket> {
 
@@ -26,4 +28,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecif
      * Used by ContactMethodService.deleteContactMethod to prevent deletion of in-use methods.
      */
     boolean existsByContactMethodId(Long contactMethodId);
+
+    /**
+     * Find tickets where the given person is involved (entered-by, reported-by, or assigned).
+     * Used by GET /api/people/{id}/tickets.
+     */
+    List<Ticket> findByEnteredByPersonIdOrReportedByPersonIdOrAssignedPersonId(
+        Long enteredByPersonId, Long reportedByPersonId, Long assignedPersonId);
 }
