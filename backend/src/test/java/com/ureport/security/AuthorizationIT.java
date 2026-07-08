@@ -1,7 +1,7 @@
 package com.ureport.security;
 
 import com.ureport.domain.Person;
-import com.ureport.domain.PersonRepository;
+import com.ureport.repository.PersonRepository;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

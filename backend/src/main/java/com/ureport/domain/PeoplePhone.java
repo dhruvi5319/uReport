@@ -3,12 +3,12 @@ package com.ureport.domain;
 import jakarta.persistence.*;
 
 /**
- * A notification email address for a person.
- * Maps to the people_emails table.
+ * A phone number for a person.
+ * Maps to the people_phones table.
  */
 @Entity
-@Table(name = "people_emails")
-public class PeopleEmail {
+@Table(name = "people_phones")
+public class PeoplePhone {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,14 +19,11 @@ public class PeopleEmail {
     private Person person;
 
     @Column(nullable = false)
-    private String email;
+    private String number;
 
     private String label;
 
-    @Column(name = "used_for_notifications", nullable = false)
-    private Boolean usedForNotifications = false;
-
-    public PeopleEmail() {}
+    public PeoplePhone() {}
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -34,12 +31,9 @@ public class PeopleEmail {
     public Person getPerson() { return person; }
     public void setPerson(Person person) { this.person = person; }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getNumber() { return number; }
+    public void setNumber(String number) { this.number = number; }
 
     public String getLabel() { return label; }
     public void setLabel(String label) { this.label = label; }
-
-    public Boolean getUsedForNotifications() { return usedForNotifications; }
-    public void setUsedForNotifications(Boolean usedForNotifications) { this.usedForNotifications = usedForNotifications; }
 }

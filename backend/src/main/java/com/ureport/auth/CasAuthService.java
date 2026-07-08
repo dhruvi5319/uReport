@@ -1,7 +1,7 @@
 package com.ureport.auth;
 
 import com.ureport.domain.Person;
-import com.ureport.domain.PersonRepository;
+import com.ureport.repository.PersonRepository;
 import com.ureport.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
