@@ -126,6 +126,20 @@ None - no external service configuration required.
 - DepartmentCrudIT tests are written; run via `./mvnw test -Dtest=DepartmentCrudIT` against native PostgreSQL sidecar.
 - Plans 05-01 and 05-04 were executed in parallel (wave 1) and are also complete.
 
+## Self-Check: PASSED
+
+Files confirmed on disk:
+- `backend/src/main/java/com/ureport/admin/controller/DepartmentController.java` ✓
+- `backend/src/main/java/com/ureport/admin/service/DepartmentService.java` ✓
+- `backend/src/main/java/com/ureport/admin/dto/DepartmentDetailDto.java` ✓
+- `backend/src/test/java/com/ureport/admin/DepartmentCrudIT.java` ✓
+- `.planning/phases/05-admin-configuration-backend/05-02-SUMMARY.md` ✓
+
+Commits confirmed:
+- `bdc5de1` feat(05-02): expand Department entity + repositories for department actions ✓
+- `55bd26a` feat(05-02): DepartmentService + DepartmentController + DTOs + DepartmentCrudIT ✓
+- `624bc37` docs(05-02): complete Department CRUD API plan ✓
+
 ---
 *Phase: 05-admin-configuration-backend*
 *Completed: 2026-07-08*
