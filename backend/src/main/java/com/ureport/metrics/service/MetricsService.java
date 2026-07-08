@@ -113,8 +113,8 @@ public class MetricsService {
                 SELECT c.name as group_name, c.id as group_id,
                        SUM(CASE WHEN t.status='open' THEN 1 ELSE 0 END) as open_count,
                        SUM(CASE WHEN t.status='closed' THEN 1 ELSE 0 END) as closed_count,
-                       AVG(CASE WHEN t.status='closed'
-                           THEN EXTRACT(EPOCH FROM (t.closed_date - t.entered_date))/3600 END) as avg_hours
+                       CAST(AVG(CASE WHEN t.status='closed'
+                           THEN EXTRACT(EPOCH FROM (t.closed_date - t.entered_date))/3600 END) AS DOUBLE PRECISION) as avg_hours
                 FROM tickets t JOIN categories c ON t.category_id = c.id
                 WHERE t.entered_date >= ? AND t.entered_date <= ? + INTERVAL '1 day'
                 GROUP BY c.id, c.name ORDER BY open_count DESC
@@ -123,8 +123,8 @@ public class MetricsService {
                 SELECT d.name as group_name, d.id as group_id,
                        SUM(CASE WHEN t.status='open' THEN 1 ELSE 0 END) as open_count,
                        SUM(CASE WHEN t.status='closed' THEN 1 ELSE 0 END) as closed_count,
-                       AVG(CASE WHEN t.status='closed'
-                           THEN EXTRACT(EPOCH FROM (t.closed_date - t.entered_date))/3600 END) as avg_hours
+                       CAST(AVG(CASE WHEN t.status='closed'
+                           THEN EXTRACT(EPOCH FROM (t.closed_date - t.entered_date))/3600 END) AS DOUBLE PRECISION) as avg_hours
                 FROM tickets t
                 JOIN categories c ON t.category_id = c.id
                 JOIN departments d ON c.department_id = d.id
@@ -135,8 +135,8 @@ public class MetricsService {
                 SELECT CONCAT(p.firstname, ' ', p.lastname) as group_name, p.id as group_id,
                        SUM(CASE WHEN t.status='open' THEN 1 ELSE 0 END) as open_count,
                        SUM(CASE WHEN t.status='closed' THEN 1 ELSE 0 END) as closed_count,
-                       AVG(CASE WHEN t.status='closed'
-                           THEN EXTRACT(EPOCH FROM (t.closed_date - t.entered_date))/3600 END) as avg_hours
+                       CAST(AVG(CASE WHEN t.status='closed'
+                           THEN EXTRACT(EPOCH FROM (t.closed_date - t.entered_date))/3600 END) AS DOUBLE PRECISION) as avg_hours
                 FROM tickets t
                 JOIN people p ON t.assigned_person_id = p.id
                 WHERE t.entered_date >= ? AND t.entered_date <= ? + INTERVAL '1 day'
