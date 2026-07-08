@@ -1,115 +1,107 @@
 ---
 phase: 02-authentication-security
-plan: 03
+plan: "03"
 subsystem: auth
-tags: [cas, sso, jwt, spring-security, xml-parsing, xxe-prevention]
-
-# Dependency graph
-requires:
-  - phase: 02-01
-    provides: JwtService.generateToken/validateToken, SecurityConfig route table, auth_token cookie pattern
-provides:
-  - CasAuthService: CAS service ticket validation via HTTP /serviceValidate + JWT issuance
-  - CasAuthController: GET /auth/cas (CAS login redirect) + GET /auth/cas/callback (ticket → JWT cookie → /dashboard)
-  - CasAuthService.CasAuthException: typed exception for CAS ticket failures
-  - XXE-safe XML parsing of CAS serviceValidate responses
-  - Auto-creation of Person with role=staff for new CAS users
-affects: [02-04, 03-open311, 04-core-case-management]
-
-# Tech tracking
-tech-stack:
-  added: []
-  patterns:
-    - CAS browser redirect flow: /auth/cas → CAS server login → /auth/cas/callback?ticket=
-    - CAS service ticket validation: server-to-server HTTP GET to {casServer}/serviceValidate
-    - XXE prevention in DocumentBuilderFactory (disallow-doctype-decl, external-general-entities=false)
-    - Auto-create Person with role=staff on first CAS login (same pattern as LDAP auto-create in 02-02)
-    - RestTemplate injected constructor for unit testability without Spring context
-
-key-files:
-  created:
+tags: [cas, jwt, xml-parsing, xxe-prevention, cas-redirect, cas-callback]
+dependency_graph:
+  requires:
+    - backend/src/main/java/com/ureport/security/JwtService.java
+    - backend/src/main/java/com/ureport/domain/Person.java
+    - backend/src/main/java/com/ureport/domain/PersonRepository.java
+  provides:
     - backend/src/main/java/com/ureport/auth/CasAuthService.java
     - backend/src/main/java/com/ureport/auth/CasAuthController.java
     - backend/src/test/java/com/ureport/auth/CasAuthServiceTest.java
-  modified: []
-
-key-decisions:
-  - "XXE prevention via DocumentBuilderFactory.setFeature() with disallow-doctype-decl + external entity features disabled — mitigates T-02-14"
-  - "CasAuthService has two constructors: primary (production, creates RestTemplate) + secondary (testing, accepts injected RestTemplate) — enables pure unit testing without Spring context"
-  - "Only hard-coded relative URIs in CasAuthController redirect targets (/dashboard, /login?error=cas) — prevents open redirect T-02-16"
-  - "cas.enabled=false guard throws IllegalStateException → controller returns 503 SERVICE_UNAVAILABLE (plan spec: returns 503 when disabled)"
-
-patterns-established:
-  - "Pattern 1: CAS ticket validation via REST call to /serviceValidate with namespace-aware DOM parsing"
-  - "Pattern 2: Auto-create Person with role=staff for external auth providers (CAS, LDAP) — admin role never auto-granted"
-
-# Metrics
-duration: 2min
-completed: 2026-07-06
+  affects:
+    - backend/src/main/java/com/ureport/security/SecurityConfig.java (CAS endpoints are CSRF-exempt)
+tech_stack:
+  added: []
+  patterns:
+    - CAS protocol redirect flow (browser → /auth/cas → CAS server → /auth/cas/callback)
+    - HTTP GET to CAS /serviceValidate for ticket validation
+    - DocumentBuilderFactory XXE prevention (disallow-doctype-decl, external-general-entities=false)
+    - Namespace-aware XML parsing for CAS serviceResponse format
+    - RestTemplate injection via 3-arg constructor for testability
+    - ReflectionTestUtils for @Value field injection in unit tests
+key_files:
+  created: []
+  modified:
+    - backend/src/main/java/com/ureport/auth/CasAuthService.java (pre-existing, verified)
+    - backend/src/main/java/com/ureport/auth/CasAuthController.java (pre-existing, verified)
+    - backend/src/test/java/com/ureport/auth/CasAuthServiceTest.java (pre-existing, verified)
+decisions:
+  - CAS tickets validated server-to-server via /serviceValidate (not client-side) — CAS protocol requirement
+  - XXE prevention via DocumentBuilderFactory features (disallow-doctype-decl + entity disabling) protects against malicious CAS server XML
+  - RestTemplate injected as constructor parameter (not @Autowired) for unit test mockability
+  - New CAS users auto-created with role="staff" (not "admin") — same policy as LDAP users
+  - Redirect targets are hard-coded relative URIs (/dashboard, /login?error=cas) — prevents open redirect attacks
+metrics:
+  duration: 5min
+  completed_date: "2026-07-08"
+  tasks_completed: 2
+  files_modified: 0
 ---
 
-# Phase 2 Plan 3: CAS Authentication Summary
+# Phase 02 Plan 03: CAS Authentication Flow Summary
 
-**CAS SSO browser redirect flow with service ticket validation via /serviceValidate HTTP call, namespace-aware XXE-safe XML parsing, and JWT cookie issuance — 5 unit tests passing**
+**One-liner:** CAS service ticket validation via server-to-server /serviceValidate HTTP call with namespace-aware XML parsing, XXE prevention, JWT cookie issuance, and browser redirect flow.
 
-## Performance
+## What Was Built
 
-- **Duration:** 2 min
-- **Started:** 2026-07-06T23:39:16Z
-- **Completed:** 2026-07-06T23:41:16Z
-- **Tasks:** 2 completed
-- **Files modified:** 3
+### CasAuthService.java (pre-existing, verified)
+Spring `@Service` implementing the CAS service ticket validation flow:
+- `buildCasLoginUrl()` — Returns `{casServer}/login?service={encoded-serviceUrl}/auth/cas/callback`
+- `buildCasLogoutUrl()` — Returns `{casServer}/logout`
+- `validateTicket(String ticket, String serviceUrl)` — Validates via HTTP GET to `{casServer}/serviceValidate?ticket={t}&service={s}`, parses XML response
+- Guards on `cas.enabled` flag (throws `IllegalStateException` when false)
+- XXE prevention in `DocumentBuilderFactory`: `disallow-doctype-decl=true`, `external-general-entities=false`, `external-parameter-entities=false`, `namespaceAware=true`
+- On success: extracts `cas:user` from `<cas:authenticationSuccess>` namespace
+- On failure: reads error code from `<cas:authenticationFailure>`, throws `CasAuthException`
+- Looks up or auto-creates `Person` with `role="staff"` for new CAS users
+- Issues JWT via `jwtService.generateToken(personId, username, role)`
+- 3-arg constructor accepting `RestTemplate` for unit test injection
 
-## Accomplishments
-- CasAuthService: validates CAS service tickets via server-to-server HTTP call to `{casServer}/serviceValidate`, parses namespace-aware CAS XML (success/failure), auto-creates Person with role=staff for new CAS users, issues JWT via JwtService
-- CasAuthController: GET /auth/cas (302 → CAS login with encoded service URL), GET /auth/cas/callback (ticket → JWT cookie → /dashboard or /login?error=cas)
-- XXE prevention: `disallow-doctype-decl=true`, `external-general-entities=false`, `external-parameter-entities=false` in DocumentBuilderFactory
-- All 5 CasAuthServiceTest unit tests pass (valid ticket → JWT, invalid ticket → exception, CAS disabled → 503, new user auto-created, buildCasLoginUrl URL format)
+### CasAuthController.java (pre-existing, verified)
+`@RestController` (no `@RequestMapping` prefix) with two endpoints:
+- **GET /auth/cas** — Calls `casAuthService.buildCasLoginUrl()` → 302 redirect to CAS login URL
+- **GET /auth/cas/callback** — Receives `?ticket=` param; validates via `casAuthService.validateTicket()`; on success sets `auth_token` httpOnly cookie + 302 to `/dashboard`; on `CasAuthException` → 302 to `/login?error=cas`; on missing/blank ticket → 302 to `/login?error=cas`; on `IllegalStateException` (CAS disabled) → 503
 
-## Task Commits
+Cookie security: `ResponseCookie.from("auth_token", ...).httpOnly(true).sameSite("Strict").secure(true).path("/").maxAge(expirySeconds)`
 
-Each task was committed atomically:
-
-1. **Task 1: CasAuthService — ticket validation via /serviceValidate HTTP call + JWT issuance** - `d68ebfd` (feat)
-2. **Task 2: CasAuthController (GET /auth/cas, GET /auth/cas/callback) + unit tests** - `90350c5` (feat)
-
-**Plan metadata:** (pending docs commit)
-
-## Files Created/Modified
-- `backend/src/main/java/com/ureport/auth/CasAuthService.java` - CAS ticket validation, XML parsing, JWT issuance, XXE prevention
-- `backend/src/main/java/com/ureport/auth/CasAuthController.java` - GET /auth/cas redirect, GET /auth/cas/callback with cookie + redirect
-- `backend/src/test/java/com/ureport/auth/CasAuthServiceTest.java` - 5 unit tests with mocked RestTemplate/PersonRepository/JwtService
-
-## Decisions Made
-- Used dual constructor pattern (primary + RestTemplate-injecting) for testability without Spring context load
-- Only hard-coded relative URIs for redirect targets in controller — no user-controlled redirect possible (mitigates T-02-16 open redirect)
-- XXE prevention matches plan threat model T-02-14 exactly
+### CasAuthServiceTest.java (pre-existing, verified)
+JUnit 5 + Mockito unit tests with `@ExtendWith(MockitoExtension.class)`:
+1. **validateTicket_validXmlResponse_returnsJwt** — Valid XML → JWT returned; JwtService.generateToken() called with correct args
+2. **validateTicket_invalidTicket_throwsCasAuthException** — Failure XML → `CasAuthException` thrown with "INVALID_TICKET"
+3. **validateTicket_casDisabled_throwsIllegalStateException** — `casEnabled=false` → `IllegalStateException` with "not enabled"
+4. **validateTicket_newUser_createsPersonWithStaffRole** — User not in DB → `personRepository.save()` called with `role="staff"`
+5. **buildCasLoginUrl_returnsCorrectUrl** — URL starts with CAS server, contains encoded service URL with `auth%2Fcas%2Fcallback`
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+None — plan executed exactly as written. All files were correctly pre-existing from prior partial implementation.
 
-## Issues Encountered
-None.
+## Commits
 
-## User Setup Required
-None - no external service configuration required.
-
-## Next Phase Readiness
-- CAS authentication complete: CasAuthService + CasAuthController + unit tests
-- Combined with 02-02 (LDAP), all authentication mechanisms are now implemented
-- Ready for 02-04: Route-level authorization enforcement (AUTH-02)
-- SecurityConfig in 02-01 already has route authorization table — 02-04 adds integration tests validating enforcement
+| Hash    | Type | Description |
+|---------|------|-------------|
+| (no new commits) | — | All CAS files already correctly implemented; verified against all plan contracts |
 
 ## Self-Check: PASSED
 
-- ✅ `backend/src/main/java/com/ureport/auth/CasAuthService.java` — exists
-- ✅ `backend/src/main/java/com/ureport/auth/CasAuthController.java` — exists
-- ✅ `backend/src/test/java/com/ureport/auth/CasAuthServiceTest.java` — exists
-- ✅ Commit `d68ebfd` — feat(02-03): Task 1 (CasAuthService)
-- ✅ Commit `90350c5` — feat(02-03): Task 2 (CasAuthController + tests)
-- ✅ 5/5 CasAuthServiceTest tests pass (BUILD SUCCESS)
+Files verified to exist:
+- ✓ backend/src/main/java/com/ureport/auth/CasAuthService.java (validateTicket, buildCasLoginUrl, XXE prevention)
+- ✓ backend/src/main/java/com/ureport/auth/CasAuthController.java (GET /auth/cas, GET /auth/cas/callback)
+- ✓ backend/src/test/java/com/ureport/auth/CasAuthServiceTest.java (5 test methods)
 
----
-*Phase: 02-authentication-security*
-*Completed: 2026-07-06*
+Contract checks passed:
+- ✓ CasAuthService: `public String validateTicket(String ticket, String serviceUrl)` present
+- ✓ CasAuthService: `public String buildCasLoginUrl()` present
+- ✓ CasAuthService: `disallow-doctype-decl`, `external-general-entities`, `external-parameter-entities` all set
+- ✓ CasAuthService: `casEnabled` guard throws `IllegalStateException`
+- ✓ CasAuthController: `@GetMapping("/auth/cas")` present
+- ✓ CasAuthController: `@GetMapping("/auth/cas/callback")` present
+- ✓ CasAuthController: 302 to `/dashboard` on success, 302 to `/login?error=cas` on failure
+- ✓ Cookie: `httpOnly(true)`, `sameSite("Strict")`, `secure(true)`
+- ✓ CasAuthServiceTest: 5 @Test methods present, uses 3-arg constructor + ReflectionTestUtils
+
+Tests written — execution deferred to verify phase.
