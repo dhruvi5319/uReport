@@ -29,6 +29,14 @@ spring:
     baseline-on-migrate: false
     clean-disabled: true
 
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:25}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.timeout: 5000
+
 management:
   endpoints:
     web:
@@ -65,3 +73,10 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+media:
+  root: ${MEDIA_ROOT:/var/ureport/media}
+  max-file-size-bytes: 10485760    # 10 MB
+
+notification:
+  reply-email: ${NOTIFICATION_REPLY_EMAIL:noreply@ureport.local}

@@ -20,6 +20,9 @@ public class PeopleEmail {
     @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
+    private String label = "Other";
+
     @Column(name = "used_for_notifications", nullable = false)
     private Boolean usedForNotifications = false;
 
@@ -29,6 +32,8 @@ public class PeopleEmail {
     public void setPersonId(Long personId) { this.personId = personId; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public String getLabel() { return label; }
+    public void setLabel(String label) { this.label = label; }
     public Boolean getUsedForNotifications() { return usedForNotifications; }
     public void setUsedForNotifications(Boolean usedForNotifications) { this.usedForNotifications = usedForNotifications; }
 }

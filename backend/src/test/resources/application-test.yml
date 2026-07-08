@@ -19,6 +19,10 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     clean-disabled: false
+  # Mail config for tests — localhost (non-fatal; no real SMTP server needed)
+  mail:
+    host: localhost
+    port: 25
 
 jwt:
   secret: test-secret-key-for-testing-only-must-be-at-least-32-chars
@@ -30,3 +34,9 @@ ldap:
 
 cas:
   enabled: false
+
+media:
+  root: /tmp/ureport-test-media
+
+notification:
+  reply-email: noreply@ureport-test.local

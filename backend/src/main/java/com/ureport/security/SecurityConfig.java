@@ -63,6 +63,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/categories/public").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/tickets/public").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/geocode").permitAll()
+                // Media serve endpoints are public per Open311 design (T-04-20)
+                .requestMatchers(HttpMethod.GET,  "/api/media/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
 
