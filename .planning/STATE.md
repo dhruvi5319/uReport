@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-admin-configuration-backend-05-01-PLAN.md
-last_updated: "2026-07-08T14:01:22.803Z"
+stopped_at: Completed 05-admin-configuration-backend-05-03-PLAN.md
+last_updated: "2026-07-08T14:11:15.354Z"
 last_activity: "2026-07-08 — Completed 03-03: OpenAPI/Swagger docs + golden-file integration tests (8 tests, JWT Bearer SecurityScheme, @Operation annotations on all 5 Open311 endpoints)"
 progress:
   total_phases: 9
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 35
-  completed_plans: 21
+  completed_plans: 22
   percent: 51
 ---
 
@@ -62,6 +62,7 @@ Progress: [█████░░░░░] 51%
 | Phase 05-admin-configuration-backend P04 | 20min | 2 tasks | 20 files |
 | Phase 05-admin-configuration-backend P02 | 6min | 2 tasks | 11 files |
 | Phase 05-admin-configuration-backend P01 | 17 min | 2 tasks | 30 files |
+| Phase 05-admin-configuration-backend P03 | 6min | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,9 @@ Recent decisions affecting current work:
 - [Phase 05-admin-configuration-backend]: Department.departmentActions uses @JoinColumn (not mappedBy) because DepartmentAction has composite @IdClass with no @ManyToOne back-reference
 - [Phase 05-admin-configuration-backend]: People CRUD uses array reconciliation (removeIf + orphanRemoval) for nested email/phone/address sub-resources
 - [Phase 05-admin-configuration-backend]: Spring Security 3.x auto-wires RoleHierarchy bean — no separate webSecurityExpressionHandler needed (caused BeanDefinitionOverrideException)
+- [Phase 05-admin-configuration-backend]: Category.categoryActionResponses uses unidirectional @OneToMany via @JoinColumn — avoids refactoring CategoryActionResponse.categoryId from Long to @ManyToOne
+- [Phase 05-admin-configuration-backend]: Permission level permissiveness: anonymous(0) > public(1) > staff(2); posting PERM_ORDER must not exceed display PERM_ORDER (PERMISSION_LEVEL_INVALID)
+- [Phase 05-admin-configuration-backend]: ActionResponses reconciliation: existingList.clear() + addAll(updatedList) with orphanRemoval — same pattern as DepartmentService action reconciliation
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T14:01:22.801Z
-Stopped at: Completed 05-admin-configuration-backend-05-01-PLAN.md
+Last session: 2026-07-08T14:11:15.353Z
+Stopped at: Completed 05-admin-configuration-backend-05-03-PLAN.md
 Resume file: None
