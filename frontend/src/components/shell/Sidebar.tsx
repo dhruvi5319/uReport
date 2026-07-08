@@ -75,7 +75,7 @@ export default function Sidebar() {
     <nav
       aria-label="Primary navigation"
       className={cn(
-        "hidden md:flex flex-col border-r border-border bg-card shrink-0 overflow-hidden",
+        "hidden md:flex flex-col border-r border-border bg-card shrink-0 overflow-x-hidden",
         "transition-[width] duration-200 ease-in-out",
         collapsed ? "w-16" : "w-64"
       )}

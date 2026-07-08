@@ -46,6 +46,9 @@ export default {
           bogus: "hsl(var(--color-status-bogus))",
         },
       },
+      ringOffsetColor: {
+        DEFAULT: "hsl(var(--color-background))",
+      },
       borderRadius: {
         sm: "calc(var(--radius) - 2px)",
         md: "var(--radius)",
