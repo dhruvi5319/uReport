@@ -1,0 +1,15 @@
+# Test profile: uses io.zonky.test embedded-postgres
+# Spring Boot autoconfigures the datasource from the embedded DB registered as a bean
+spring:
+  datasource:
+    # Zonky EmbeddedPostgresAutoConfiguration provides the DataSource bean in test scope
+    # Set to empty so Spring Boot does not try to connect to a real host before the bean is ready
+    url:
+    username:
+    password:
+  flyway:
+    enabled: true
+    clean-disabled: false   # allow clean in tests for fresh schema each run
+  jpa:
+    hibernate:
+      ddl-auto: none
