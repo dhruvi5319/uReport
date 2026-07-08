@@ -50,8 +50,12 @@ public class GeoclusterService {
             dto.setId(((Number) row[0]).longValue());          // cluster_id
             dto.setTicketCount(((Number) row[1]).longValue()); // count
             dto.setLevel(((Number) row[2]).intValue());        // level
-            dto.setLon(((Number) row[3]).doubleValue());       // lon (x component of POINT)
-            dto.setLat(((Number) row[4]).doubleValue());       // lat (y component of POINT)
+            // Parse lon and lat from center_text "(x,y)" — PostgreSQL POINT text form
+            String centerText = (String) row[3];              // e.g. "(34.05,-118.24)"
+            String stripped = centerText.replace("(", "").replace(")", "");
+            String[] parts = stripped.split(",");
+            dto.setLon(Double.parseDouble(parts[0].trim()));
+            dto.setLat(Double.parseDouble(parts[1].trim()));
             return dto;
         }).collect(Collectors.toList());
 
