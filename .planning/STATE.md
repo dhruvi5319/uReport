@@ -2,16 +2,16 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 02-authentication-security-02-04-PLAN.md
-last_updated: "2026-07-08T00:51:38Z"
-last_activity: 2026-07-08 — Completed 02-04: RoleHierarchyConfig (ADMIN>STAFF>PUBLIC hierarchy) + AuthorizationIT (22 tests covering all TechArch §5.4 authorization rules)
+status: in-progress
+stopped_at: Completed 03-open311-georeport-v2-api-03-02-PLAN.md
+last_updated: "2026-07-08T02:00:00Z"
+last_activity: 2026-07-08 — Completed 03-01 (Open311 services endpoint) and 03-02 (Open311 requests endpoint) — CategoryRepository.findByActiveTrue fixed, all IT tests migrated to Zonky embedded PostgreSQL
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 14
-  completed_plans: 8
-  percent: 32
+  completed_plans: 10
+  percent: 40
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-06)
 
 **Core value:** Every existing feature, screen, API contract, and Open311 endpoint must continue to work exactly as before — modernization improves the stack and visual quality without removing any capability.
-**Current focus:** Phase 2 — Authentication & Security
+**Current focus:** Phase 3 — Open311 / GeoReport v2 API
 
 ## Current Position
 
-Phase: 2 of 9 (Authentication & Security)
-Plan: 4 of 5 in current phase (02-01, 02-02, 02-03, 02-04 complete)
+Phase: 3 of 9 (Open311 GeoReport v2 API)
+Plan: 2 of 4 in current phase (03-01, 03-02 complete)
 Status: In progress
-Last activity: 2026-07-08 — Completed 02-04: RoleHierarchyConfig (ROLE_ADMIN > ROLE_STAFF > ROLE_PUBLIC) + AuthorizationIT 22-test integration suite (TechArch §5.4)
+Last activity: 2026-07-08 — Completed 03-02: Open311 requests CRUD (GET/POST /requests, GET /requests/{id}) with JPA Specification filtering, api_key validation, Zonky integration tests
 
 Progress: [███░░░░░░░] 32%
 
@@ -49,6 +49,8 @@ Progress: [███░░░░░░░] 32%
 | 02-authentication-security P02 | 5min | 2 tasks | 1 file modified (Person constructor) |
 | 02-authentication-security P03 | 5min | 2 tasks | 0 files (pre-existing, verified) |
 | 02-authentication-security P04 | 5min | 2 tasks | 1 file modified (RoleHierarchyConfig fluent API) |
+| 03-open311-georeport-v2-api P01 | 10min | 2 tasks | 2 files fixed (CategoryRepository + Open311ServicesIT Zonky) |
+| 03-open311-georeport-v2-api P02 | 10min | 2 tasks | 3 files fixed (Open311RequestService + IT tests Zonky migration) |
 
 **Recent Trend:**
 
@@ -79,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 02-authentication-security 02-02]: Person entity kept full schema (all DB columns); Person(String, String) constructor added to enable auto-create in LdapAuthService/CasAuthService
 - [Phase 02-authentication-security 02-03]: CAS ticket validated server-to-server via /serviceValidate; XXE prevention via DocumentBuilderFactory features; RestTemplate injected via constructor for unit test mockability
 - [Phase 02-authentication-security 02-04]: RoleHierarchyImpl.withDefaultRolePrefix() fluent API (replaces deprecated setHierarchy()); DefaultWebSecurityExpressionHandler bean wires hierarchy into hasRole() expressions; AuthorizationIT uses @ActiveProfiles("test") + embedded PostgreSQL (not H2) — consistent with project test architecture
+- [Phase 03-open311-georeport-v2-api 03-01]: CategoryRepository.findByActiveTrue() added (was missing); content negotiation via path variable {ext} → format param → Accept header → default JSON; obsolete api_key returns 3 synthetic shutdown objects
+- [Phase 03-open311-georeport-v2-api 03-02]: JPA Specification for dynamic filter queries; api_key validated before any DB write (403 if missing/invalid); POST /requests returns HTTP 200 (not 201) per PHP reference; @JsonProperty("long") for longitude field; all integration tests use @AutoConfigureEmbeddedDatabase(ZONKY)
 
 ### Pending Todos
 
@@ -86,10 +90,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- Open311 response format must be byte-compatible with PHP implementation — generate golden files before Phase 3 implementation
+- Open311 golden-file tests (Open311GoldenFileIT) verify field shape vs PHP reference — actual byte-comparison deferred to UAT phase
+- Phase 3 plans 03-03 (OpenAPI docs) and 03-GAP-01 (gaps) still pending
 
 ## Session Continuity
 
-Last session: 2026-07-08T00:51:38Z
-Stopped at: Completed 02-authentication-security-02-04-PLAN.md
+Last session: 2026-07-08T02:00:00Z
+Stopped at: Completed 03-open311-georeport-v2-api-03-02-PLAN.md
 Resume file: None
