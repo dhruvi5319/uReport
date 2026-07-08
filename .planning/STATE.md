@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-07-08T19:51:52.305Z"
+stopped_at: Completed 08-04-PLAN.md
+last_updated: "2026-07-08T20:02:50.429Z"
 last_activity: "2026-07-08 — Completed 07-02: 17 shadcn/ui components vendored, Badge status variants, Button focus ring, Input dark mode, 38 Vitest+jest-axe tests pass"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 37
-  completed_plans: 32
+  completed_plans: 33
   percent: 75
 ---
 
@@ -73,6 +73,7 @@ Progress: [████████░░] 75%
 | Phase 07-react-design-system-and-shell PGAP-01 | 2min | 2 tasks | 6 files |
 | Phase 08-core-frontend-screens P01 | 7min | 2 tasks | 16 files |
 | Phase 08-core-frontend-screens P02 | 11min | 2 tasks | 13 files |
+| Phase 08-core-frontend-screens P04 | 7min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,7 @@ Recent decisions affecting current work:
 - [Phase 08-core-frontend-screens]: ResizeObserver mock added to test-setup.ts for recharts ResponsiveContainer jsdom compatibility
 - [Phase 08-core-frontend-screens]: URL-as-state for all filter params in CaseListPage — useSearchParams reads/writes all filter, sort, page state; enables bookmarkable filter URLs
 - [Phase 08-core-frontend-screens]: Framer Motion height 0→auto for BulkActionBar slide-down; itemVariants AnimatePresence for FilterChips stagger enter/exit
+- [Phase 08-core-frontend-screens]: WizardContext stores all form data in flat object for simple cross-step merging; direction +1/-1 drives Framer Motion stepVariants custom prop
 
 ### Pending Todos
 
@@ -141,6 +143,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T19:51:52.303Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-07-08T20:02:50.428Z
+Stopped at: Completed 08-04-PLAN.md
 Resume file: None
