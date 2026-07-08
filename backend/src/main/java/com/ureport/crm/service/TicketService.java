@@ -257,7 +257,7 @@ public class TicketService {
      * Maps a native FTS query result row (Object[]) to TicketListItem.
      *
      * Native query column order (based on SELECT t.*, search_snippet, rank):
-     *   The tickets table columns come first in their DDL order, then
+     *   The tickets table columns come first in their DDL order (V1 migration), then
      *   search_snippet is the second-to-last column and rank is the last.
      *
      * Column indices by DDL order from V1 migration:
@@ -270,24 +270,25 @@ public class TicketService {
      *   [6]  reported_by_person_id
      *   [7]  assigned_person_id
      *   [8]  contact_method_id
-     *   [9]  substatus_id
+     *   [9]  response_method_id
      *   [10] entered_date
      *   [11] last_modified
-     *   [12] closed_date
-     *   [13] address_id
-     *   [14] latitude
-     *   [15] longitude
-     *   [16] location
-     *   [17] city
-     *   [18] state
-     *   [19] zip
-     *   [20] status
-     *   [21] additional_fields
-     *   [22] custom_fields
-     *   [23] description
-     *   [24] search_vector  (tsvector — opaque)
-     *   [25] search_snippet (String — ts_headline output with &lt;mark&gt; tags)
-     *   [26] rank           (Double — ts_rank_cd value)
+     *   [12] address_id
+     *   [13] latitude
+     *   [14] longitude
+     *   [15] location
+     *   [16] city
+     *   [17] state
+     *   [18] zip
+     *   [19] status
+     *   [20] closed_date
+     *   [21] substatus_id
+     *   [22] additional_fields
+     *   [23] custom_fields
+     *   [24] description
+     *   [25] search_vector  (tsvector — opaque, added by V2)
+     *   [26] search_snippet (String — ts_headline output with &lt;mark&gt; tags)
+     *   [27] rank           (Double — ts_rank_cd value)
      *
      * We use row.length - 2 for search_snippet to be robust if column count changes.
      */
@@ -299,19 +300,19 @@ public class TicketService {
             item.setId(((Number) row[0]).longValue());
         }
 
-        // status — column 20
-        if (row.length > 20 && row[20] != null) {
-            item.setStatus(row[20].toString());
+        // status — column 19
+        if (row.length > 19 && row[19] != null) {
+            item.setStatus(row[19].toString());
         }
 
-        // description — column 23
-        if (row.length > 23 && row[23] != null) {
-            item.setDescription(row[23].toString());
+        // description — column 24
+        if (row.length > 24 && row[24] != null) {
+            item.setDescription(row[24].toString());
         }
 
-        // location — column 16
-        if (row.length > 16 && row[16] != null) {
-            item.setLocation(row[16].toString());
+        // location — column 15
+        if (row.length > 15 && row[15] != null) {
+            item.setLocation(row[15].toString());
         }
 
         // entered_date — column 10
