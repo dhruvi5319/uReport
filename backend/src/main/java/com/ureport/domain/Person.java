@@ -31,6 +31,14 @@ public class Person {
     @Column(name = "password_hash")
     private String passwordHash;
 
+    // Default constructor required by JPA
+    public Person() {}
+
+    public Person(String username, String role) {
+        this.username = username;
+        this.role = role;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getFirstname() { return firstname; }
