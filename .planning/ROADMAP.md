@@ -148,13 +148,14 @@ Plans:
   3. The persistent top navbar, collapsible sidebar (w-64 ↔ w-16, state persisted), breadcrumbs, and mobile hamburger Sheet drawer render and navigate correctly at 375px, 768px, and 1280px+ viewports
   4. Framer Motion page transitions, stagger animations, and micro-interactions fire within 300ms; `prefers-reduced-motion` disables all motion globally
   5. All shell components pass axe-core WCAG 2.1 AA scan (0 critical/serious violations); keyboard navigation and visible focus rings work throughout
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [ ] 07-01-PLAN.md — Design tokens + Tailwind config: scaffold Vite+React+TS project, globals.css CSS variables (light+dark), tailwind.config.ts with token colors, animations.ts, ThemeContext, AuthContext, unit tests
 - [ ] 07-02-PLAN.md — shadcn/ui component library: vendor 16 components via npx shadcn@latest add, customize Badge (status variants), Button (focus ring), Input (dark mode), axe accessibility test suite
 - [ ] 07-03-PLAN.md — Navigation shell: AppShell (skip link, auth redirect), Navbar (logo, user menu, dark toggle), Sidebar (w-64/w-16 collapsible, role-based nav), Breadcrumb (route-aware), MobileDrawer (Sheet)
 - [ ] 07-04-PLAN.md — Animation system + accessibility: useReducedMotion hook, AnimationProvider (MotionConfig), full shell axe WCAG 2.1 AA test suite (0 critical violations), responsive smoke tests (375/768/1280px), Dockerfile multi-stage build
+- [ ] 07-GAP-01-PLAN.md — [GAP CLOSURE] Fix duplicate badge amber color, button focus ring (ringOffsetColor + ring-offset-background + overflow-x-hidden), catch-all ComingSoonPage route
 
 ### Phase 8: Core Frontend Screens
 **Goal**: The four primary user-facing screens are complete — dashboard, case list, case detail, and public submission form — delivering the full staff and public workflow in the React UI
