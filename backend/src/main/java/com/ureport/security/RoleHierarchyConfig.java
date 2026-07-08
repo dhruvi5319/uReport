@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
 @Configuration
 public class RoleHierarchyConfig {
@@ -16,6 +15,10 @@ public class RoleHierarchyConfig {
      * - ADMIN can access routes restricted to ADMIN, STAFF, or PUBLIC
      * - STAFF can access routes restricted to STAFF or PUBLIC (not ADMIN-only)
      * - PUBLIC can only access routes restricted to PUBLIC (unauthenticated)
+     *
+     * Spring Security 3.x auto-picks up a RoleHierarchy bean and wires it
+     * into the expression handler; registering a separate webSecurityExpressionHandler
+     * bean causes a BeanDefinitionOverrideException with Spring's own registration.
      */
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -23,17 +26,5 @@ public class RoleHierarchyConfig {
                 .role("ADMIN").implies("STAFF")
                 .role("STAFF").implies("PUBLIC")
                 .build();
-    }
-
-    /**
-     * Register the role hierarchy with the web security expression handler
-     * so that hasRole() / hasAnyRole() expressions in SecurityConfig and
-     * @PreAuthorize annotations respect the hierarchy.
-     */
-    @Bean
-    public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
-        DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
-        handler.setRoleHierarchy(roleHierarchy());
-        return handler;
     }
 }

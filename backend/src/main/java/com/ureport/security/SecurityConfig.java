@@ -43,13 +43,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(csrfRepo)
                 .csrfTokenRequestHandler(csrfHandler)
-                // Open311 endpoints and GET /auth/cas/** are CSRF-exempt
+                // All /api/** are CSRF-exempt: stateless JWT auth means CSRF is not applicable
+                // (tokens are in httpOnly cookies; the JWT itself is the CSRF defense)
                 .ignoringRequestMatchers(
                     "/open311/v2/**",
                     "/auth/cas/**",
-                    "/api/auth/ldap",
-                    "/api/auth/refresh",
-                    "/api/auth/logout"
+                    "/api/**"
                 )
             )
             .authorizeHttpRequests(auth -> auth
@@ -70,6 +69,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/people/**").hasRole("ADMIN")
                 .requestMatchers("/api/departments/**").hasAnyRole("ADMIN", "STAFF")
                 .requestMatchers("/api/categories/**").hasAnyRole("ADMIN", "STAFF")
+                .requestMatchers("/api/category-groups/**").hasAnyRole("ADMIN", "STAFF")
 
                 // === Ticket write routes — staff or admin ===
                 .requestMatchers(HttpMethod.POST, "/api/tickets").hasAnyRole("STAFF", "ADMIN")

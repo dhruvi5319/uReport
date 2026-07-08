@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PeopleEmailRepository extends JpaRepository<PeopleEmail, Long> {
     List<PeopleEmail> findByPersonIdAndUsedForNotificationsTrue(Long personId);
+    List<PeopleEmail> findByPersonId(Long personId);
 }

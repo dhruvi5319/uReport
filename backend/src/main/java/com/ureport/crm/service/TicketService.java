@@ -255,8 +255,9 @@ public class TicketService {
 
         // Assigned person
         if (req.getAssignedPersonId() != null) {
+            Ticket ticketRef = ticket;
             personRepository.findById(req.getAssignedPersonId())
-                    .ifPresent(p -> { ticket.setAssignedPerson(p); });
+                    .ifPresent(p -> ticketRef.setAssignedPerson(p));
             genericChanged = true;
         }
 

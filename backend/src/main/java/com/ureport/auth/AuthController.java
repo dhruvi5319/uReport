@@ -3,7 +3,7 @@ package com.ureport.auth;
 import com.ureport.auth.dto.AuthMeResponse;
 import com.ureport.auth.dto.LdapLoginRequest;
 import com.ureport.domain.Person;
-import com.ureport.domain.PersonRepository;
+import com.ureport.repository.PersonRepository;
 import com.ureport.security.CustomUserDetails;
 import com.ureport.security.JwtService;
 import jakarta.validation.Valid;

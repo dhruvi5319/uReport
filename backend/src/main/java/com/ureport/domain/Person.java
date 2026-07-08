@@ -1,6 +1,8 @@
 package com.ureport.domain;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "people")
@@ -30,6 +32,15 @@ public class Person {
 
     @Column(name = "password_hash")
     private String passwordHash;
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PeopleEmail> emails = new ArrayList<>();
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PeoplePhone> phones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PeopleAddress> addresses = new ArrayList<>();
 
     // Default constructor required by JPA
     public Person() {}
@@ -69,4 +80,13 @@ public class Person {
     public void setRole(String role) { this.role = role; }
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
+    public List<PeopleEmail> getEmails() { return emails; }
+    public void setEmails(List<PeopleEmail> emails) { this.emails = emails; }
+
+    public List<PeoplePhone> getPhones() { return phones; }
+    public void setPhones(List<PeoplePhone> phones) { this.phones = phones; }
+
+    public List<PeopleAddress> getAddresses() { return addresses; }
+    public void setAddresses(List<PeopleAddress> addresses) { this.addresses = addresses; }
 }

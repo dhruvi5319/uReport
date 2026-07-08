@@ -2,6 +2,8 @@ package com.ureport.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "categories")
@@ -26,20 +28,20 @@ public class Category {
     @JoinColumn(name = "category_group_id")
     private CategoryGroup categoryGroup;
 
-    private Boolean active;
-    private Boolean featured;
+    private Boolean active = false;
+    private Boolean featured = false;
 
     @Column(name = "display_permission_level")
-    private String displayPermissionLevel;
+    private String displayPermissionLevel = "staff";
 
     @Column(name = "posting_permission_level")
-    private String postingPermissionLevel;
+    private String postingPermissionLevel = "staff";
 
     @Column(name = "custom_fields")
     private String customFields;
 
-    @Column(name = "last_modified")
-    private LocalDateTime lastModified;
+    @Column(name = "last_modified", nullable = false)
+    private LocalDateTime lastModified = java.time.LocalDateTime.now();
 
     @Column(name = "sla_days")
     private Integer slaDays;
@@ -48,10 +50,15 @@ public class Category {
     private String notificationReplyEmail;
 
     @Column(name = "auto_close_is_active")
-    private Boolean autoCloseIsActive;
+    private Boolean autoCloseIsActive = false;
 
     @Column(name = "auto_close_substatus_id")
     private Long autoCloseSubstatusId;
+
+    // Transient — managed directly via CategoryActionResponseRepository to avoid
+    // Hibernate's NULL-FK-then-delete issue with @JoinColumn @OneToMany collections.
+    @Transient
+    private List<CategoryActionResponse> categoryActionResponses = new ArrayList<>();
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -85,4 +92,6 @@ public class Category {
     public void setAutoCloseIsActive(Boolean autoCloseIsActive) { this.autoCloseIsActive = autoCloseIsActive; }
     public Long getAutoCloseSubstatusId() { return autoCloseSubstatusId; }
     public void setAutoCloseSubstatusId(Long autoCloseSubstatusId) { this.autoCloseSubstatusId = autoCloseSubstatusId; }
+    public List<CategoryActionResponse> getCategoryActionResponses() { return categoryActionResponses; }
+    public void setCategoryActionResponses(List<CategoryActionResponse> categoryActionResponses) { this.categoryActionResponses = categoryActionResponses; }
 }
