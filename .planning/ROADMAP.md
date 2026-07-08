@@ -181,12 +181,12 @@ Plans:
   3. The LDAP and CAS login screens display the branded city card layout with a loading spinner on submit and a clear error message on auth failure
   4. `docker build` succeeds for both `backend/Dockerfile` and `frontend/Dockerfile` from a clean checkout; all Maven integration tests pass using embedded PostgreSQL
   5. Open311 golden-file integration tests pass against the Spring Boot implementation (all four endpoints match PHP reference responses); WCAG axe-core scan finds 0 critical violations across all screens
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 09-01: Admin panels UI — PeoplePage, DepartmentsPage, CategoriesPage, ClientsPage, LookupTableAdmin (substatus/issue-types/contact-methods); ADMIN-01 inline editing + toast + confirm dialogs
-- [ ] 09-02: Search UI and auth screens — SEARCH-02 live search with highlight/chips/empty state, BookmarkController integration; AUTH-03 LoginPage (LDAP/CAS branded card)
-- [ ] 09-03: Integration hardening — Dockerfile build verification (backend + frontend/nginx), Open311 golden-file tests, axe-core accessibility scan, E2E smoke tests against embedded Spring Boot
+- [ ] 09-01-PLAN.md — Admin panels UI (Wave 1): AdminListPage HOC + PeoplePage/DepartmentsPage/CategoriesPage/ClientsPage (Sheet+AlertDialog+Toast pattern) + SubstatusPage/IssueTypesPage/ContactMethodsPage/ActionsPage (inline editing) + all 8 admin routes in App.tsx + axe-core tests
+- [ ] 09-02-PLAN.md — Search UI wiring + auth screens (Wave 1, parallel): Bookmark save/recall in CaseListPage toolbar, Command palette wired to GET /api/tickets?q=, LoginPage (CAS button + LDAP form + spinner + error state + public route)
+- [ ] 09-03-PLAN.md — Integration hardening (Wave 2): Open311 golden-file fixtures + Open311GoldenFileIT + ApplicationSmokeIT, comprehensive axe-core accessibility suite (5 screens), Dockerfile verification shell script
 
 ## Progress
 
