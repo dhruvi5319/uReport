@@ -14,7 +14,12 @@ import {
   BarChart,
   FileText,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "../ui/sheet";
 import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
 
@@ -88,7 +93,7 @@ export default function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) 
                       <NavLink
                         to={item.href}
                         end={item.href === "/dashboard" || item.href === "/"}
-                        onClick={() => onOpenChange(false)}
+                        onClick={() => onOpenChange(false)} // Close drawer on nav
                         className={({ isActive }) =>
                           cn(
                             "flex items-center gap-3 rounded-md mx-2 px-2 py-1.5 text-sm transition-colors",

@@ -3,13 +3,9 @@ import { Link } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../ui/popover";
-import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import MobileDrawer from "./MobileDrawer";
+
 import { useState } from "react";
 
 const themeIcons = {

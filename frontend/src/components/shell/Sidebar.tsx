@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -127,11 +127,17 @@ export default function Sidebar() {
                       }
                       aria-label={collapsed ? item.label : undefined}
                     >
-                      <Icon
-                        className="h-4 w-4 shrink-0"
-                        aria-hidden="true"
-                      />
-                      {!collapsed && <span>{item.label}</span>}
+                      {({ isActive: _isActive }) => (
+                        <>
+                          <Icon
+                            className="h-4 w-4 shrink-0"
+                            aria-hidden="true"
+                          />
+                          {!collapsed && (
+                            <span>{item.label}</span>
+                          )}
+                        </>
+                      )}
                     </NavLink>
                   </li>
                 );
