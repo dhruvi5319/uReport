@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 import { CaseListPage } from "./pages/CaseListPage";
+import { CaseDetailPage } from "./pages/CaseDetailPage";
 import { PublicSubmitPage } from "./pages/PublicSubmitPage";
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/cases" element={<CaseListPage />} />
+                <Route path="/cases/:id" element={<CaseDetailPage />} />
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
             </Routes>

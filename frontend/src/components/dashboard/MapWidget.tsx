@@ -6,10 +6,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 export interface MapWidgetProps {
   clusters: GeoJSON.FeatureCollection | null;
   onPinClick?: (ticketId: number) => void;
+  onPinDrag?: (lat: number, lon: number) => void;
+  draggablePin?: boolean;
   loading?: boolean;
 }
 
-export function MapWidget({ clusters, onPinClick, loading = false }: MapWidgetProps) {
+export function MapWidget({ clusters, onPinClick, onPinDrag: _onPinDrag, draggablePin: _draggablePin = false, loading = false }: MapWidgetProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const cleanupRef = useRef<(() => void) | null>(null);

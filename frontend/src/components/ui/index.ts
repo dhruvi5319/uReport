@@ -104,3 +104,5 @@ export {
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
 } from "./breadcrumb";
+// Textarea
+export { Textarea } from "./textarea";

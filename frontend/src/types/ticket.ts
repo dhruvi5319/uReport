@@ -60,3 +60,33 @@ export interface PaginatedTickets {
   page: number;
   pageSize: number;
 }
+
+export interface Media {
+  id: number;
+  filename: string;
+  url: string;
+  thumbnailUrl: string;
+  mimeType: string;
+}
+
+export interface TicketHistory {
+  id: number;
+  actionName: string;
+  notes?: string;
+  actorName: string;
+  createdAt: string;
+  media: Media[];
+  isPending?: boolean;
+}
+
+export interface Action {
+  id: number;
+  name: string;
+  departmentId?: number;
+}
+
+export interface ActionResponse {
+  id: number;
+  name: string;
+  responseText: string;
+}
