@@ -121,6 +121,7 @@ Plans:
 - [ ] 05-04-PLAN.md — Lookup table admin APIs: SubstatusService (isDefault auto-clearing, seeded protection ids 1-3), IssueTypeService (seeded ids 1-6), ContactMethodService (seeded ids 1-4), ActionService (dept-type create, system-type delete block), 4 controllers, LookupTableCrudIT
 
 ### Phase 6: Search, Geo & Metrics Backend
+**Status**: In Progress
 **Goal**: PostgreSQL full-text search works at parity with the existing Solr implementation, bookmarks persist per user, geo-cluster data serves the map widget, and metrics/reporting endpoints are live
 **Depends on**: Phase 5
 **Requirements**: F11, SEARCH-01, F16, F15
