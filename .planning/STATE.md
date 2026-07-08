@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: planning
 stopped_at: Completed 04-core-case-management-backend-04-03-PLAN.md
-last_updated: "2026-07-07T21:12:06.243Z"
-last_activity: 2026-07-06 — Roadmap created; all 36 v1 requirements mapped to 9 phases
+last_updated: "2026-07-08T00:08:00.000Z"
+last_activity: 2026-07-08 — Completed 01-03: Spring Boot Maven skeleton, Dockerfiles, ApplicationStartIT
 progress:
   total_phases: 9
   completed_phases: 1
@@ -69,6 +69,8 @@ Recent decisions affecting current work:
 - [Phase 04-core-case-management-backend]: No class-level @Transactional on bulk methods — per-ticket try/catch ensures one failure does not abort others
 - [Phase 04-core-case-management-backend]: Native sidecar PostgreSQL for integration tests (no Docker daemon in K8s sandbox — Testcontainers not viable)
 - [Phase 04-core-case-management-backend]: DatabaseUrlEnvironmentPostProcessor converts platform-injected postgres:// URL to jdbc:postgresql:// before Spring datasource init
+- [Phase 01-infrastructure-foundation 01-03]: io.zonky.test embedded-postgres replaces Testcontainers — no Docker daemon needed; ZONKY provider auto-configures DataSource bean in test scope
+- [Phase 01-infrastructure-foundation 01-03]: docker-compose.yml removed — K8s sandbox has no Docker daemon; embedded-postgres + Dockerfiles cover all test and OCI packaging needs
 
 ### Pending Todos
 
@@ -81,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-07T04:00:00.000Z
-Stopped at: Completed 04-core-case-management-backend-04-03-PLAN.md
+Last session: 2026-07-08T00:08:00.000Z
+Stopped at: Completed 01-infrastructure-foundation-01-03-PLAN.md
 Resume file: None
