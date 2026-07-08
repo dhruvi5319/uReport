@@ -334,6 +334,8 @@ public class Open311RequestService {
         Person person = new Person();
         person.setFirstname(params.getOrDefault("first_name", ""));
         person.setLastname(params.getOrDefault("last_name", ""));
+        person.setEmail(email != null ? email : "");
+        person.setPhone(params.getOrDefault("phone", ""));
         return personRepository.save(person);
     }
 }
