@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/people/**").hasRole("ADMIN")
                 .requestMatchers("/api/departments/**").hasAnyRole("ADMIN", "STAFF")
                 .requestMatchers("/api/categories/**").hasAnyRole("ADMIN", "STAFF")
+                .requestMatchers("/api/category-groups/**").hasAnyRole("ADMIN", "STAFF")
 
                 // === Ticket write routes — staff or admin ===
                 .requestMatchers(HttpMethod.POST, "/api/tickets").hasAnyRole("STAFF", "ADMIN")
