@@ -1,13 +1,21 @@
 {
   "generator_version": "init-dev-server@1",
   "catalog_entry": null,
-  "generated_at": "2026-07-07T22:42:31Z",
-  "inspection_inputs_hash": "4740170d246a123d28311697027f4e1e9373b07f0369d419f37225bd52750440",
+  "generated_at": "2026-07-08T18:10:55Z",
+  "inspection_inputs_hash": "723c2e505625fc9f356ebbbeb7877fc6f0ca0ee922aead56c53f1ef6fd496b16",
   "inspection_inputs": {
     "matched_globs": [
-      "docker-compose.yml"
+      "backend/pom.xml",
+      "crm/composer.json",
+      "frontend/package.json",
+      "frontend/vite.config.ts"
     ],
-    "manifest_signatures": [],
+    "manifest_signatures": [
+      "backend/pom.xml:dep:spring-boot-starter-web",
+      "crm/composer.json:dep:phpmailer/phpmailer",
+      "frontend/package.json:dep:vite@^5.3.0",
+      "frontend/package.json:dev-script:vite"
+    ],
     "existing_scripts": []
   }
 }

@@ -8,28 +8,43 @@
 #
 # Why these choices (decision-trace; do not delete):
 #   - `set -euo pipefail` not just `-e` — RESEARCH.md Pitfall 4 (silent pipe failures).
-#   - Agent fallback: catalog AND-semantics on compose.md globs required all three
-#     of docker-compose.yml / compose.yaml / compose.yml to exist; only
-#     docker-compose.yml is present → zero-match → agent synthesis (D-06).
-#   - Exec command: `docker compose up --build` per README "Installing with Docker"
-#     section — the project is a PHP/Apache + MariaDB + Solr stack fully
-#     orchestrated by Docker Compose. `--build` ensures the php:8.5-apache image
-#     is rebuilt on first run (Dockerfile at repo root).
-#   - No install step: Compose manages its own image pulls/builds; no lockfile to
-#     hash. The INSTALL_CMD is intentionally empty.
-#   - No NODE_ENV / devDependency concern: this is a PHP stack; compose handles
-#     the Node toolchain (sass) inside the container image via Dockerfile.
+#   - Agent fallback (D-06): catalog AND-semantics requires root-level manifest files;
+#     this repo is a monorepo with manifests only in subdirs (frontend/, backend/, crm/).
+#     Zero catalog entries matched → agent synthesis.
+#   - Multi-process: React+Vite frontend (port 5173) + Spring Boot backend (port 8080)
+#     run concurrently. Uses bash trap + background PIDs + wait -n per RESEARCH.md
+#     Pattern 3 and multi-process-template.md. No concurrently / pm2 / supervisord.
+#   - Frontend install: `npm ci --include=dev` inside frontend/ — devDeps include
+#     vite, tsc, @vitejs/plugin-react (build toolchain must NOT be stripped).
+#     references/runtime-environment.md §4.
+#   - Frontend exec: `npm run dev` (runs `vite`) — vite.config.ts already sets
+#     host: "0.0.0.0" and port: 5173. A vite.config.pivota.ts sidecar is written
+#     to add server.allowedHosts: true (Vite's host allowlist is not configurable
+#     via env var — RESEARCH.md Pitfall 1; react-vite catalog entry).
+#   - Backend install: JDK 21 install via apt (Daytona base snapshot does not
+#     ship OpenJDK — RESEARCH.md Pitfall 7; java-spring catalog entry Pre-exec
+#     snippet). Then `mvn dependency:resolve -B` to warm the Maven cache.
+#   - Backend exec: `mvn spring-boot:run` — no pre-built dist/ required.
+#     Flyway migrations run automatically at Spring Boot startup (spring.flyway.enabled=true
+#     in application.yml). DB schema seeded by the framework, not by psql host CLI
+#     (references/runtime-environment.md §3).
+#   - Backend port: application.yml declares server.port=8080; application.properties
+#     sets server.address=0.0.0.0. No SERVER_ADDRESS override needed.
+#   - DB: DATABASE_URL read from environment (platform sidecar). The injection-safe
+#     .env seeding below preserves the injected DATABASE_URL.
 #   - Log destination `/tmp/pivota-dev.log` — Open Question #4 resolved (always
 #     writable inside Daytona sandboxes; matches existing convention).
-#   - Ready signal port 8080 — the compose `app` service maps host 8080 → container 80.
-#   - DATABASE_URL / POSTGRES_* not applicable: this stack uses MariaDB with
-#     credentials defined in docker-compose.yml itself. The injection-safe .env
-#     seeding below still runs to be safe.
+#   - Ready signal ports: 5173 (frontend primary), 8080 (backend).
+#   - CRM (crm/ PHP/Apache legacy) is NOT started — it requires Apache + PHP installed
+#     in host and is the legacy predecessor to this new frontend+backend app. The new
+#     stack (frontend + backend) is the active dev target.
+#   - No retry loop for multi-process (multi-process-template.md §5): the trap handler
+#     tears down all siblings cleanly when one child crashes.
 
 set -euo pipefail
 
 # === Bash version guard (RESEARCH.md Pitfall 8) ===
-# `wait -n` (used by the multi-process variant) requires bash >= 4.3.
+# `wait -n` (used by the multi-process block below) requires bash >= 4.3.
 # Fail fast with a clear message; do not silently degrade.
 if (( BASH_VERSINFO[0] < 4 )) || { (( BASH_VERSINFO[0] == 4 )) && (( BASH_VERSINFO[1] < 3 )); }; then
   echo "[pivota] bash 4.3+ required for 'wait -n'; found ${BASH_VERSION}" >&2
@@ -37,31 +52,27 @@ if (( BASH_VERSINFO[0] < 4 )) || { (( BASH_VERSINFO[0] == 4 )) && (( BASH_VERSIN
 fi
 
 # === D-11.4: tee stdout/stderr to /tmp/pivota-dev.log AND pass through ===
-# Researcher resolved log destination: /tmp/pivota-dev.log (always writable,
-# matches existing convention). SSE chat panel sees output live AND a file
-# exists for scrollback / replay.
 mkdir -p /tmp
 exec > >(tee -a /tmp/pivota-dev.log) 2>&1
 echo "[pivota] $(date -Iseconds) start-dev.sh begin (catalog: agent-synthesized)"
 
-# === D-11.1 + D-11.2: per-stack 0.0.0.0 binding + host allowlist relaxation ===
-# Docker Compose controls port binding via the `ports:` block in docker-compose.yml.
-# The app service declares `8080:80` (no loopback restriction), so it already binds
-# to 0.0.0.0 on the host. No additional env-var lever is needed here.
-# WARNING: if docker-compose.yml ever changes to `127.0.0.1:8080:80`, the preview
-# iframe will stop working — fix in docker-compose.yml, not here.
+# === D-11.1 + D-11.2: per-stack 0.0.0.0 binding + host allowlist ===
+# Frontend: vite.config.ts already sets host: "0.0.0.0" and port: 5173.
+# A vite.config.pivota.ts sidecar adds server.allowedHosts: true (see Pre-exec below).
+# Backend: application.properties sets server.address=0.0.0.0. No env var needed.
+# export HOST is set for downstream tooling compatibility only.
+export HOST=0.0.0.0
 
 # === D-11.3: .env.example -> .env seed (platform-injection-safe) ===
-# Seed .env from .env.example for first boot, but NEVER let an .env.example
-# placeholder shadow a variable the platform already injected into the sandbox
-# environment. Any KEY already set in the environment is dropped from the copy
-# so the injected value wins. See references/runtime-environment.md §3.
+# Seed .env from .env.example if present. Never shadow platform-injected vars
+# (DATABASE_URL, POSTGRES_*, REDIS_URL, PIVOTA_*, etc.).
+# references/runtime-environment.md §3.
 if [[ ! -f .env && -f .env.example ]]; then
   echo "[pivota] seeding .env from .env.example (preserving platform-injected vars)"
   while IFS= read -r line || [[ -n "$line" ]]; do
-    trimmed="${line#"${line%%[![:space:]]*}"}"   # left-trim for the test only
+    trimmed="${line#"${line%%[![:space:]]*}"}"
     if [[ "$trimmed" == \#* || -z "$trimmed" || "$trimmed" != *"="* ]]; then
-      printf '%s\n' "$line"; continue            # keep comments / blanks / non-assignments
+      printf '%s\n' "$line"; continue
     fi
     key="${trimmed#export }"; key="${key%%=*}"; key="${key//[[:space:]]/}"
     if [[ -n "${!key+x}" ]]; then
@@ -72,49 +83,160 @@ if [[ ! -f .env && -f .env.example ]]; then
   done < .env.example > .env
 fi
 
-# === No pre-exec snippet needed ===
-# Docker Compose handles all runtime dependencies (PHP, Apache, MariaDB, Solr)
-# inside containers. No host-side JDK/rustup/toolchain install required.
+# === Pre-exec snippet: JDK 21 install (java-spring catalog pattern) ===
+# Daytona base snapshot does not ship OpenJDK (RESEARCH.md Pitfall 7).
+# Idempotent: skipped if `java` is already on PATH.
+(command -v java >/dev/null 2>&1 \
+    || (echo "[pivota] installing OpenJDK 21 (one-time, ~30s)" \
+        && sudo apt-get update -qq \
+        && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openjdk-21-jdk-headless)) \
+    && export JAVA_HOME=$(readlink -f "$(command -v java)" 2>/dev/null | sed -E "s%/bin/java$%%") \
+    && echo "[pivota] JAVA_HOME=$JAVA_HOME"
+export PATH="${JAVA_HOME}/bin:${PATH}"
 
-# === D-12: install step ===
-# Compose manages its own image pulls and builds — no lockfile to hash.
-# INSTALL_CMD is empty; the wrapper proceeds straight to EXEC_CMD.
-# `docker compose up --build` triggers image pulls/builds on first run.
-SENTINEL="/tmp/pivota-setup-sentinel"
-LOCK_FILE_PATH=""
-INSTALL_PRESENCE_CHECK=""
-INSTALL_CMD=''
+# Also ensure mvn is available (install Maven if not on PATH)
+if ! command -v mvn >/dev/null 2>&1; then
+  echo "[pivota] installing Maven (one-time)"
+  sudo apt-get update -qq
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq maven
+fi
 
-# No lockfile and no install command — skip the install sentinel logic entirely.
-
-# === D-14: retry loop (3 attempts, exponential backoff 1s / 2s / 4s) ===
-# Final-attempt exit code propagates the INNER command's exit code, not a
-# fixed 1, so the caller (platform / Daytona) can distinguish "wrapper bug"
-# from "user command failed with N".
-# NOTE: `docker compose up --build` starts all services (app on :8080,
-# phpmyadmin on :8081, db on :3307, solr on :8983). The `app` service
-# is the primary preview target (host port 8080).
-EXEC_CMD='docker compose up --build'
-ATTEMPT=1
-DELAY=1
-while (( ATTEMPT <= 3 )); do
-  echo "[pivota] attempt $ATTEMPT: $EXEC_CMD"
-  if bash -c "$EXEC_CMD"; then
-    echo "[pivota] inner command exited 0; propagating success"
-    exit 0
+# === Pre-exec snippet: Vite allowedHosts sidecar (react-vite catalog pattern) ===
+# vite.config.ts already sets host: "0.0.0.0" but does not set allowedHosts.
+# Write a sidecar config that extends the user's config and adds allowedHosts: true.
+# Idempotent: skipped if file already exists or if allowedHosts already in vite.config.ts.
+if [[ -f frontend/vite.config.ts && ! -f frontend/vite.config.pivota.ts ]]; then
+  if ! grep -q "allowedHosts" frontend/vite.config.ts 2>/dev/null; then
+    cat > frontend/vite.config.pivota.ts <<'VITE_OVERLAY_EOF'
+// Auto-generated by pivota init-dev-server. Extends vite.config.ts at runtime
+// to set server.allowedHosts = true (sandbox preview embedding).
+// Remove this file if you set allowedHosts yourself in vite.config.ts.
+import { defineConfig, mergeConfig } from 'vite';
+import userConfig from './vite.config';
+export default defineConfig((env) => mergeConfig(
+  typeof userConfig === 'function' ? userConfig(env) : userConfig,
+  { server: { allowedHosts: true } }
+));
+VITE_OVERLAY_EOF
+    echo "[pivota] wrote frontend/vite.config.pivota.ts (allowedHosts overlay)"
   fi
-  EXIT_CODE=$?
-  if (( ATTEMPT == 3 )); then
-    echo "[pivota] all 3 attempts failed (last exit=$EXIT_CODE); surfacing failure"
-    exit "$EXIT_CODE"
-  fi
-  echo "[pivota] attempt $ATTEMPT failed (exit=$EXIT_CODE); retrying in ${DELAY}s"
-  sleep "$DELAY"
-  DELAY=$(( DELAY * 2 ))
-  ATTEMPT=$(( ATTEMPT + 1 ))
-done
+fi
 
-# Unreachable, but keep for analyzer happiness
+# === D-12: Frontend install (npm ci with devDeps) ===
+FRONTEND_SENTINEL="/tmp/pivota-frontend-sentinel"
+FRONTEND_LOCK="frontend/package-lock.json"
+
+run_frontend_install() {
+  echo "[pivota] running frontend install: npm ci --include=dev"
+  local rc=0
+  (cd frontend && npm ci --include=dev) || rc=$?
+  if (( rc == 0 )); then return 0; fi
+  echo "[pivota] WARN frontend npm ci failed (exit=$rc) — retrying with --legacy-peer-deps"
+  local rc2=0
+  (cd frontend && npm install --include=dev --legacy-peer-deps) || rc2=$?
+  if (( rc2 == 0 )); then
+    echo "[pivota] WARN frontend install succeeded via --legacy-peer-deps; fix package.json peer ranges"
+    return 0
+  fi
+  echo "[pivota] FATAL frontend install failed (exit=$rc2) — dev server cannot start" >&2
+  return "$rc2"
+}
+
+if [[ -f "$FRONTEND_LOCK" ]]; then
+  CURRENT_FE_HASH=$(sha256sum "$FRONTEND_LOCK" | cut -d' ' -f1)
+  PREVIOUS_FE_HASH=$(cat "$FRONTEND_SENTINEL" 2>/dev/null || echo "")
+  if [[ "$CURRENT_FE_HASH" == "$PREVIOUS_FE_HASH" && -d frontend/node_modules ]]; then
+    echo "[pivota] frontend lockfile unchanged AND node_modules present; skipping install"
+  else
+    run_frontend_install
+    echo "$CURRENT_FE_HASH" > "$FRONTEND_SENTINEL"
+  fi
+else
+  if [[ ! -f "$FRONTEND_SENTINEL" ]]; then
+    run_frontend_install
+    touch "$FRONTEND_SENTINEL"
+  fi
+fi
+
+# === D-12: Backend Maven dependency cache warm-up ===
+BACKEND_SENTINEL="/tmp/pivota-backend-sentinel"
+BACKEND_LOCK="backend/pom.xml"
+
+run_backend_install() {
+  echo "[pivota] warming Maven dependency cache: mvn dependency:resolve -B"
+  local rc=0
+  (cd backend && mvn dependency:resolve -B -q) || rc=$?
+  if (( rc != 0 )); then
+    echo "[pivota] WARN Maven dependency:resolve failed (exit=$rc) — proceeding anyway (spring-boot:run will resolve deps)"
+  fi
+}
+
+if [[ -f "$BACKEND_LOCK" ]]; then
+  CURRENT_BE_HASH=$(sha256sum "$BACKEND_LOCK" | cut -d' ' -f1)
+  PREVIOUS_BE_HASH=$(cat "$BACKEND_SENTINEL" 2>/dev/null || echo "")
+  if [[ "$CURRENT_BE_HASH" == "$PREVIOUS_BE_HASH" && -d "$HOME/.m2/repository" ]]; then
+    echo "[pivota] backend pom.xml unchanged AND .m2/repository present; skipping dependency resolve"
+  else
+    run_backend_install
+    echo "$CURRENT_BE_HASH" > "$BACKEND_SENTINEL"
+  fi
+else
+  if [[ ! -f "$BACKEND_SENTINEL" ]]; then
+    run_backend_install
+    touch "$BACKEND_SENTINEL"
+  fi
+fi
+
+# === Multi-process supervision: frontend + backend (multi-process-template.md §2) ===
+# bash trap + background PIDs + wait -n (RESEARCH.md Pattern 3).
+# No concurrently / pm2 / supervisord.
+# No retry loop (multi-process-template.md §5).
+
+shutdown() {
+  echo "[pivota] shutting down children"
+  kill -TERM "${PIDS[@]}" 2>/dev/null || true
+  # Brief grace, then SIGKILL stragglers (RESEARCH.md Pitfall 3: npm SIGTERM)
+  sleep 2
+  kill -KILL "${PIDS[@]}" 2>/dev/null || true
+  wait
+}
+trap shutdown SIGTERM SIGINT EXIT
+
+declare -a PIDS=()
+
+# Process 1: React+Vite frontend (port 5173)
+# Uses vite.config.pivota.ts overlay if present (adds allowedHosts: true).
+# vite.config.ts already sets host: "0.0.0.0" and port: 5173.
+(
+  cd frontend \
+    && export HOST=0.0.0.0 \
+    && exec bash -c 'if [[ -f vite.config.pivota.ts ]]; then npm run dev -- --config vite.config.pivota.ts; else npm run dev; fi'
+) 2>&1 | sed 's/^/[frontend] /' &
+PIDS+=($!)
+
+# Process 2: Spring Boot backend (port 8080)
+# Flyway runs automatically at Spring startup — no separate migrate step needed.
+# DATABASE_URL is read from the environment (platform sidecar injection).
+# application.properties already sets server.address=0.0.0.0, server.port=3000
+# but application.yml sets server.port=8080 — Spring Boot loads application.yml
+# which takes precedence for port (8080). Both set address to 0.0.0.0 via env/props.
+(
+  cd backend \
+    && export SERVER_ADDRESS=0.0.0.0 \
+    && exec bash -c 'mvn spring-boot:run -q'
+) 2>&1 | sed 's/^/[backend] /' &
+PIDS+=($!)
+
+echo "[pivota] started frontend (PID ${PIDS[0]}) and backend (PID ${PIDS[1]})"
+echo "[pivota] frontend: http://localhost:5173 | backend: http://localhost:8080"
+
+# Wait for ANY child to exit; trap tears down siblings.
+wait -n
+EXIT_CODE=$?
+shutdown
+exit "$EXIT_CODE"
+
+# Unreachable
 exit 1
 # === END PIVOTA PREAMBLE ===
 # Below this marker, projects may add custom shutdown / setup logic.
