@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-open311-georeport-v2-api-03-03-PLAN.md
-last_updated: "2026-07-08T01:05:54.240Z"
-last_activity: "2026-07-08 — Completed 03-02: Open311 requests CRUD (GET/POST /requests, GET /requests/{id}) with JPA Specification filtering, api_key validation, Zonky integration tests"
+stopped_at: Completed 05-admin-configuration-backend-05-04-PLAN.md
+last_updated: "2026-07-08T13:48:46.727Z"
+last_activity: "2026-07-08 — Completed 03-03: OpenAPI/Swagger docs + golden-file integration tests (8 tests, JWT Bearer SecurityScheme, @Operation annotations on all 5 Open311 endpoints)"
 progress:
   total_phases: 9
   completed_phases: 4
   total_plans: 35
-  completed_plans: 18
-  percent: 32
+  completed_plans: 19
+  percent: 51
 ---
 
 # Project State
@@ -59,6 +59,7 @@ Progress: [█████░░░░░] 51%
 
 *Updated after each plan completion*
 | Phase 04-core-case-management-backend P02 | 52min | 2 tasks | 47 files |
+| Phase 05-admin-configuration-backend P04 | 20min | 2 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 03-open311-georeport-v2-api 03-01]: CategoryRepository.findByActiveTrue() added (was missing); content negotiation via path variable {ext} → format param → Accept header → default JSON; obsolete api_key returns 3 synthetic shutdown objects
 - [Phase 03-open311-georeport-v2-api 03-02]: JPA Specification for dynamic filter queries; api_key validated before any DB write (403 if missing/invalid); POST /requests returns HTTP 200 (not 201) per PHP reference; @JsonProperty("long") for longitude field; all integration tests use @AutoConfigureEmbeddedDatabase(ZONKY)
 - [Phase 03-open311-georeport-v2-api]: Golden-file tests use @BeforeEach JPA setup instead of data.sql — aligns with native-sidecar PostgreSQL test architecture (same pattern as Open311RequestsIT)
+- [Phase 05-admin-configuration-backend]: Reused com.ureport.crm.dto.ActionDto for ActionController to avoid duplicate record type
+- [Phase 05-admin-configuration-backend]: SEEDED_* constants use Set.of() for O(1) in-memory guard before DB lookup in all 3 lookup services
+- [Phase 05-admin-configuration-backend]: clearDefaultForStatus runs within same @Transactional scope for Postgres row-level lock safety on isDefault exclusivity
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T01:05:50.483Z
-Stopped at: Completed 03-open311-georeport-v2-api-03-03-PLAN.md
+Last session: 2026-07-08T13:48:46.725Z
+Stopped at: Completed 05-admin-configuration-backend-05-04-PLAN.md
 Resume file: None
