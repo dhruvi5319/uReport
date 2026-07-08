@@ -35,4 +35,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, JpaSpecif
      */
     List<Ticket> findByEnteredByPersonIdOrReportedByPersonIdOrAssignedPersonId(
         Long enteredByPersonId, Long reportedByPersonId, Long assignedPersonId);
+
+    /**
+     * Checks if a category is referenced by any ticket.
+     * Used by CategoryService.deleteCategory to prevent deletion of in-use categories.
+     */
+    boolean existsByCategoryId(Long categoryId);
 }

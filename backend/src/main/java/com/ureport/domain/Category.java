@@ -2,6 +2,8 @@ package com.ureport.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "categories")
@@ -53,6 +55,10 @@ public class Category {
     @Column(name = "auto_close_substatus_id")
     private Long autoCloseSubstatusId;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private List<CategoryActionResponse> categoryActionResponses = new ArrayList<>();
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
@@ -85,4 +91,6 @@ public class Category {
     public void setAutoCloseIsActive(Boolean autoCloseIsActive) { this.autoCloseIsActive = autoCloseIsActive; }
     public Long getAutoCloseSubstatusId() { return autoCloseSubstatusId; }
     public void setAutoCloseSubstatusId(Long autoCloseSubstatusId) { this.autoCloseSubstatusId = autoCloseSubstatusId; }
+    public List<CategoryActionResponse> getCategoryActionResponses() { return categoryActionResponses; }
+    public void setCategoryActionResponses(List<CategoryActionResponse> categoryActionResponses) { this.categoryActionResponses = categoryActionResponses; }
 }

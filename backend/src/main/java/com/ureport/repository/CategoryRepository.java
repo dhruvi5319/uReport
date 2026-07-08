@@ -21,4 +21,19 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     /** Returns the count of categories referencing the given department. */
     @Query("SELECT COUNT(c) FROM Category c WHERE c.department.id = :id")
     long countByDepartmentId(@Param("id") Long id);
+
+    /** Filtered list for admin category listing (groupId, departmentId, active are all optional). */
+    @Query("SELECT c FROM Category c WHERE " +
+           "(:groupId IS NULL OR c.categoryGroup.id = :groupId) " +
+           "AND (:departmentId IS NULL OR c.department.id = :departmentId) " +
+           "AND (:active IS NULL OR c.active = :active)")
+    List<Category> findFiltered(@Param("groupId") Long groupId,
+                                @Param("departmentId") Long departmentId,
+                                @Param("active") Boolean active);
+
+    /** Public endpoint: only categories postable by public or anonymous users. */
+    List<Category> findByPostingPermissionLevelInAndActiveTrue(List<String> levels);
+
+    /** Used by CategoryGroupService to check if any category belongs to the given group (delete safety). */
+    boolean existsByCategoryGroupId(Long categoryGroupId);
 }
