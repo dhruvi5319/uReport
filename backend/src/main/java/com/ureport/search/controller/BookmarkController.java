@@ -3,10 +3,11 @@ package com.ureport.search.controller;
 import com.ureport.search.dto.BookmarkDto;
 import com.ureport.search.dto.CreateBookmarkRequest;
 import com.ureport.search.service.BookmarkService;
-import com.ureport.security.PersonDetails;
+import com.ureport.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,9 +37,13 @@ public class BookmarkController {
      * GET /api/bookmarks — returns all bookmarks belonging to the authenticated user.
      * personId is read from the JWT principal — not from any URL or query parameter.
      */
+    private CustomUserDetails currentUser() {
+        return (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
     @GetMapping
-    public List<BookmarkDto> getBookmarks(@AuthenticationPrincipal PersonDetails currentUser) {
-        return bookmarkService.getBookmarks(currentUser.getId());
+    public List<BookmarkDto> getBookmarks() {
+        return bookmarkService.getBookmarks(currentUser().getPersonId());
     }
 
     /**
@@ -48,9 +53,8 @@ public class BookmarkController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookmarkDto createBookmark(
-            @Valid @RequestBody CreateBookmarkRequest req,
-            @AuthenticationPrincipal PersonDetails currentUser) {
-        return bookmarkService.createBookmark(req, currentUser.getId());
+            @Valid @RequestBody CreateBookmarkRequest req) {
+        return bookmarkService.createBookmark(req, currentUser().getPersonId());
     }
 
     /**
@@ -61,11 +65,10 @@ public class BookmarkController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBookmark(
-            @PathVariable Long id,
-            @AuthenticationPrincipal PersonDetails currentUser) {
-        boolean isAdmin = currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        bookmarkService.deleteBookmark(id, currentUser.getId(), isAdmin);
+    public void deleteBookmark(@PathVariable Long id) {
+        CustomUserDetails cu = currentUser();
+        boolean isAdmin = cu.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().contains("ADMIN"));
+        bookmarkService.deleteBookmark(id, cu.getPersonId(), isAdmin);
     }
 }

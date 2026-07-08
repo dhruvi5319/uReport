@@ -11,7 +11,7 @@ public class Geocluster {
     private Long id;
 
     @Column(name = "level", nullable = false)
-    private Integer level;
+    private Short level;
 
     // PostgreSQL POINT stored as "(lon,lat)" string — parse at service layer
     // Map as String to avoid custom type converter complexity
@@ -20,8 +20,8 @@ public class Geocluster {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public Integer getLevel() { return level; }
-    public void setLevel(Integer level) { this.level = level; }
+    public Short getLevel() { return level; }
+    public void setLevel(Short level) { this.level = level; }
     public String getCenter() { return center; }
     public void setCenter(String center) { this.center = center; }
 }
