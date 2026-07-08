@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-authentication-security-02-03-PLAN.md
-last_updated: "2026-07-08T12:00:00.000Z"
-last_activity: 2026-07-08 — Completed 02-02: LDAP auth + Person entity + auth endpoints; 02-03: CAS auth + CasAuthController + unit tests
+stopped_at: Completed 02-authentication-security-02-04-PLAN.md
+last_updated: "2026-07-08T00:51:38Z"
+last_activity: 2026-07-08 — Completed 02-04: RoleHierarchyConfig (ADMIN>STAFF>PUBLIC hierarchy) + AuthorizationIT (22 tests covering all TechArch §5.4 authorization rules)
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 14
-  completed_plans: 7
-  percent: 29
+  completed_plans: 8
+  percent: 32
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 2 of 9 (Authentication & Security)
-Plan: 3 of 5 in current phase (02-01, 02-02, 02-03 complete)
+Plan: 4 of 5 in current phase (02-01, 02-02, 02-03, 02-04 complete)
 Status: In progress
-Last activity: 2026-07-08 — Completed 02-02: LDAP bind auth + JWT cookie + auth endpoints; 02-03: CAS ticket validation + redirect flow + unit tests
+Last activity: 2026-07-08 — Completed 02-04: RoleHierarchyConfig (ROLE_ADMIN > ROLE_STAFF > ROLE_PUBLIC) + AuthorizationIT 22-test integration suite (TechArch §5.4)
 
-Progress: [███░░░░░░░] 29%
+Progress: [███░░░░░░░] 32%
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [███░░░░░░░] 29%
 | 02-authentication-security P01 | 8min | 2 tasks | 4 files |
 | 02-authentication-security P02 | 5min | 2 tasks | 1 file modified (Person constructor) |
 | 02-authentication-security P03 | 5min | 2 tasks | 0 files (pre-existing, verified) |
+| 02-authentication-security P04 | 5min | 2 tasks | 1 file modified (RoleHierarchyConfig fluent API) |
 
 **Recent Trend:**
 
@@ -77,6 +78,7 @@ Recent decisions affecting current work:
 - [Phase 02-authentication-security 02-01]: JwtUtil fixed to use jwt.secret property (was app.jwt.secret — pre-existing bug); SecurityConfig uses JwtAuthFilter (not legacy JwtAuthenticationFilter)
 - [Phase 02-authentication-security 02-02]: Person entity kept full schema (all DB columns); Person(String, String) constructor added to enable auto-create in LdapAuthService/CasAuthService
 - [Phase 02-authentication-security 02-03]: CAS ticket validated server-to-server via /serviceValidate; XXE prevention via DocumentBuilderFactory features; RestTemplate injected via constructor for unit test mockability
+- [Phase 02-authentication-security 02-04]: RoleHierarchyImpl.withDefaultRolePrefix() fluent API (replaces deprecated setHierarchy()); DefaultWebSecurityExpressionHandler bean wires hierarchy into hasRole() expressions; AuthorizationIT uses @ActiveProfiles("test") + embedded PostgreSQL (not H2) — consistent with project test architecture
 
 ### Pending Todos
 
@@ -88,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T12:00:00.000Z
-Stopped at: Completed 02-authentication-security-02-03-PLAN.md
+Last session: 2026-07-08T00:51:38Z
+Stopped at: Completed 02-authentication-security-02-04-PLAN.md
 Resume file: None
