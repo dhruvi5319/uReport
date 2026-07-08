@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-react-design-system-and-shell-03-PLAN.md
-last_updated: "2026-07-08T18:05:32.156Z"
+stopped_at: Completed 07-GAP-01-PLAN.md
+last_updated: "2026-07-08T19:20:55.650Z"
 last_activity: "2026-07-08 — Completed 07-02: 17 shadcn/ui components vendored, Badge status variants, Button focus ring, Input dark mode, 38 Vitest+jest-axe tests pass"
 progress:
   total_phases: 9
   completed_phases: 7
-  total_plans: 36
-  completed_plans: 29
+  total_plans: 37
+  completed_plans: 30
   percent: 75
 ---
 
@@ -70,6 +70,7 @@ Progress: [████████░░] 75%
 | Phase 07-react-design-system-and-shell P02 | 9min | 2 tasks | 22 files |
 | Phase 07-react-design-system-and-shell P03 | 3min | 2 tasks | 6 files |
 | Phase 07-react-design-system-and-shell P04 | 15min | 2 tasks | 11 files |
+| Phase 07-react-design-system-and-shell PGAP-01 | 2min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,8 @@ Recent decisions affecting current work:
 - [Phase 07-react-design-system-and-shell]: shadcn components written manually (not via CLI) due to network failure — equivalent output, all 17 files match official shadcn/ui source
 - [Phase 07-react-design-system-and-shell]: NavLink aria-current is automatic in React Router v6 — no manual aria-current manipulation needed
 - [Phase 07-react-design-system-and-shell]: MobileDrawer built in Task 1 (before Task 2) because Navbar imports it and build requires all imports to exist
+- [Phase 07-react-design-system-and-shell]: ringOffsetColor DEFAULT uses hsl(var(--color-background)) for adaptive ring offset in light and dark mode
+- [Phase 07-react-design-system-and-shell]: Catch-all <Route path='*'> nested inside AppShell group for auth-protected ComingSoonPage on unregistered routes
 
 ### Pending Todos
 
@@ -132,6 +135,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T18:03:52.915Z
-Stopped at: Completed 07-react-design-system-and-shell-03-PLAN.md
+Last session: 2026-07-08T19:20:55.648Z
+Stopped at: Completed 07-GAP-01-PLAN.md
 Resume file: None
