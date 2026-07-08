@@ -197,7 +197,7 @@ describe("AppShell — all icon-only buttons have aria-label", () => {
 describe("AppShell — keyboard navigation", () => {
   test("skip link is focusable with Tab key", async () => {
     const user = userEvent.setup();
-    const { container } = renderShell();
+    renderShell();
 
     // Focus the document body first
     document.body.focus();
