@@ -15,14 +15,14 @@ import java.util.Date;
 public class JwtUtil {
 
     private final SecretKey secretKey;
-    private final long expirationMs;
+    private final long expiryMs;
 
     public JwtUtil(
-        @Value("${app.jwt.secret}") String secret,
-        @Value("${app.jwt.expiration-ms:86400000}") long expirationMs
+        @Value("${jwt.secret}") String secret,
+        @Value("${jwt.expiry-seconds:28800}") long expirySeconds
     ) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expirationMs = expirationMs;
+        this.expiryMs = expirySeconds * 1000;
     }
 
     public String generateToken(PersonDetails user) {
@@ -31,7 +31,7 @@ public class JwtUtil {
             .claim("id", user.getId())
             .claim("role", user.getRole())
             .issuedAt(new Date())
-            .expiration(new Date(System.currentTimeMillis() + expirationMs))
+            .expiration(new Date(System.currentTimeMillis() + expiryMs))
             .signWith(secretKey)
             .compact();
     }

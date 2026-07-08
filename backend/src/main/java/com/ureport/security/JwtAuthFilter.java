@@ -5,13 +5,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -25,19 +26,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
         String token = extractTokenFromCookie(request);
 
-        if (token != null && jwtService.validateToken(token)) {
-            String username = jwtService.extractUsername(token);
-            Long personId = jwtService.extractPersonId(token);
-            String role = jwtService.extractRole(token);
+        if (token != null) {
+            if (jwtService.validateToken(token)) {
+                Long personId = jwtService.extractPersonId(token);
+                String username = jwtService.extractUsername(token);
+                String role = jwtService.extractRole(token);
 
-            CustomUserDetails userDetails = new CustomUserDetails(personId, username, role);
-            UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                CustomUserDetails userDetails = new CustomUserDetails(personId, username, role);
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } else {
+                // Token present but invalid/expired — return 401 JSON immediately
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.getWriter().write("{\"error\":\"Invalid or expired token\"}");
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -45,11 +55,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private String extractTokenFromCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
-        for (Cookie cookie : request.getCookies()) {
-            if ("auth_token".equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-        return null;
+        return Arrays.stream(request.getCookies())
+                .filter(c -> "auth_token".equals(c.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }
