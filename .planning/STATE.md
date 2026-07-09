@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-PGAP-01-PLAN.md
-last_updated: "2026-07-09T02:40:40.301Z"
+stopped_at: Completed 08-PGAP-02-PLAN.md
+last_updated: "2026-07-09T19:00:04.771Z"
 last_activity: "2026-07-08 — Completed 08-03: Case detail split-pane, optimistic inline-edit, close/reopen dialogs, SLA bar, action log form, timeline, media gallery with drag-drop, 11 Vitest tests passing"
 progress:
   total_phases: 9
   completed_phases: 8
-  total_plans: 38
-  completed_plans: 35
+  total_plans: 39
+  completed_plans: 36
   percent: 92
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-07-06)
 ## Current Position
 
 Phase: 8 of 9 (Core Frontend Screens)
-Plan: 3 of 5 in current phase (08-01, 08-02, 08-03 complete)
+Plan: PGAP-02 complete — 08-01, 08-02, 08-03, 08-04, PGAP-01, PGAP-02 complete
 Status: In progress
-Last activity: 2026-07-08 — Completed 08-03: Case detail split-pane, optimistic inline-edit, close/reopen dialogs, SLA bar, action log form, timeline, media gallery with drag-drop, 11 Vitest tests passing
+Last activity: 2026-07-09 — Completed PGAP-02: POST /api/tickets/public + GET /api/geocode — closes UAT gaps 14, 16, 18
 
 Progress: [█████████░] 92%
 
@@ -76,6 +76,7 @@ Progress: [█████████░] 92%
 | Phase 08-core-frontend-screens P04 | 7min | 2 tasks | 15 files |
 | Phase 08-core-frontend-screens P03 | 12min | 2 tasks | 13 files |
 | Phase 08-core-frontend-screens PPGAP-01 | 1min | 1 tasks | 1 files |
+| Phase 08-core-frontend-screens PPGAP-02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,8 @@ Recent decisions affecting current work:
 - [Phase 08-core-frontend-screens]: WizardContext stores all form data in flat object for simple cross-step merging; direction +1/-1 drives Framer Motion stepVariants custom prop
 - [Phase 08-core-frontend-screens]: Plan 08-04 pre-committed 08-03 Task 1 files; 08-03 execution verified correctness and added ActionLogForm, Timeline, test file
 - [Phase 08-core-frontend-screens]: Use -Dspring.profiles.active=dev JVM system property (not SPRING_PROFILES_ACTIVE env var) in start-dev.sh — scoped to Maven invocation only, no env pollution to sibling processes
+- [Phase 08-core-frontend-screens]: Photo upload skipped in public endpoint — MediaService.upload() requires PersonDetails; photos received but not persisted; ticket created successfully per Phase 8 UAT scope
+- [Phase 08-core-frontend-screens]: SR-{id} format for public ticketId (Open311-style); contact fields stored in additionalFields JSON column (write-only from public endpoint, T-08-P2-02); Nominatim calls wrapped in try/catch for graceful sandbox network fallback
 
 ### Pending Todos
 
@@ -147,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-09T02:40:40.298Z
-Stopped at: Completed 08-PGAP-01-PLAN.md
+Last session: 2026-07-09T19:00:04.769Z
+Stopped at: Completed 08-PGAP-02-PLAN.md
 Resume file: None
