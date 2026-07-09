@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-03-PLAN.md
-last_updated: "2026-07-08T20:06:38.968Z"
-last_activity: "2026-07-08 — Completed 07-02: 17 shadcn/ui components vendored, Badge status variants, Button focus ring, Input dark mode, 38 Vitest+jest-axe tests pass"
+stopped_at: Completed 08-PGAP-01-PLAN.md
+last_updated: "2026-07-09T02:40:40.301Z"
+last_activity: "2026-07-08 — Completed 08-03: Case detail split-pane, optimistic inline-edit, close/reopen dialogs, SLA bar, action log form, timeline, media gallery with drag-drop, 11 Vitest tests passing"
 progress:
   total_phases: 9
   completed_phases: 8
-  total_plans: 37
-  completed_plans: 34
-  percent: 75
+  total_plans: 38
+  completed_plans: 35
+  percent: 92
 ---
 
 # Project State
@@ -75,6 +75,7 @@ Progress: [█████████░] 92%
 | Phase 08-core-frontend-screens P02 | 11min | 2 tasks | 13 files |
 | Phase 08-core-frontend-screens P04 | 7min | 2 tasks | 15 files |
 | Phase 08-core-frontend-screens P03 | 12min | 2 tasks | 13 files |
+| Phase 08-core-frontend-screens PPGAP-01 | 1min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,7 @@ Recent decisions affecting current work:
 - [Phase 08-core-frontend-screens]: Framer Motion height 0→auto for BulkActionBar slide-down; itemVariants AnimatePresence for FilterChips stagger enter/exit
 - [Phase 08-core-frontend-screens]: WizardContext stores all form data in flat object for simple cross-step merging; direction +1/-1 drives Framer Motion stepVariants custom prop
 - [Phase 08-core-frontend-screens]: Plan 08-04 pre-committed 08-03 Task 1 files; 08-03 execution verified correctness and added ActionLogForm, Timeline, test file
+- [Phase 08-core-frontend-screens]: Use -Dspring.profiles.active=dev JVM system property (not SPRING_PROFILES_ACTIVE env var) in start-dev.sh — scoped to Maven invocation only, no env pollution to sibling processes
 
 ### Pending Todos
 
@@ -145,6 +147,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-08T20:06:38.966Z
-Stopped at: Completed 08-03-PLAN.md
+Last session: 2026-07-09T02:40:40.298Z
+Stopped at: Completed 08-PGAP-01-PLAN.md
 Resume file: None
