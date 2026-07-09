@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 09-admin-panels-and-integration
 source: 09-01-SUMMARY.md, 09-02-SUMMARY.md, 09-03-SUMMARY.md, 09-PGAP-01-SUMMARY.md, 09-PGAP-02-SUMMARY.md
 started: 2026-07-09T21:34:14Z
-updated: 2026-07-09T22:42:00Z
+updated: 2026-07-09T22:50:00Z
 ---
 
 ## Current Test
@@ -127,14 +127,18 @@ per_test:
   severity: major
   test: 1
   source: user
-  root_cause: "LoginPage.tsx hardcodes POST /api/auth/ldap; LDAP returns 503 in sandbox (no LDAP server). DevLoginController exists at /api/auth/dev-login and works, but LoginPage never calls it."
+  root_cause: "LoginPage.tsx:35 hardcodes fetch('/api/auth/ldap'). LdapAuthService.java:19,42-44 throws IllegalStateException when ldap.enabled=false → AuthController.java:55 returns 503. DevLoginController.java exists and works but is never called from the UI."
   artifacts:
     - path: "frontend/src/pages/LoginPage.tsx:35"
-      issue: "fetch('/api/auth/ldap') — hardcoded; should use /api/auth/dev-login in dev mode"
-    - path: "backend/src/main/java/com/ureport/auth/AuthController.java:55"
-      issue: "LDAP disabled returns 503 (IllegalStateException catch) — not 401"
+      issue: "fetch('/api/auth/ldap') hardcoded — never calls /api/auth/dev-login"
+    - path: "backend/src/main/java/com/ureport/auth/LdapAuthService.java:19,42-44"
+      issue: "ldap.enabled defaults false → throws IllegalStateException → 503"
+    - path: "backend/src/main/java/com/ureport/auth/AuthController.java:54-55"
+      issue: "catch(IllegalStateException) → 503 response"
   missing:
-    - "Wire LoginPage to POST /api/auth/dev-login in dev profile (e.g. env var VITE_AUTH_ENDPOINT or dual-mode form)"
+    - "Create frontend/.env.development with VITE_USE_DEV_LOGIN=true"
+    - "Add const useDevLogin = import.meta.env.VITE_USE_DEV_LOGIN === 'true' in LoginPage.tsx"
+    - "Change fetch endpoint: const endpoint = useDevLogin ? '/api/auth/dev-login' : '/api/auth/ldap'"
   debug_session: ""
 
 - truth: "Open311GoldenFileIT all 8 tests pass — four endpoints match golden fixture shapes"
@@ -143,31 +147,35 @@ per_test:
   severity: major
   test: 13
   source: self_check
-  root_cause: "Open311GoldenFileIT @BeforeEach inserts a Client entity but clients.contact_person_id is NOT NULL; no Person is seeded before the Client insert."
+  root_cause: "Open311GoldenFileIT.java:61-69 @BeforeEach creates Client without setting contactPerson. V1__initial_schema.sql:136 declares contact_person_id BIGINT NOT NULL. Client.java:19-21 @JoinColumn has no nullable=false guard so Hibernate accepts null until flush."
   artifacts:
-    - path: "backend/src/test/java/com/ureport/open311/Open311GoldenFileIT.java"
-      issue: "@BeforeEach missing Person seed before Client insert"
-    - path: "backend/src/main/resources/db/migration"
-      issue: "clients table has NOT NULL contact_person_id FK constraint"
+    - path: "backend/src/test/java/com/ureport/open311/Open311GoldenFileIT.java:61-69"
+      issue: "@BeforeEach sets name and apiKey but never calls setContactPerson()"
+    - path: "backend/src/main/resources/db/migration/V1__initial_schema.sql:136"
+      issue: "contact_person_id BIGINT NOT NULL — hard DB constraint"
+    - path: "backend/src/main/java/com/ureport/domain/Client.java:19-21"
+      issue: "@JoinColumn missing nullable=false — Hibernate accepts null silently until flush"
   missing:
-    - "Add Person seed (INSERT INTO people ...) in @BeforeEach before the Client insert, or make contact_person_id nullable"
+    - "Add @Autowired PersonRepository personRepository to Open311GoldenFileIT"
+    - "In @BeforeEach: seed a Person (firstname=Test, lastname=Contact), then set client.setContactPerson(contact) before save"
   debug_session: ""
 
 - truth: "ApplicationSmokeIT all 4 smoke tests pass (actuator health, Open311, LDAP rejection, ticket auth guard)"
   status: failed
-  reason: "🤖 Auto-check: 2 of 4 smoke tests fail. (1) actuatorHealth_returnsUp → 503: DB health check failing in test context (datasource unhealthy or management config issue). (2) ldapAuth_withBadCredentials_returns401 → 503: AuthController returns 503 on IllegalStateException (LDAP disabled), but test expects 401."
+  reason: "🤖 Auto-check: 2 of 4 smoke tests fail. (1) actuatorHealth_returnsUp → 503: test-classpath application-test.yml overrides Zonky datasource with hardcoded jdbc URL causing DB health DOWN. (2) ldapAuth_withBadCredentials_returns401 → 503: LDAP disabled in test profile returns 503 not 401."
   severity: major
   test: 14
   source: self_check
-  root_cause: "Two separate issues: (a) Actuator health 503 in test context — likely DB component reports DOWN when using Zonky embedded DB without management config override; (b) LDAP disabled (ldap.enabled=false in application-test.yml) causes AuthController to throw IllegalStateException → 503, but the smoke test expects 401."
+  root_cause: "Two issues: (a) src/test/resources/application-test.yml:5-9 has hardcoded 'jdbc:postgresql://localhost:5432/ureport' which overrides src/main/resources/application-test.yml's intentional blank url — Zonky bean is created but Hikari pool uses the hardcoded URL, DB health fails → 503. (b) ApplicationSmokeIT.java:71 expects 401 but ldap.enabled=false (application-test.yml:29) → LdapAuthService throws IllegalStateException → AuthController returns 503."
   artifacts:
-    - path: "backend/src/main/java/com/ureport/auth/AuthController.java:55"
-      issue: "catch (IllegalStateException e) → 503; smoke test expects 401 for bad creds when LDAP disabled"
-    - path: "backend/src/test/resources/application-test.yml"
-      issue: "ldap.enabled: false — causes LDAP endpoint to return 503, not 401"
-    - path: "backend/src/test/java/com/ureport/smoke/ApplicationSmokeIT.java:46"
-      issue: "actuatorHealth_returnsUp expects 200 but gets 503 — management health endpoint returns SERVICE_UNAVAILABLE in test profile"
+    - path: "backend/src/test/resources/application-test.yml:5-9"
+      issue: "spring.datasource.url: jdbc:postgresql://localhost:5432/ureport overrides Zonky blank-URL intent"
+    - path: "backend/src/main/java/com/ureport/auth/LdapAuthService.java:19,42-44"
+      issue: "ldapEnabled=false → IllegalStateException → 503 (not 401)"
+    - path: "backend/src/test/java/com/ureport/smoke/ApplicationSmokeIT.java:71"
+      issue: "asserts UNAUTHORIZED(401) but gets SERVICE_UNAVAILABLE(503) when LDAP disabled"
   missing:
-    - "Fix actuator health 503: add management.endpoint.health.show-details=always + ensure DB health shows UP (or disable DB health component in test profile)"
-    - "Fix LDAP disabled 503→401: smoke test should expect 503 when ldap.enabled=false, OR the test should use a different endpoint (dev-login bad creds → 401)"
+    - "Remove spring.datasource block (lines 4-13) from src/test/resources/application-test.yml — let main-classpath blank url win for Zonky"
+    - "Rename ldapAuth_withBadCredentials_returns401 → ldapAuth_whenLdapDisabled_returns503 and assert SERVICE_UNAVAILABLE"
+    - "Add new LdapAuthControllerTest @WebMvcTest with @MockBean LdapAuthService throwing BadCredentialsException → assert 401"
   debug_session: ""
