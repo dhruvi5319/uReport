@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 09-GGAP-01-PLAN.md
-last_updated: "2026-07-09T23:08:43.739Z"
+stopped_at: Completed 09-GGAP-02-PLAN.md
+last_updated: "2026-07-09T23:09:29.320Z"
 last_activity: "2026-07-09 — Completed PGAP-02: POST /api/tickets/public + GET /api/geocode — closes UAT gaps 14, 16, 18"
 progress:
   total_phases: 9
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 43
-  completed_plans: 42
+  completed_plans: 43
   percent: 92
 ---
 
@@ -83,6 +83,7 @@ Progress: [█████████░] 92%
 | Phase 09-admin-panels-and-integration PPGAP-01 | 1min | 1 tasks | 1 files |
 | Phase 09-admin-panels-and-integration PPGAP-02 | 2min | 2 tasks | 4 files |
 | Phase 09-admin-panels-and-integration PGGAP-01 | 1 min | 1 tasks | 3 files |
+| Phase 09-admin-panels-and-integration PGGAP-02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -155,6 +156,8 @@ Recent decisions affecting current work:
 - [Phase 09-admin-panels-and-integration]: DevLoginController @Profile("dev") — not registered in production; SecurityConfig permitAll for /api/auth/dev-login is harmless in prod (404 no route)
 - [Phase 09-admin-panels-and-integration]: Issue type names corrected to V1 migration: Comment, Complaint, Question, Report, Request, Violation; category groups: Streets, Sanitation, Other
 - [Phase 09-admin-panels-and-integration]: GGAP-01: VITE_USE_DEV_LOGIN build-time flag switches LoginPage endpoint to /api/auth/dev-login in dev mode; anchored /^sign in$/i selector used in tests to avoid City SSO button ambiguity
+- [Phase 09-admin-panels-and-integration]: Zonky EmbeddedPostgresAutoConfiguration requires blank datasource.url in test-classpath YAML — hardcoded jdbc:postgresql URL overrides Zonky and causes Hikari connection failure to non-existent instance
+- [Phase 09-admin-panels-and-integration]: @WebMvcTest requires @MockBean JwtAuthFilter for security filter chain; ldap.enabled=false → IllegalStateException → 503 (not 401); renamed smoke test to ldapAuth_whenLdapDisabled_returns503
 
 ### Pending Todos
 
@@ -167,6 +170,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-09T23:08:43.737Z
-Stopped at: Completed 09-GGAP-01-PLAN.md
+Last session: 2026-07-09T23:09:29.318Z
+Stopped at: Completed 09-GGAP-02-PLAN.md
 Resume file: None
