@@ -1,5 +1,8 @@
 # Spring Boot 'dev' profile — for sandbox / local development without PostgreSQL
 # Overrides application.yml — H2 in-memory DB, no Flyway, default JWT secret
+server:
+  port: 8080
+
 spring:
   datasource:
     url: jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE
@@ -23,6 +26,8 @@ management:
     db:
       enabled: false
     ldap:
+      enabled: false
+    mail:
       enabled: false
   endpoints:
     web:

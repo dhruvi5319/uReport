@@ -223,7 +223,7 @@ PIDS+=($!)
 (
   cd backend \
     && export SERVER_ADDRESS=0.0.0.0 \
-    && exec bash -c 'mvn spring-boot:run -q'
+    && exec bash -c 'mvn spring-boot:run -q -Dspring-boot.run.profiles=dev'
 ) 2>&1 | sed 's/^/[backend] /' &
 PIDS+=($!)
 
