@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ureport.domain.Category;
 import com.ureport.domain.CategoryGroup;
 import com.ureport.domain.Client;
+import com.ureport.domain.Person;
 import com.ureport.repository.CategoryGroupRepository;
 import com.ureport.repository.CategoryRepository;
 import com.ureport.repository.ClientRepository;
+import com.ureport.repository.PersonRepository;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,16 +57,28 @@ class Open311GoldenFileIT {
     @Autowired ClientRepository clientRepository;
     @Autowired CategoryRepository categoryRepository;
     @Autowired CategoryGroupRepository categoryGroupRepository;
+    @Autowired PersonRepository personRepository;
 
     private static final String TEST_API_KEY = "test-valid-key";
 
     @BeforeEach
     void setUp() {
+        // Seed a contact person required by Client.contact_person_id NOT NULL constraint
+        Person contact = personRepository.findByUsername("test-contact").orElseGet(() -> {
+            Person p = new Person();
+            p.setFirstname("Test");
+            p.setLastname("Contact");
+            p.setUsername("test-contact");
+            p.setRole("staff");
+            return personRepository.save(p);
+        });
+
         // Ensure test client exists with known api_key
         if (clientRepository.findByApiKey(TEST_API_KEY).isEmpty()) {
             Client client = new Client();
             client.setName("Test Client");
             client.setApiKey(TEST_API_KEY);
+            client.setContactPerson(contact);
             clientRepository.save(client);
         }
 
