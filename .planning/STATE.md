@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-07-09T20:19:45.991Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-07-09T20:25:21.512Z"
 last_activity: "2026-07-09 — Completed PGAP-02: POST /api/tickets/public + GET /api/geocode — closes UAT gaps 14, 16, 18"
 progress:
   total_phases: 9
   completed_phases: 8
   total_plans: 39
-  completed_plans: 37
+  completed_plans: 38
   percent: 92
 ---
 
@@ -78,6 +78,7 @@ Progress: [█████████░] 92%
 | Phase 08-core-frontend-screens PPGAP-01 | 1min | 1 tasks | 1 files |
 | Phase 08-core-frontend-screens PPGAP-02 | 2min | 2 tasks | 4 files |
 | Phase 09-admin-panels-and-integration P02 | 5min | 2 tasks | 8 files |
+| Phase 09-admin-panels-and-integration P01 | 9min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -141,6 +142,8 @@ Recent decisions affecting current work:
 - [Phase 08-core-frontend-screens]: SR-{id} format for public ticketId (Open311-style); contact fields stored in additionalFields JSON column (write-only from public endpoint, T-08-P2-02); Nominatim calls wrapped in try/catch for graceful sandbox network fallback
 - [Phase 09-admin-panels-and-integration]: LoginPage uses native fetch for POST /api/auth/ldap; navigate(returnTo||'/dashboard') uses react-router (prevents open redirect T-09-07)
 - [Phase 09-admin-panels-and-integration]: Command palette debounce via useEffect+setTimeout 300ms; query enabled when length >= 2; state reset on dialog close
+- [Phase 09-admin-panels-and-integration]: AdminGuard uses user.role === 'admin' (lowercase matching AuthContext UAT_MOCK_USER) not 'ROLE_ADMIN' string
+- [Phase 09-admin-panels-and-integration]: CategoriesPage accordion restructured: expand <button> element separate from action buttons — fixes nested-interactive axe violation
 
 ### Pending Todos
 
@@ -153,6 +156,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-09T20:19:40.406Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-07-09T20:25:21.510Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None
