@@ -487,24 +487,23 @@ export function CategoriesPage() {
           const isExpanded = expandedGroups.has(group.id);
           return (
             <div key={group.id} className="border rounded-lg">
-              <div
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 select-none"
-                onClick={() => toggleGroup(group.id)}
-                role="button"
-                aria-expanded={isExpanded}
-                tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && toggleGroup(group.id)}
-              >
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between p-2 pr-4">
+                <button
+                  type="button"
+                  className="flex flex-1 items-center gap-2 p-2 hover:bg-muted/50 rounded text-left"
+                  onClick={() => toggleGroup(group.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`group-content-${group.id}`}
+                >
                   {isExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 shrink-0" />
                   ) : (
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4 shrink-0" />
                   )}
                   <span className="font-medium">{group.name}</span>
                   <Badge variant="secondary">{groupCats.length}</Badge>
-                </div>
-                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                </button>
+                <div className="flex gap-2 ml-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -528,7 +527,7 @@ export function CategoriesPage() {
                 </div>
               </div>
               {isExpanded && (
-                <div className="border-t">
+                <div className="border-t" id={`group-content-${group.id}`}>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -605,19 +604,18 @@ export function CategoriesPage() {
         {/* Ungrouped categories */}
         {ungrouped.length > 0 && (
           <div className="border rounded-lg">
-            <div
-              className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50"
-              onClick={() => toggleGroup(-1)}
-              role="button"
-              aria-expanded={expandedGroups.has(-1)}
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && toggleGroup(-1)}
-            >
-              <div className="flex items-center gap-2">
-                {expandedGroups.has(-1) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            <div className="flex items-center p-2">
+              <button
+                type="button"
+                className="flex flex-1 items-center gap-2 p-2 hover:bg-muted/50 rounded text-left"
+                onClick={() => toggleGroup(-1)}
+                aria-expanded={expandedGroups.has(-1)}
+                aria-controls="group-content-ungrouped"
+              >
+                {expandedGroups.has(-1) ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
                 <span className="font-medium text-muted-foreground">Ungrouped</span>
                 <Badge variant="secondary">{ungrouped.length}</Badge>
-              </div>
+              </button>
             </div>
             {expandedGroups.has(-1) && (
               <div className="border-t">
