@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 09-admin-panels-and-integration
-source: [09-01-SUMMARY.md, 09-02-SUMMARY.md, 09-03-SUMMARY.md]
-started: 2026-07-09T20:33:57Z
-updated: 2026-07-09T22:15:00Z
+source: 09-01-SUMMARY.md, 09-02-SUMMARY.md, 09-03-SUMMARY.md, 09-PGAP-01-SUMMARY.md, 09-PGAP-02-SUMMARY.md
+started: 2026-07-09T21:34:14Z
+updated: 2026-07-09T22:42:00Z
 ---
 
 ## Current Test
@@ -12,338 +12,162 @@ updated: 2026-07-09T22:15:00Z
 
 ## Tests
 
-### 1. Login Page Renders with CAS + LDAP Options
-expected: Navigate to /login. You should see a branded city card layout with a CAS SSO button and an LDAP form (username + password fields). The page should be centered and styled.
-result: pass
-
-### 2. LDAP Login Shows Spinner and Error State
-expected: On the login page, enter any username and password and click Submit. During submission, the button should show a loading spinner and be disabled. After rejection, a red error message should appear (e.g., "Invalid credentials" or similar).
-result: pass
-
-### 3. Admin Guard Redirects Non-Admin
-expected: While logged in as a staff (non-admin) user, navigate to /admin/people. You should be redirected to /dashboard instead of seeing the admin panel.
-result: skipped
-reason: Dev mock user is admin role, can't easily test non-admin redirect in current dev setup
-
-### 4. People Admin Panel (CRUD)
-expected: As an admin user, navigate to /admin/people. You should see a table of people with search toolbar and skeleton loading while data fetches. Clicking a row or "+ New" opens a right-side Sheet (40% width) for creating/editing. Deleting shows an AlertDialog confirmation. Toast notifications appear on success/error.
+### 1. Login Page - LDAP Authentication
+expected: Navigate to /login. You see a branded city card layout with a CAS SSO button and an LDAP username/password form. Enter credentials (devadmin / admin123) and submit. A loading spinner appears on the button while the request is in flight. On success, you are redirected to /dashboard. On wrong credentials, a red error message appears below the form.
 result: issue
-reported: "I am not able to add new people, I fill in details but firstly Department dropdown has nothing to select from. I tried creating department as well but it was not getting created either"
+reported: "Used the same credential but it says invalid credentials"
 severity: major
 
-### 5. Departments Admin Panel
-expected: Navigate to /admin/departments. A table of departments loads. Creating or editing a department in the Sheet should allow searching for a person (combobox) as the default assignee and selecting associated actions. Saving shows a success toast.
-result: issue
-reported: "I am not able to save department, and I do not have any default person to add to that department"
-severity: major
-
-### 6. Categories Admin Panel (Accordion)
-expected: Navigate to /admin/categories. Category groups appear as an accordion. Clicking the expand toggle opens the group to show nested category rows. The expand toggle and the Edit/Delete action buttons are separate elements (not nested interactives). Categories show posting permission level and active status.
-result: issue
-reported: "I do not see any accordion, I see two buttons 'New Category Group' 'New Category', and I am not able to save either of this as well. I fill all the fields I can enter but I cannot save it"
-severity: major
-
-### 7. Open311 API Clients Panel (API Key Once)
-expected: Navigate to /admin/clients. Creating a new API client shows the generated API key exactly once with a copy button and a warning banner saying it won't be shown again. On subsequent page loads, the API key is masked/hidden.
-result: issue
-reported: "I am not sure what you want to test about API, but I am not able to save new client, only name is required field but I have filled all the fields yet cannot save it"
-severity: major
-
-### 8. Substatus Panel with Default Star
-expected: Navigate to /admin/substatus. The default substatus has a star icon. Deleting the default substatus should show a warning. Non-default entries allow normal delete.
-result: issue
-reported: "Cannot save it, so not able to test it"
-severity: major
-
-### 9. Issue Types and Contact Methods Inline Editing
-expected: Navigate to /admin/issue-types (and /admin/contact-methods). Clicking a row enables inline editing directly in the table row. Seeded system records (IDs 1-6 for issue types, 1-4 for contact methods) show a Lock icon with a tooltip and have the Delete button disabled.
-result: issue
-reported: "I don't see any seeded data and cannot save new issue type as well"
-severity: major
-
-### 10. Actions Panel (Department vs System)
-expected: Navigate to /admin/actions. The "+ New Department Action" button creates DEPARTMENT-type actions only. SYSTEM-type actions open as read-only in the Sheet. The Delete button does not appear for SYSTEM-type actions.
-result: issue
-reported: "Cannot save it. This issue now lies across all pages, please fix it"
-severity: major
-
-### 11. Command Palette Search (Cmd+K)
-expected: Press Cmd+K (or Ctrl+K) from any authenticated screen. A search dialog opens. Type at least 2 characters and after 300ms, live results appear showing ticket ID (monospace), category name, and status badge. Clicking a result navigates to /cases/{id}.
+### 2. Admin Guard - Non-Admin Redirect
+expected: While logged in as a non-admin user (or logged out), attempt to navigate to any /admin/* route (e.g. /admin/people). You should be immediately redirected to /dashboard (if authenticated) or /login (if not). An admin user can access the route normally.
 result: skipped
 
-### 12. Save Search / Saved Searches Bookmark
-expected: On the Case List page (/cases), apply a filter or search. The "Save Search" button becomes active. Clicking it opens a dialog to name and save the search. A "Saved Searches" dropdown recalls previously saved searches — clicking one restores the filter state via the URL.
+### 3. People Admin Panel - CRUD
+expected: Navigate to /admin/people as an admin. You see a table of people with a search toolbar and skeleton loading. Click "New" to open a right-side Sheet (40% width) with a create form. Fill in details and save — the table refreshes with the new person. Click a row to edit. Click the delete icon — an AlertDialog confirmation appears. Confirm — the person is removed. A Toast notification appears for each successful action.
+result: skipped
+reason: Cannot access admin panels — login fails (Test 1 gap blocks access)
+
+### 4. Departments Admin Panel - CRUD
+expected: Navigate to /admin/departments. You can create/edit/delete departments using the same Sheet+AlertDialog+Toast pattern. The edit Sheet includes a combobox for searching and selecting a default assignee (person), and a multi-select for department actions.
+result: skipped
+reason: Cannot access admin panels — login fails (Test 1 gap blocks access)
+
+### 5. Categories Admin Panel - Accessible Accordion
+expected: Navigate to /admin/categories. Category groups are shown as an accordion. Clicking the expand toggle (a proper button) opens the group to show nested category rows. Edit and Delete buttons are separate from the expand toggle. No nested-interactive accessibility issue.
+result: skipped
+reason: Cannot access admin panels — login fails (Test 1 gap blocks access)
+
+### 6. API Clients Panel - Key Shown Once
+expected: Navigate to /admin/clients. Click "New" to create a new API client. After saving, the generated API key is shown exactly once in the Sheet with a copy button and a warning that it won't be shown again. Closing and reopening the Sheet shows the key masked. The table lists clients without exposing the full key.
+result: skipped
+reason: Cannot access admin panels — login fails (Test 1 gap blocks access)
+
+### 7. Substatus Panel - Default Star
+expected: Navigate to /admin/substatus. One substatus shows a star icon indicating it is the default. Clicking to set a different substatus as default unsets the previous star. Attempting to delete the current default substatus shows a warning.
+result: skipped
+reason: Cannot access admin panels — login fails (Test 1 gap blocks access)
+
+### 8. Issue Types & Contact Methods - Inline Editing + Lock
+expected: Navigate to /admin/issue-types (and /admin/contact-methods). Click a row to edit it inline (in place, not in a Sheet). Seeded system records (IDs 1-6 for issue types, 1-4 for contact methods) show a Lock icon and have their Delete button disabled with a tooltip.
+result: skipped
+reason: Cannot access admin panels — login fails (Test 1 gap blocks access)
+
+### 9. Actions Panel - Department vs System Actions
+expected: Navigate to /admin/actions. The "+ New Department Action" button creates DEPARTMENT-type actions only. System actions open in a read-only Sheet with no edit capability. System-type actions have no Delete button.
+result: skipped
+reason: Cannot access admin panels — login fails (Test 1 gap blocks access)
+
+### 10. Command Palette Search (Cmd+K)
+expected: Press Cmd+K (or Ctrl+K) from any page. A Command palette dialog opens. Type at least 2 characters. After 300ms debounce, results appear showing ticket ID (monospace), category name, and status Badge. Clicking a result navigates to /cases/{id}. Closing the dialog clears the query.
+result: skipped
+reason: Cannot test — requires authenticated session (login fails, Test 1 gap blocks access)
+
+### 11. Bookmark Save & Recall
+expected: On the Case List page (/cases), apply a filter (e.g. status=open). Click "Save Search" — a Dialog appears to name the bookmark. Submit — it's saved via POST /api/bookmarks. Open the "Saved Searches" dropdown — your saved search appears. Click it — the filter is restored via URL search params. A trash icon next to each saved search triggers an AlertDialog to confirm deletion.
+result: skipped
+reason: Cannot test — requires authenticated session (login fails, Test 1 gap blocks access)
+
+### 12. Dev Login Endpoint
+expected: The backend (when running with dev profile) accepts POST /api/auth/dev-login with {"username":"devadmin","password":"admin123"} and responds with 200 + Set-Cookie: auth_token=<jwt>. Wrong credentials return 401. This endpoint does not exist in production (404).
+result: pass
+note: "🤖 Auto-check confirmed: POST /api/auth/dev-login devadmin/admin123 → 200+JWT. Bad password → 401."
+
+### 13. Open311 Golden File Tests
+expected: The Open311 golden file test suite (Open311GoldenFileIT) passes — all four endpoints (GET /open311/v2/services JSON+XML, GET /open311/v2/requests, POST /open311/v2/requests, GET /open311/v2/requests/{id}) return responses matching the golden fixture files in shape and field structure.
 result: issue
-reported: "not able to save any search"
+reported: "🤖 Auto-check: All 8 Open311GoldenFileIT tests fail with DataIntegrityViolationException — null value in column 'contact_person_id' of relation 'clients'. Test fixture setup inserts Client records without a required FK to Person."
 severity: major
 
-### 13. Open311 Services Endpoint
-expected: The backend returns a list of service categories from GET /open311/v2/services (JSON format). The response contains service_code, service_name, description, type, group fields. XML format should also be returned when format=xml is added to the URL.
+### 14. Application Smoke Tests
+expected: ApplicationSmokeIT passes all 4 smoke tests: actuator /health returns UP, GET /open311/v2/services returns 200, POST /api/auth/ldap with bad credentials returns 401, GET /api/tickets without auth returns 401.
 result: issue
-reported: "https://5173-z7elxdtdvijearvx.daytonaproxy01.net/open311/2/services: I use this url and it says refused to connect"
-severity: minor
+reported: "🤖 Auto-check: 2 of 4 smoke tests fail. actuatorHealth_returnsUp → 503 (DB health check failing in test context). ldapAuth_withBadCredentials_returns401 → 503 (LDAP disabled returns 503 not 401 per AuthController). open311Services_returnsOk → passes. ticketsEndpoint_withNoAuth_returns401 → passes."
+severity: major
 
-### 14. Dockerfile Verification Script
-expected: Run `bash scripts/verify-dockerfiles.sh` from the project root. The script should exit 0 and print passing checks for both backend/Dockerfile and frontend/Dockerfile structural instructions (FROM, COPY, RUN, EXPOSE, etc.).
+### 15. Accessibility - Zero Critical Violations
+expected: The accessibility suite (accessibility-suite.test.tsx) passes all 5 axe-core scans with 0 critical or serious WCAG 2.0 AA violations across LoginPage, CaseListPage, PeoplePage, DepartmentsPage, and CategoriesPage.
 result: pass
-reason: Auto-check confirmed script exits 0 with all checks passing; user confirmed no additional concerns
-
-### 15. Axe Accessibility (0 Critical/Serious Violations)
-expected: The admin pages (PeoplePage, DepartmentsPage, CategoriesPage) and core screens (LoginPage, CaseListPage) pass WCAG 2.1 AA axe-core scans with 0 critical or serious violations. This can be confirmed by running `npm test -- --testPathPattern=accessibility-suite` in the frontend directory.
-result: pass
-reason: Auto-check: npx vitest run accessibility-suite → 5 tests passed, 0 critical/serious violations found
+note: "🤖 Auto-check confirmed: All 5 axe-core tests pass (5/5). 0 critical/serious WCAG 2.0 AA violations across all 5 screens."
 
 ## Summary
 
 total: 15
-passed: 4
-issues: 9
+passed: 2
+issues: 3
 pending: 0
-skipped: 2
-skipped: 0
+skipped: 10
 
 ## Self-Check
 
-boot: frontend=200 (5173) backend=401→UP (8080/actuator/health={"status":"UP"})
-routes_probed: 6 ok / 0 failed (advisory: LDAP 503 is expected — ldap.enabled=false in dev profile per application-dev.yml)
-cookie: n/a (no successful login to produce session cookie)
+boot: 000 (did-not-boot — dev server still initializing: Maven dependency cache warming per /tmp/pivota-dev-server.log; no port in meta)
+routes_probed: 0 ok / 0 failed (app unreachable)
+cookie: n/a (no server to probe)
 per_test:
   - test: 1
-    verdict: pass (provisional)
-    note: "🤖 Auto-check: GET http://127.0.0.1:5173/login → 200 OK. Login page route exists and is served."
-  - test: 2
-    verdict: advisory
-    note: "🤖 Auto-check: POST /api/auth/ldap → 503. This is EXPECTED — ldap.enabled=false in application-dev.yml. The LoginPage LDAP form will show an error state; spinner behavior needs human confirmation."
+    verdict: skipped (needs human)
+    note: "App not yet running. Tests 1-11 require the running UI. Tests 12-15 are backend/test-suite checks that can be driven once the server starts."
+  - test: 12
+    verdict: skipped (needs human)
+    note: "Backend dev server not yet running. Will need to probe once up."
   - test: 13
-    verdict: pass (provisional)
-    note: "🤖 Auto-check: GET /open311/v2/services → 200 with valid JSON array containing service_code, service_name, description, type, group fields. Response shape confirmed."
+    verdict: skipped (needs human)
+    note: "Maven IT cannot be run while server is warming cache."
+  - test: 14
+    verdict: skipped (needs human)
+    note: "Maven IT cannot be run while server is warming cache."
+  - test: 15
+    verdict: skipped (needs human)
+    note: "Vitest frontend test suite — can be run independently of dev server."
 
 ## Gaps
 
-- truth: "Admin can create a new person with a department assignment via /admin/people"
-  status: diagnosed
-  reason: "User reported: I am not able to add new people, I fill in details but firstly Department dropdown has nothing to select from. I tried creating department as well but it was not getting created either"
+- truth: "LoginPage allows staff to authenticate with devadmin/admin123 credentials and reach /dashboard"
+  status: failed
+  reason: "User reported: Used the same credential but it says invalid credentials. Root cause: LoginPage calls POST /api/auth/ldap which returns 503 (no LDAP server in dev). The dev-login endpoint (POST /api/auth/dev-login) works correctly but is not wired into the LoginPage UI."
   severity: major
-  test: 4
+  test: 1
   source: user
-  root_cause: |
-    Two compounding root causes:
-    1. AUTH — frontend/src/contexts/AuthContext.tsx hardcodes UAT_MOCK_USER and short-circuits the
-       real auth check (line 39: `if (UAT_MOCK_USER) return`). The mock user is never stored in an
-       httpOnly JWT cookie. Every POST/PUT/DELETE from the frontend hits the backend with no
-       `auth_token` cookie, so Spring Security's JwtAuthFilter finds no token and returns 401.
-       SecurityConfig line 81: `/api/**` requires `.authenticated()`, which is never satisfied.
-    2. EMPTY DEPARTMENTS — The backend runs under the `dev` Spring profile (application-dev.yml).
-       That profile sets `spring.flyway.enabled: false` and `ddl-auto: create-drop`, meaning the H2
-       in-memory database is created fresh from JPA entity schema only — no data. Flyway V1 seed
-       data (INSERT INTO departments ...) never runs. The department dropdown is empty because no
-       departments exist in H2. This is also why saving a new department returns 401 (cause 1).
+  root_cause: "LoginPage.tsx hardcodes POST /api/auth/ldap; LDAP returns 503 in sandbox (no LDAP server). DevLoginController exists at /api/auth/dev-login and works, but LoginPage never calls it."
   artifacts:
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER declaration and guard"
-    - "frontend/src/contexts/AuthContext.tsx:32 — useState(UAT_MOCK_USER) skips real /auth/me call"
-    - "backend/src/main/resources/application-dev.yml:14 — ddl-auto: create-drop"
-    - "backend/src/main/resources/application-dev.yml:19 — flyway.enabled: false"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** requires authenticated()"
-    - "backend/src/main/resources/db/migration/V1__initial_schema.sql — seed INSERTs blocked by Flyway disabled"
+    - path: "frontend/src/pages/LoginPage.tsx:35"
+      issue: "fetch('/api/auth/ldap') — hardcoded; should use /api/auth/dev-login in dev mode"
+    - path: "backend/src/main/java/com/ureport/auth/AuthController.java:55"
+      issue: "LDAP disabled returns 503 (IllegalStateException catch) — not 401"
   missing:
-    - "Real JWT cookie from a successful login — required for all /api/** write operations"
-    - "Flyway seed data in H2 dev profile — departments table is empty at startup"
-  debug_session: "inline-diagnosis-2026-07-09"
+    - "Wire LoginPage to POST /api/auth/dev-login in dev profile (e.g. env var VITE_AUTH_ENDPOINT or dual-mode form)"
+  debug_session: ""
 
-- truth: "Admin can create a department with a default assignee person via /admin/departments"
-  status: diagnosed
-  reason: "User reported: I am not able to save department, and I do not have any default person to add to that department"
+- truth: "Open311GoldenFileIT all 8 tests pass — four endpoints match golden fixture shapes"
+  status: failed
+  reason: "🤖 Auto-check: All 8 Open311GoldenFileIT tests fail with DataIntegrityViolationException: null value in column 'contact_person_id' of relation 'clients'. Test @BeforeEach fixture creates Client records without seeding a Person first."
   severity: major
-  test: 5
-  source: user
-  root_cause: |
-    Same dual root cause as gap 4:
-    1. AUTH — POST /api/departments returns 401 because AuthContext.tsx UAT_MOCK_USER never
-       produces an auth_token JWT cookie. Spring Security rejects the unauthenticated request.
-       SecurityConfig: `/api/departments/**` requires ADMIN or STAFF role (line 72), which cannot
-       be satisfied without a valid JWT principal.
-    2. EMPTY PEOPLE — H2 dev profile has no Flyway migrations and no people rows. The default
-       assignee combobox fetches GET /api/people which returns an empty list (and also returns 401
-       for the same auth reason). There are no seeded staff/admin records in H2.
-  artifacts:
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER blocks real auth"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:72 — /api/departments/** requires ADMIN/STAFF role"
-    - "backend/src/main/resources/application-dev.yml:14,19 — H2 create-drop, Flyway disabled"
-    - "backend/src/main/resources/db/migration/V1__initial_schema.sql — people/departments seed data never runs"
-  missing:
-    - "Real JWT cookie (auth_token) for authenticated API calls"
-    - "Seed people records in H2 dev database"
-  debug_session: "inline-diagnosis-2026-07-09"
-
-- truth: "Admin can view category groups in an accordion and create new category groups and categories via /admin/categories"
-  status: diagnosed
-  reason: "User reported: I do not see any accordion, I see two buttons 'New Category Group' 'New Category', and I am not able to save either of this as well. I fill all the fields I can enter but I cannot save it"
-  severity: major
-  test: 6
-  source: user
-  root_cause: |
-    Two compounding root causes:
-    1. EMPTY ACCORDION — The accordion renders category groups fetched from GET /api/category-groups.
-       In the H2 dev profile Flyway is disabled, so V1 seed data (`INSERT INTO category_groups ...
-       VALUES ('Streets'), ('Sanitation'), ('Other')`) never runs. GET /api/category-groups returns
-       an empty list → accordion has no rows to render → user only sees the two "New" action buttons.
-       Note: GET /api/category-groups requires ADMIN/STAFF role (SecurityConfig line 74), so this
-       GET also returns 401 before the empty-list problem even manifests.
-    2. SAVE FAILS (401) — POST /api/categories and POST /api/category-groups both fall under
-       `/api/**` authenticated() and `/api/categories/**` ADMIN/STAFF rules. Without a real JWT
-       cookie (UAT_MOCK_USER doesn't produce one), all write operations return 401.
-  artifacts:
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no real JWT"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:73-74 — categories/category-groups require auth"
-    - "backend/src/main/resources/application-dev.yml:19 — flyway.enabled: false"
-    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:57-58 — category_groups seed blocked"
-  missing:
-    - "Real JWT cookie for authenticated requests"
-    - "Flyway seed data so category groups appear in accordion on page load"
-  debug_session: "inline-diagnosis-2026-07-09"
-
-- truth: "Admin can create a new API client via /admin/clients and the generated API key is shown once"
-  status: diagnosed
-  reason: "User reported: I am not able to save new client, only name is required field but I have filled all the fields yet cannot save it"
-  severity: major
-  test: 7
-  source: user
-  root_cause: |
-    AUTH root cause — POST /api/clients (or equivalent API client creation endpoint) falls under
-    the `/api/**` authenticated() catch-all in SecurityConfig (line 81). AuthContext.tsx
-    UAT_MOCK_USER never produces an auth_token JWT cookie, so the POST has no credentials.
-    Spring Security's JwtAuthFilter sees no token and returns 401 before the controller is reached.
-    The "cannot save" symptom is the frontend displaying the 401 error response.
-  artifacts:
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no JWT cookie produced"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** requires authenticated()"
-    - "backend/src/main/java/com/ureport/auth/AuthController.java:75-81 — auth_token cookie only set on successful /ldap login"
-  missing:
-    - "Real JWT cookie (auth_token) set by a successful POST /api/auth/ldap or CAS login"
-  debug_session: "inline-diagnosis-2026-07-09"
-
-- truth: "Admin can create/edit substatus entries via /admin/substatus; default substatus has star icon"
-  status: diagnosed
-  reason: "User reported: Cannot save it, so not able to test it"
-  severity: major
-  test: 8
-  source: user
-  root_cause: |
-    AUTH root cause — POST/PUT /api/substatus falls under `/api/**` authenticated() in
-    SecurityConfig. UAT_MOCK_USER in AuthContext.tsx never produces an auth_token cookie, so all
-    write operations return 401. The seeded substatus rows (Resolved, Duplicate, Bogus from V1
-    migration) are also absent in H2 dev profile because Flyway is disabled — so the star-icon
-    default substatus behavior cannot be tested even for reads, as GET /api/substatus also
-    returns 401 (requires authentication).
-  artifacts:
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** requires auth"
-    - "backend/src/main/resources/application-dev.yml:19 — flyway.enabled: false (no substatus seed rows)"
-    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:17-20 — substatus INSERT seed blocked"
-  missing:
-    - "Real JWT cookie for authenticated requests"
-    - "Flyway seed data so seeded substatus rows (including default) appear"
-  debug_session: "inline-diagnosis-2026-07-09"
-
-- truth: "Seeded issue types (IDs 1-6) are visible with Lock icons, and new issue types can be created via /admin/issue-types"
-  status: diagnosed
-  reason: "User reported: I don't see any seeded data and cannot save new issue type as well"
-  severity: major
-  test: 9
-  source: user
-  root_cause: |
-    Two compounding root causes:
-    1. NO SEED DATA IN H2 — The dev profile uses H2 in-memory DB with `flyway.enabled: false` and
-       `ddl-auto: create-drop`. Flyway V1 seed `INSERT INTO issue_types (name) VALUES ('Comment'),
-       ('Complaint'), ('Question'), ('Report'), ('Request'), ('Violation')` never executes. The
-       issue_types table is empty on startup — no Lock-icon rows to display.
-    2. SAVE FAILS (401) — POST /api/issue-types requires an authenticated user (SecurityConfig
-       `/api/**` line 81). UAT_MOCK_USER produces no JWT cookie, so every POST returns 401.
-    This gap has both a data problem (empty table) AND an auth problem (can't write either).
-  artifacts:
-    - "backend/src/main/resources/application-dev.yml:14,19 — create-drop + Flyway disabled"
-    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:49-50 — 6 issue_types INSERTs blocked"
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no JWT"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** authenticated()"
-  missing:
-    - "Flyway seed data for issue_types table (IDs 1-6 with system-lock behavior)"
-    - "Real JWT cookie for POST /api/issue-types"
-  debug_session: "inline-diagnosis-2026-07-09"
-
-- truth: "Admin can create department actions and system actions are read-only via /admin/actions"
-  status: diagnosed
-  reason: "User reported: Cannot save it. This issue now lies across all pages, please fix it"
-  severity: major
-  test: 10
-  source: user
-  root_cause: |
-    AUTH root cause (confirmed systemic) — POST /api/actions requires authentication
-    (SecurityConfig `/api/**` line 81). Note that GET /api/actions IS permitted without auth
-    (SecurityConfig line 66: `.requestMatchers(HttpMethod.GET, "/api/actions").permitAll()`) so
-    the actions list can load — but the list is empty because Flyway V1 system action INSERTs
-    (open, assignment, closed, etc.) never ran in H2 dev profile. POST to create department
-    actions returns 401 because UAT_MOCK_USER produces no JWT cookie. User's observation
-    "This issue now lies across all pages" confirms the systemic 401 pattern.
-  artifacts:
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER systemic auth bypass"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:66 — GET /api/actions permitAll (reads work)"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — POST /api/actions requires auth (writes fail)"
-    - "backend/src/main/resources/application-dev.yml:19 — Flyway disabled (no system action seed rows)"
-    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:33-42 — 10 system action INSERTs blocked"
-  missing:
-    - "Real JWT cookie so POST /api/actions succeeds"
-    - "Flyway seed data so system actions appear as read-only rows"
-  debug_session: "inline-diagnosis-2026-07-09"
-
-- truth: "User can save a search as a bookmark from the Case List page and recall it from the Saved Searches dropdown"
-  status: diagnosed
-  reason: "User reported: not able to save any search"
-  severity: major
-  test: 12
-  source: user
-  root_cause: |
-    AUTH root cause — POST /api/bookmarks requires an authenticated user. BookmarkController
-    (line 19 comment: "All endpoints require a valid JWT enforced by SecurityConfig") reads the
-    personId exclusively from the JWT principal via `currentUser().getPersonId()` (lines 41, 57).
-    UAT_MOCK_USER in AuthContext.tsx never produces an auth_token JWT cookie, so the POST has no
-    principal. Spring Security returns 401 before the controller is reached. The frontend's
-    "Save Search" dialog submits successfully from the UI perspective (no client-side error) but
-    the backend rejects it. Additionally, even if auth were fixed, the bookmarks table requires
-    a valid person_id FK — which won't exist in H2 because no people are seeded via Flyway.
-    V5__bookmarks.sql creates the table but provides no seed data; the person_id FK references
-    the people table which is empty in H2 dev profile.
-  artifacts:
-    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no JWT cookie"
-    - "backend/src/main/java/com/ureport/search/controller/BookmarkController.java:19,41,57 — JWT principal required"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/bookmarks requires authenticated()"
-    - "backend/src/main/resources/db/migration/V5__bookmarks.sql — table created but person FK has no seeded rows"
-    - "frontend/src/lib/api.ts:5 — withCredentials: true (cookie would be sent if it existed)"
-  missing:
-    - "Real JWT cookie with valid personId in the token payload"
-    - "At least one seeded person row in H2 for the FK to reference"
-  debug_session: "inline-diagnosis-2026-07-09"
-
-- truth: "Open311 services endpoint returns correct GeoReport v2 JSON and XML via /open311/v2/services"
-  status: diagnosed
-  reason: "User reported: accessed /open311/2/services (missing 'v') via external preview URL and got refused to connect. Auto-check confirmed /open311/v2/services → 200 locally. May be URL typo or external proxy routing issue."
-  severity: minor
   test: 13
-  source: user
-  root_cause: |
-    User URL typo — not an application bug. The correct path is `/open311/v2/services` (with the
-    letter 'v' before '2'). The user accessed `/open311/2/services` (missing 'v'). The external
-    Daytona preview URL (https://5173-*.daytonaproxy01.net/...) routes all traffic to the Vite
-    dev server on port 5173. Vite's proxy config (vite.config.ts line 17) forwards `/open311`
-    prefixed paths to the backend on port 8080. When the path is correct (`/open311/v2/services`),
-    the proxy forwards it and the backend returns 200 with valid GeoReport v2 JSON (confirmed by
-    auto-check in Self-Check section). The "refused to connect" error for the typo'd URL
-    (`/open311/2/services`) would have reached the backend without matching any Spring MVC route,
-    returning 404 — or the Daytona proxy rejected it for a different path pattern. Either way,
-    the application code and proxy configuration are correct; the failure was a user-side typo.
-    SecurityConfig line 57 confirms GET /open311/v2/** is public (permitAll) — no auth required.
+  source: self_check
+  root_cause: "Open311GoldenFileIT @BeforeEach inserts a Client entity but clients.contact_person_id is NOT NULL; no Person is seeded before the Client insert."
   artifacts:
-    - "frontend/vite.config.ts:17 — /open311 proxy rule → http://localhost:8080"
-    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:57 — GET /open311/v2/** permitAll"
-    - "09-UAT.md Self-Check test 13 — auto-check GET /open311/v2/services → 200 with valid JSON confirmed"
-  missing: []
-  debug_session: "inline-diagnosis-2026-07-09"
+    - path: "backend/src/test/java/com/ureport/open311/Open311GoldenFileIT.java"
+      issue: "@BeforeEach missing Person seed before Client insert"
+    - path: "backend/src/main/resources/db/migration"
+      issue: "clients table has NOT NULL contact_person_id FK constraint"
+  missing:
+    - "Add Person seed (INSERT INTO people ...) in @BeforeEach before the Client insert, or make contact_person_id nullable"
+  debug_session: ""
+
+- truth: "ApplicationSmokeIT all 4 smoke tests pass (actuator health, Open311, LDAP rejection, ticket auth guard)"
+  status: failed
+  reason: "🤖 Auto-check: 2 of 4 smoke tests fail. (1) actuatorHealth_returnsUp → 503: DB health check failing in test context (datasource unhealthy or management config issue). (2) ldapAuth_withBadCredentials_returns401 → 503: AuthController returns 503 on IllegalStateException (LDAP disabled), but test expects 401."
+  severity: major
+  test: 14
+  source: self_check
+  root_cause: "Two separate issues: (a) Actuator health 503 in test context — likely DB component reports DOWN when using Zonky embedded DB without management config override; (b) LDAP disabled (ldap.enabled=false in application-test.yml) causes AuthController to throw IllegalStateException → 503, but the smoke test expects 401."
+  artifacts:
+    - path: "backend/src/main/java/com/ureport/auth/AuthController.java:55"
+      issue: "catch (IllegalStateException e) → 503; smoke test expects 401 for bad creds when LDAP disabled"
+    - path: "backend/src/test/resources/application-test.yml"
+      issue: "ldap.enabled: false — causes LDAP endpoint to return 503, not 401"
+    - path: "backend/src/test/java/com/ureport/smoke/ApplicationSmokeIT.java:46"
+      issue: "actuatorHealth_returnsUp expects 200 but gets 503 — management health endpoint returns SERVICE_UNAVAILABLE in test profile"
+  missing:
+    - "Fix actuator health 503: add management.endpoint.health.show-details=always + ensure DB health shows UP (or disable DB health component in test profile)"
+    - "Fix LDAP disabled 503→401: smoke test should expect 503 when ldap.enabled=false, OR the test should use a different endpoint (dev-login bad creds → 401)"
+  debug_session: ""
