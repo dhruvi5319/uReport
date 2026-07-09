@@ -6,11 +6,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * Seeds minimal reference data for the 'dev' profile (H2 in-memory database).
- * This data enables the React frontend to render dropdowns, category tiles, etc.
- * during UAT without requiring a live PostgreSQL database.
+ * Enables the React frontend to render dropdowns, category tiles, etc.
+ * during development without requiring a live PostgreSQL database with Flyway migrations.
+ *
+ * Dev admin credentials: username=devadmin / password=admin123
+ * Use POST /api/auth/dev-login to obtain a JWT cookie for testing authenticated endpoints.
  */
 @Configuration
 @Profile("dev")
@@ -18,6 +22,7 @@ public class DevDataSeeder {
 
     @Bean
     CommandLineRunner seedDevData(
+            ContactMethodRepository contactMethodRepo,
             SubstatusRepository substatusRepo,
             IssueTypeRepository issueTypeRepo,
             CategoryGroupRepository categoryGroupRepo,
@@ -27,6 +32,16 @@ public class DevDataSeeder {
             PersonRepository personRepo
     ) {
         return args -> {
+
+            // --- Contact Methods (Phone, Email, Walk-in, Mail) ---
+            // Matches V1 migration: INSERT INTO contact_methods (name) VALUES ('Email'), ('Phone'), ('Web Form'), ('Other');
+            if (contactMethodRepo.count() == 0) {
+                for (String name : new String[]{"Phone", "Email", "Walk-in", "Mail"}) {
+                    ContactMethod cm = new ContactMethod();
+                    cm.setName(name);
+                    contactMethodRepo.save(cm);
+                }
+            }
 
             // --- Substatuses (closed, resolved, etc.) ---
             if (substatusRepo.count() == 0) {
@@ -49,9 +64,9 @@ public class DevDataSeeder {
                 substatusRepo.save(bogus);
             }
 
-            // --- Issue types ---
+            // --- Issue Types (matching V1 migration names exactly) ---
             if (issueTypeRepo.count() == 0) {
-                for (String name : new String[]{"Complaint", "Service Request", "Inquiry", "Compliment", "Suggestion", "Other"}) {
+                for (String name : new String[]{"Comment", "Complaint", "Question", "Report", "Request", "Violation"}) {
                     IssueType it = new IssueType();
                     it.setName(name);
                     issueTypeRepo.save(it);
@@ -59,20 +74,34 @@ public class DevDataSeeder {
             }
 
             // --- Departments ---
-            Department dept = null;
+            Department dept;
             if (deptRepo.count() == 0) {
                 dept = new Department();
                 dept.setName("Public Works");
-                deptRepo.save(dept);
+                dept = deptRepo.save(dept);
             } else {
                 dept = deptRepo.findAll().iterator().next();
             }
 
-            // --- Category groups + categories (for StepCategory wizard) ---
+            // --- Dev admin Person (for JWT authentication in dev mode) ---
+            // Credentials: devadmin / admin123 (bcrypt hash of "admin123")
+            if (personRepo.count() == 0) {
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                Person admin = new Person();
+                admin.setUsername("devadmin");
+                admin.setFirstname("Dev");
+                admin.setLastname("Admin");
+                admin.setRole("admin");
+                admin.setPasswordHash(encoder.encode("admin123"));
+                admin.setDepartment(dept);
+                personRepo.save(admin);
+            }
+
+            // --- Category Groups + Categories (for StepCategory wizard and accordion) ---
             if (categoryGroupRepo.count() == 0) {
-                // Group 1: Roads & Transportation
+                // Group 1: Streets/Roads (matches V1 seed name variant)
                 CategoryGroup roads = new CategoryGroup();
-                roads.setName("Roads & Transportation");
+                roads.setName("Streets");
                 roads.setOrdering((short) 1);
                 roads = categoryGroupRepo.save(roads);
 
@@ -98,16 +127,16 @@ public class DevDataSeeder {
                 streetlight.setPostingPermissionLevel("anonymous");
                 categoryRepo.save(streetlight);
 
-                // Group 2: Parks & Recreation
-                CategoryGroup parks = new CategoryGroup();
-                parks.setName("Parks & Recreation");
-                parks.setOrdering((short) 2);
-                parks = categoryGroupRepo.save(parks);
+                // Group 2: Sanitation
+                CategoryGroup sanitation = new CategoryGroup();
+                sanitation.setName("Sanitation");
+                sanitation.setOrdering((short) 2);
+                sanitation = categoryGroupRepo.save(sanitation);
 
                 Category trash = new Category();
                 trash.setName("Overflowing Trash");
-                trash.setDescription("Report overflowing trash bins in parks");
-                trash.setCategoryGroup(parks);
+                trash.setDescription("Report overflowing trash bins");
+                trash.setCategoryGroup(sanitation);
                 trash.setDepartment(dept);
                 trash.setActive(true);
                 trash.setFeatured(true);
@@ -115,30 +144,43 @@ public class DevDataSeeder {
                 trash.setPostingPermissionLevel("anonymous");
                 categoryRepo.save(trash);
 
-                // Group 3: Utilities
-                CategoryGroup utilities = new CategoryGroup();
-                utilities.setName("Utilities");
-                utilities.setOrdering((short) 3);
-                utilities = categoryGroupRepo.save(utilities);
+                // Group 3: Other
+                CategoryGroup other = new CategoryGroup();
+                other.setName("Other");
+                other.setOrdering((short) 3);
+                other = categoryGroupRepo.save(other);
 
-                Category water = new Category();
-                water.setName("Water Main Break");
-                water.setDescription("Report a water main break");
-                water.setCategoryGroup(utilities);
-                water.setDepartment(dept);
-                water.setActive(true);
-                water.setFeatured(false);
-                water.setDisplayPermissionLevel("anonymous");
-                water.setPostingPermissionLevel("anonymous");
-                categoryRepo.save(water);
+                Category general = new Category();
+                general.setName("General Request");
+                general.setDescription("General service request");
+                general.setCategoryGroup(other);
+                general.setDepartment(dept);
+                general.setActive(true);
+                general.setFeatured(false);
+                general.setDisplayPermissionLevel("anonymous");
+                general.setPostingPermissionLevel("anonymous");
+                categoryRepo.save(general);
             }
 
-            // --- Actions (for ActionLogForm dropdown) ---
+            // --- Actions (system actions matching V1 migration — 10 entries) ---
             if (actionsRepo.count() == 0) {
-                for (String name : new String[]{"Assigned", "Investigated", "In Progress", "Resolved", "Closed - Unable to Reproduce", "Notified Reporter"}) {
+                String[][] actions = {
+                    {"open",           "system", "Opened by {actionPerson}"},
+                    {"assignment",     "system", "{enteredByPerson} assigned this case to {actionPerson}"},
+                    {"closed",         "system", "Closed by {actionPerson}"},
+                    {"changeCategory", "system", "Changed category from {original:category_id} to {updated:category_id}"},
+                    {"changeLocation", "system", "Changed location from {original:location} to {updated:location}"},
+                    {"response",       "system", "{actionPerson} contacted {reportedByPerson_id}"},
+                    {"duplicate",      "system", "{duplicate:ticket_id} marked as a duplicate of this case."},
+                    {"update",         "system", "{enteredByPerson} updated this case."},
+                    {"comment",        "system", "{enteredByPerson} commented on this case."},
+                    {"upload_media",   "system", "{enteredByPerson} uploaded an attachment."},
+                };
+                for (String[] row : actions) {
                     Action a = new Action();
-                    a.setName(name);
-                    a.setType("system");
+                    a.setName(row[0]);
+                    a.setType(row[1]);
+                    a.setDescription(row[2]);
                     actionsRepo.save(a);
                 }
             }
