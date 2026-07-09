@@ -195,6 +195,8 @@ Plans:
 - [ ] 09-01-PLAN.md — Admin panels UI (Wave 1): AdminListPage HOC + PeoplePage/DepartmentsPage/CategoriesPage/ClientsPage (Sheet+AlertDialog+Toast pattern) + SubstatusPage/IssueTypesPage/ContactMethodsPage/ActionsPage (inline editing) + all 8 admin routes in App.tsx + axe-core tests
 - [ ] 09-02-PLAN.md — Search UI wiring + auth screens (Wave 1, parallel): Bookmark save/recall in CaseListPage toolbar, Command palette wired to GET /api/tickets?q=, LoginPage (CAS button + LDAP form + spinner + error state + public route)
 - [ ] 09-03-PLAN.md — Integration hardening (Wave 2): Open311 golden-file fixtures + Open311GoldenFileIT + ApplicationSmokeIT, comprehensive axe-core accessibility suite (5 screens), Dockerfile verification shell script
+- [ ] 09-PGAP-01-PLAN.md — [GAP CLOSURE] Remove UAT_MOCK_USER bypass from AuthContext.tsx so real JWT-cookie auth flow works (fixes 401s on all write operations)
+- [ ] 09-PGAP-02-PLAN.md — [GAP CLOSURE] Enhance DevDataSeeder with contact methods + seeded admin person + DevLoginController (dev-only POST /api/auth/dev-login) so devs can obtain JWT without LDAP
 
 ## Progress
 
