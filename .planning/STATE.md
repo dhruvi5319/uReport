@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 09-PGAP-01-PLAN.md
-last_updated: "2026-07-09T21:21:43.314Z"
+stopped_at: Completed 09-PGAP-02-PLAN.md
+last_updated: "2026-07-09T21:23:36.737Z"
 last_activity: "2026-07-09 — Completed PGAP-02: POST /api/tickets/public + GET /api/geocode — closes UAT gaps 14, 16, 18"
 progress:
   total_phases: 9
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 41
-  completed_plans: 40
+  completed_plans: 41
   percent: 92
 ---
 
@@ -81,6 +81,7 @@ Progress: [█████████░] 92%
 | Phase 09-admin-panels-and-integration P01 | 9min | 2 tasks | 11 files |
 | Phase 09-admin-panels-and-integration P03 | 3min | 2 tasks | 5 files |
 | Phase 09-admin-panels-and-integration PPGAP-01 | 1min | 1 tasks | 1 files |
+| Phase 09-admin-panels-and-integration PPGAP-02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -150,6 +151,8 @@ Recent decisions affecting current work:
 - [Phase 09-admin-panels-and-integration]: Accessibility suite filterCriticalAndSerious helper — only critical/serious axe violations fail the suite
 - [Phase 09-admin-panels-and-integration]: verify-dockerfiles.sh uses grep structural checks — no docker build needed (sandbox has no Docker daemon)
 - [Phase 09-admin-panels-and-integration]: UAT_MOCK_USER constant removed from AuthContext — was root cause of all write operation 401 failures across admin panels
+- [Phase 09-admin-panels-and-integration]: DevLoginController @Profile("dev") — not registered in production; SecurityConfig permitAll for /api/auth/dev-login is harmless in prod (404 no route)
+- [Phase 09-admin-panels-and-integration]: Issue type names corrected to V1 migration: Comment, Complaint, Question, Report, Request, Violation; category groups: Streets, Sanitation, Other
 
 ### Pending Todos
 
@@ -162,6 +165,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-09T21:21:43.311Z
-Stopped at: Completed 09-PGAP-01-PLAN.md
+Last session: 2026-07-09T21:23:36.735Z
+Stopped at: Completed 09-PGAP-02-PLAN.md
 Resume file: None
