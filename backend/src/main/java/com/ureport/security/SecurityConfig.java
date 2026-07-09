@@ -57,6 +57,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/open311/v2/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/open311/v2/requests").permitAll()  // api_key handled at controller level
                 .requestMatchers(HttpMethod.POST, "/api/auth/ldap").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/dev-login").permitAll()  // dev profile only — endpoint is @Profile("dev")
                 .requestMatchers(HttpMethod.GET,  "/auth/cas/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()

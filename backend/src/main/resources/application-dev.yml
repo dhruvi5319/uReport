@@ -49,3 +49,9 @@ ldap:
 
 cas:
   enabled: false
+
+# Dev-only authentication endpoint (replaces LDAP which is disabled in dev)
+# POST /api/auth/dev-login with {"username": "devadmin", "password": "admin123"}
+# to obtain a JWT cookie for testing authenticated API endpoints.
+#
+# The devadmin account is seeded by DevDataSeeder on startup.
