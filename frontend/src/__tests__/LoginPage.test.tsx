@@ -1,5 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { vi } from 'vitest';
 import LoginPage from '@/pages/LoginPage';
 
 // Mock AuthContext to provide unauthenticated state
@@ -79,5 +81,76 @@ describe('LoginPage', () => {
     await waitFor(() =>
       expect(screen.getByText('Dashboard')).toBeInTheDocument()
     );
+  });
+});
+
+describe('LoginPage — dev login endpoint selection', () => {
+  it('calls /api/auth/dev-login when VITE_USE_DEV_LOGIN is true', async () => {
+    // Arrange: set the build-time env flag
+    const originalEnv = import.meta.env.VITE_USE_DEV_LOGIN;
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = 'true';
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ token: 'tok' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    render(
+      <MemoryRouterWrapper>
+        <LoginPage />
+      </MemoryRouterWrapper>
+    );
+
+    // Act: fill in credentials and submit
+    await userEvent.type(screen.getByLabelText(/username/i), 'devadmin');
+    await userEvent.type(screen.getByLabelText(/password/i), 'admin123');
+    await userEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
+
+    // Assert: fetch was called with the dev endpoint
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/auth/dev-login',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+
+    // Cleanup
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = originalEnv;
+    vi.restoreAllMocks();
+  });
+
+  it('calls /api/auth/ldap when VITE_USE_DEV_LOGIN is not set', async () => {
+    // Arrange: ensure flag is absent/false
+    const originalEnv = import.meta.env.VITE_USE_DEV_LOGIN;
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = 'false';
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ error: 'bad' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    render(
+      <MemoryRouterWrapper>
+        <LoginPage />
+      </MemoryRouterWrapper>
+    );
+
+    await userEvent.type(screen.getByLabelText(/username/i), 'someone');
+    await userEvent.type(screen.getByLabelText(/password/i), 'wrong');
+    await userEvent.click(screen.getByRole('button', { name: /^sign in$/i }));
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/auth/ldap',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = originalEnv;
+    vi.restoreAllMocks();
   });
 });

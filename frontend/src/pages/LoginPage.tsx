@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
+  const useDevLogin = import.meta.env.VITE_USE_DEV_LOGIN === 'true';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
@@ -32,7 +33,8 @@ export default function LoginPage() {
     setErrorMessage(null);
     const data = new FormData(e.currentTarget);
     try {
-      const res = await fetch('/api/auth/ldap', {
+      const endpoint = useDevLogin ? '/api/auth/dev-login' : '/api/auth/ldap';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
