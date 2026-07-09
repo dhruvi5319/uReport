@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 09-admin-panels-and-integration
 source: [09-01-SUMMARY.md, 09-02-SUMMARY.md, 09-03-SUMMARY.md]
 started: 2026-07-09T20:33:57Z
-updated: 2026-07-09T21:04:30Z
+updated: 2026-07-09T22:15:00Z
 ---
 
 ## Current Test
@@ -121,100 +121,229 @@ per_test:
 ## Gaps
 
 - truth: "Admin can create a new person with a department assignment via /admin/people"
-  status: failed
+  status: diagnosed
   reason: "User reported: I am not able to add new people, I fill in details but firstly Department dropdown has nothing to select from. I tried creating department as well but it was not getting created either"
   severity: major
   test: 4
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    Two compounding root causes:
+    1. AUTH — frontend/src/contexts/AuthContext.tsx hardcodes UAT_MOCK_USER and short-circuits the
+       real auth check (line 39: `if (UAT_MOCK_USER) return`). The mock user is never stored in an
+       httpOnly JWT cookie. Every POST/PUT/DELETE from the frontend hits the backend with no
+       `auth_token` cookie, so Spring Security's JwtAuthFilter finds no token and returns 401.
+       SecurityConfig line 81: `/api/**` requires `.authenticated()`, which is never satisfied.
+    2. EMPTY DEPARTMENTS — The backend runs under the `dev` Spring profile (application-dev.yml).
+       That profile sets `spring.flyway.enabled: false` and `ddl-auto: create-drop`, meaning the H2
+       in-memory database is created fresh from JPA entity schema only — no data. Flyway V1 seed
+       data (INSERT INTO departments ...) never runs. The department dropdown is empty because no
+       departments exist in H2. This is also why saving a new department returns 401 (cause 1).
+  artifacts:
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER declaration and guard"
+    - "frontend/src/contexts/AuthContext.tsx:32 — useState(UAT_MOCK_USER) skips real /auth/me call"
+    - "backend/src/main/resources/application-dev.yml:14 — ddl-auto: create-drop"
+    - "backend/src/main/resources/application-dev.yml:19 — flyway.enabled: false"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** requires authenticated()"
+    - "backend/src/main/resources/db/migration/V1__initial_schema.sql — seed INSERTs blocked by Flyway disabled"
+  missing:
+    - "Real JWT cookie from a successful login — required for all /api/** write operations"
+    - "Flyway seed data in H2 dev profile — departments table is empty at startup"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "Admin can create a department with a default assignee person via /admin/departments"
-  status: failed
+  status: diagnosed
   reason: "User reported: I am not able to save department, and I do not have any default person to add to that department"
   severity: major
   test: 5
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    Same dual root cause as gap 4:
+    1. AUTH — POST /api/departments returns 401 because AuthContext.tsx UAT_MOCK_USER never
+       produces an auth_token JWT cookie. Spring Security rejects the unauthenticated request.
+       SecurityConfig: `/api/departments/**` requires ADMIN or STAFF role (line 72), which cannot
+       be satisfied without a valid JWT principal.
+    2. EMPTY PEOPLE — H2 dev profile has no Flyway migrations and no people rows. The default
+       assignee combobox fetches GET /api/people which returns an empty list (and also returns 401
+       for the same auth reason). There are no seeded staff/admin records in H2.
+  artifacts:
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER blocks real auth"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:72 — /api/departments/** requires ADMIN/STAFF role"
+    - "backend/src/main/resources/application-dev.yml:14,19 — H2 create-drop, Flyway disabled"
+    - "backend/src/main/resources/db/migration/V1__initial_schema.sql — people/departments seed data never runs"
+  missing:
+    - "Real JWT cookie (auth_token) for authenticated API calls"
+    - "Seed people records in H2 dev database"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "Admin can view category groups in an accordion and create new category groups and categories via /admin/categories"
-  status: failed
+  status: diagnosed
   reason: "User reported: I do not see any accordion, I see two buttons 'New Category Group' 'New Category', and I am not able to save either of this as well. I fill all the fields I can enter but I cannot save it"
   severity: major
   test: 6
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    Two compounding root causes:
+    1. EMPTY ACCORDION — The accordion renders category groups fetched from GET /api/category-groups.
+       In the H2 dev profile Flyway is disabled, so V1 seed data (`INSERT INTO category_groups ...
+       VALUES ('Streets'), ('Sanitation'), ('Other')`) never runs. GET /api/category-groups returns
+       an empty list → accordion has no rows to render → user only sees the two "New" action buttons.
+       Note: GET /api/category-groups requires ADMIN/STAFF role (SecurityConfig line 74), so this
+       GET also returns 401 before the empty-list problem even manifests.
+    2. SAVE FAILS (401) — POST /api/categories and POST /api/category-groups both fall under
+       `/api/**` authenticated() and `/api/categories/**` ADMIN/STAFF rules. Without a real JWT
+       cookie (UAT_MOCK_USER doesn't produce one), all write operations return 401.
+  artifacts:
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no real JWT"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:73-74 — categories/category-groups require auth"
+    - "backend/src/main/resources/application-dev.yml:19 — flyway.enabled: false"
+    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:57-58 — category_groups seed blocked"
+  missing:
+    - "Real JWT cookie for authenticated requests"
+    - "Flyway seed data so category groups appear in accordion on page load"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "Admin can create a new API client via /admin/clients and the generated API key is shown once"
-  status: failed
+  status: diagnosed
   reason: "User reported: I am not able to save new client, only name is required field but I have filled all the fields yet cannot save it"
   severity: major
   test: 7
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    AUTH root cause — POST /api/clients (or equivalent API client creation endpoint) falls under
+    the `/api/**` authenticated() catch-all in SecurityConfig (line 81). AuthContext.tsx
+    UAT_MOCK_USER never produces an auth_token JWT cookie, so the POST has no credentials.
+    Spring Security's JwtAuthFilter sees no token and returns 401 before the controller is reached.
+    The "cannot save" symptom is the frontend displaying the 401 error response.
+  artifacts:
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no JWT cookie produced"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** requires authenticated()"
+    - "backend/src/main/java/com/ureport/auth/AuthController.java:75-81 — auth_token cookie only set on successful /ldap login"
+  missing:
+    - "Real JWT cookie (auth_token) set by a successful POST /api/auth/ldap or CAS login"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "Admin can create/edit substatus entries via /admin/substatus; default substatus has star icon"
-  status: failed
+  status: diagnosed
   reason: "User reported: Cannot save it, so not able to test it"
   severity: major
   test: 8
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    AUTH root cause — POST/PUT /api/substatus falls under `/api/**` authenticated() in
+    SecurityConfig. UAT_MOCK_USER in AuthContext.tsx never produces an auth_token cookie, so all
+    write operations return 401. The seeded substatus rows (Resolved, Duplicate, Bogus from V1
+    migration) are also absent in H2 dev profile because Flyway is disabled — so the star-icon
+    default substatus behavior cannot be tested even for reads, as GET /api/substatus also
+    returns 401 (requires authentication).
+  artifacts:
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** requires auth"
+    - "backend/src/main/resources/application-dev.yml:19 — flyway.enabled: false (no substatus seed rows)"
+    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:17-20 — substatus INSERT seed blocked"
+  missing:
+    - "Real JWT cookie for authenticated requests"
+    - "Flyway seed data so seeded substatus rows (including default) appear"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "Seeded issue types (IDs 1-6) are visible with Lock icons, and new issue types can be created via /admin/issue-types"
-  status: failed
+  status: diagnosed
   reason: "User reported: I don't see any seeded data and cannot save new issue type as well"
   severity: major
   test: 9
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    Two compounding root causes:
+    1. NO SEED DATA IN H2 — The dev profile uses H2 in-memory DB with `flyway.enabled: false` and
+       `ddl-auto: create-drop`. Flyway V1 seed `INSERT INTO issue_types (name) VALUES ('Comment'),
+       ('Complaint'), ('Question'), ('Report'), ('Request'), ('Violation')` never executes. The
+       issue_types table is empty on startup — no Lock-icon rows to display.
+    2. SAVE FAILS (401) — POST /api/issue-types requires an authenticated user (SecurityConfig
+       `/api/**` line 81). UAT_MOCK_USER produces no JWT cookie, so every POST returns 401.
+    This gap has both a data problem (empty table) AND an auth problem (can't write either).
+  artifacts:
+    - "backend/src/main/resources/application-dev.yml:14,19 — create-drop + Flyway disabled"
+    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:49-50 — 6 issue_types INSERTs blocked"
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no JWT"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/** authenticated()"
+  missing:
+    - "Flyway seed data for issue_types table (IDs 1-6 with system-lock behavior)"
+    - "Real JWT cookie for POST /api/issue-types"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "Admin can create department actions and system actions are read-only via /admin/actions"
-  status: failed
+  status: diagnosed
   reason: "User reported: Cannot save it. This issue now lies across all pages, please fix it"
   severity: major
   test: 10
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    AUTH root cause (confirmed systemic) — POST /api/actions requires authentication
+    (SecurityConfig `/api/**` line 81). Note that GET /api/actions IS permitted without auth
+    (SecurityConfig line 66: `.requestMatchers(HttpMethod.GET, "/api/actions").permitAll()`) so
+    the actions list can load — but the list is empty because Flyway V1 system action INSERTs
+    (open, assignment, closed, etc.) never ran in H2 dev profile. POST to create department
+    actions returns 401 because UAT_MOCK_USER produces no JWT cookie. User's observation
+    "This issue now lies across all pages" confirms the systemic 401 pattern.
+  artifacts:
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER systemic auth bypass"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:66 — GET /api/actions permitAll (reads work)"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — POST /api/actions requires auth (writes fail)"
+    - "backend/src/main/resources/application-dev.yml:19 — Flyway disabled (no system action seed rows)"
+    - "backend/src/main/resources/db/migration/V1__initial_schema.sql:33-42 — 10 system action INSERTs blocked"
+  missing:
+    - "Real JWT cookie so POST /api/actions succeeds"
+    - "Flyway seed data so system actions appear as read-only rows"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "User can save a search as a bookmark from the Case List page and recall it from the Saved Searches dropdown"
-  status: failed
+  status: diagnosed
   reason: "User reported: not able to save any search"
   severity: major
   test: 12
   source: user
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: |
+    AUTH root cause — POST /api/bookmarks requires an authenticated user. BookmarkController
+    (line 19 comment: "All endpoints require a valid JWT enforced by SecurityConfig") reads the
+    personId exclusively from the JWT principal via `currentUser().getPersonId()` (lines 41, 57).
+    UAT_MOCK_USER in AuthContext.tsx never produces an auth_token JWT cookie, so the POST has no
+    principal. Spring Security returns 401 before the controller is reached. The frontend's
+    "Save Search" dialog submits successfully from the UI perspective (no client-side error) but
+    the backend rejects it. Additionally, even if auth were fixed, the bookmarks table requires
+    a valid person_id FK — which won't exist in H2 because no people are seeded via Flyway.
+    V5__bookmarks.sql creates the table but provides no seed data; the person_id FK references
+    the people table which is empty in H2 dev profile.
+  artifacts:
+    - "frontend/src/contexts/AuthContext.tsx:23-39 — UAT_MOCK_USER, no JWT cookie"
+    - "backend/src/main/java/com/ureport/search/controller/BookmarkController.java:19,41,57 — JWT principal required"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:81 — /api/bookmarks requires authenticated()"
+    - "backend/src/main/resources/db/migration/V5__bookmarks.sql — table created but person FK has no seeded rows"
+    - "frontend/src/lib/api.ts:5 — withCredentials: true (cookie would be sent if it existed)"
+  missing:
+    - "Real JWT cookie with valid personId in the token payload"
+    - "At least one seeded person row in H2 for the FK to reference"
+  debug_session: "inline-diagnosis-2026-07-09"
 
 - truth: "Open311 services endpoint returns correct GeoReport v2 JSON and XML via /open311/v2/services"
-  status: failed
+  status: diagnosed
   reason: "User reported: accessed /open311/2/services (missing 'v') via external preview URL and got refused to connect. Auto-check confirmed /open311/v2/services → 200 locally. May be URL typo or external proxy routing issue."
   severity: minor
   test: 13
   source: user
-  root_cause: ""
-  artifacts: []
+  root_cause: |
+    User URL typo — not an application bug. The correct path is `/open311/v2/services` (with the
+    letter 'v' before '2'). The user accessed `/open311/2/services` (missing 'v'). The external
+    Daytona preview URL (https://5173-*.daytonaproxy01.net/...) routes all traffic to the Vite
+    dev server on port 5173. Vite's proxy config (vite.config.ts line 17) forwards `/open311`
+    prefixed paths to the backend on port 8080. When the path is correct (`/open311/v2/services`),
+    the proxy forwards it and the backend returns 200 with valid GeoReport v2 JSON (confirmed by
+    auto-check in Self-Check section). The "refused to connect" error for the typo'd URL
+    (`/open311/2/services`) would have reached the backend without matching any Spring MVC route,
+    returning 404 — or the Daytona proxy rejected it for a different path pattern. Either way,
+    the application code and proxy configuration are correct; the failure was a user-side typo.
+    SecurityConfig line 57 confirms GET /open311/v2/** is public (permitAll) — no auth required.
+  artifacts:
+    - "frontend/vite.config.ts:17 — /open311 proxy rule → http://localhost:8080"
+    - "backend/src/main/java/com/ureport/security/SecurityConfig.java:57 — GET /open311/v2/** permitAll"
+    - "09-UAT.md Self-Check test 13 — auto-check GET /open311/v2/services → 200 with valid JSON confirmed"
   missing: []
-  debug_session: ""
+  debug_session: "inline-diagnosis-2026-07-09"
