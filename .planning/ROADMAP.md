@@ -158,7 +158,7 @@ Plans:
 - [ ] 07-GAP-01-PLAN.md — [GAP CLOSURE] Fix duplicate badge amber color, button focus ring (ringOffsetColor + ring-offset-background + overflow-x-hidden), catch-all ComingSoonPage route
 
 ### Phase 8: Core Frontend Screens
-**Status**: executing
+**Status**: awaiting verify
 **Goal**: The four primary user-facing screens are complete — dashboard, case list, case detail, and public submission form — delivering the full staff and public workflow in the React UI
 **Depends on**: Phase 7
 **Requirements**: F5, F3, F4, F2
