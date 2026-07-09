@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-07-09T20:30:57.586Z"
+stopped_at: Completed 09-PGAP-01-PLAN.md
+last_updated: "2026-07-09T21:21:43.314Z"
 last_activity: "2026-07-09 — Completed PGAP-02: POST /api/tickets/public + GET /api/geocode — closes UAT gaps 14, 16, 18"
 progress:
   total_phases: 9
-  completed_phases: 9
-  total_plans: 39
-  completed_plans: 39
+  completed_phases: 8
+  total_plans: 41
+  completed_plans: 40
   percent: 92
 ---
 
@@ -80,6 +80,7 @@ Progress: [█████████░] 92%
 | Phase 09-admin-panels-and-integration P02 | 5min | 2 tasks | 8 files |
 | Phase 09-admin-panels-and-integration P01 | 9min | 2 tasks | 11 files |
 | Phase 09-admin-panels-and-integration P03 | 3min | 2 tasks | 5 files |
+| Phase 09-admin-panels-and-integration PPGAP-01 | 1min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,7 @@ Recent decisions affecting current work:
 - [Phase 09-admin-panels-and-integration]: ApplicationSmokeIT uses Zonky embedded PostgreSQL — consistent with project test architecture, no Docker daemon needed
 - [Phase 09-admin-panels-and-integration]: Accessibility suite filterCriticalAndSerious helper — only critical/serious axe violations fail the suite
 - [Phase 09-admin-panels-and-integration]: verify-dockerfiles.sh uses grep structural checks — no docker build needed (sandbox has no Docker daemon)
+- [Phase 09-admin-panels-and-integration]: UAT_MOCK_USER constant removed from AuthContext — was root cause of all write operation 401 failures across admin panels
 
 ### Pending Todos
 
@@ -160,6 +162,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-09T20:30:57.584Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-07-09T21:21:43.311Z
+Stopped at: Completed 09-PGAP-01-PLAN.md
 Resume file: None
