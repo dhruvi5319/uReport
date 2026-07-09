@@ -2,11 +2,6 @@ open311:
   obsolete-api-keys: test-obsolete-key
 
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/ureport
-    driver-class-name: org.postgresql.Driver
-    username: ureport
-    password: ureport
   jpa:
     hibernate:
       ddl-auto: none

@@ -57,18 +57,19 @@ class ApplicationSmokeIT {
     }
 
     /**
-     * T-09-12 regression guard: POST /api/auth/ldap with garbage credentials
-     * returns 401 (not 200 or 500). Validates LdapAuthService rejects invalid creds.
+     * T-09-12 regression guard: POST /api/auth/ldap when ldap.enabled=false
+     * returns 503 SERVICE_UNAVAILABLE (LDAP not configured in test profile).
+     * See LdapAuthControllerTest for the 401 bad-credentials path (mocked).
      */
     @Test
-    void ldapAuth_withBadCredentials_returns401() {
+    void ldapAuth_whenLdapDisabled_returns503() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>(
             "{\"username\":\"nobody\",\"password\":\"wrong\"}", headers);
         ResponseEntity<String> response = restTemplate.postForEntity(
             url("/api/auth/ldap"), request, String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     /**
