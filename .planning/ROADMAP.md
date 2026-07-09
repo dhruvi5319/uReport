@@ -197,6 +197,8 @@ Plans:
 - [ ] 09-03-PLAN.md — Integration hardening (Wave 2): Open311 golden-file fixtures + Open311GoldenFileIT + ApplicationSmokeIT, comprehensive axe-core accessibility suite (5 screens), Dockerfile verification shell script
 - [ ] 09-PGAP-01-PLAN.md — [GAP CLOSURE] Remove UAT_MOCK_USER bypass from AuthContext.tsx so real JWT-cookie auth flow works (fixes 401s on all write operations)
 - [ ] 09-PGAP-02-PLAN.md — [GAP CLOSURE] Enhance DevDataSeeder with contact methods + seeded admin person + DevLoginController (dev-only POST /api/auth/dev-login) so devs can obtain JWT without LDAP
+- [ ] 09-GGAP-01-PLAN.md — [GAP CLOSURE] Wire LoginPage to /api/auth/dev-login via VITE_USE_DEV_LOGIN flag so devadmin/admin123 authenticates in dev without LDAP (fixes UAT Test 1)
+- [ ] 09-GGAP-02-PLAN.md — [GAP CLOSURE] Fix Open311GoldenFileIT (seed Person before Client to satisfy contact_person_id NOT NULL), remove hardcoded datasource URL from test-classpath YAML (fixes actuator health UP), rename LDAP-disabled smoke test to assert 503 + add WebMvcTest for 401 bad-creds path (fixes UAT Tests 13 & 14)
 
 ## Progress
 
