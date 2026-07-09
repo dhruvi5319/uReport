@@ -18,30 +18,19 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// UAT_MOCK_USER: temporary mock for Phase 7 UAT (backend not running yet).
-// Remove after Phase 9 auth is complete.
-const UAT_MOCK_USER: User = {
-  personId: 1,
-  username: "uat_admin",
-  role: "admin",
-  firstname: "UAT",
-  lastname: "Admin",
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(UAT_MOCK_USER);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);  // null by default — no mock
+  const [loading, setLoading] = useState(true);         // true so AppShell can show skeleton
   const navigate = useNavigate();
 
   useEffect(() => {
-    // UAT_MOCK_USER active — skip real auth check while backend is not running.
-    // Restore to real API call once backend is available.
-    if (UAT_MOCK_USER) return;
+    // Real auth check: GET /api/auth/me returns 200+body if JWT cookie is valid, 401 otherwise
     api
       .get<User>("/auth/me")
       .then((res) => setUser(res.data))
       .catch((err) => {
         if (err.response?.status === 401) {
+          // No valid session — redirect to login
           navigate("/login", { replace: true });
         }
       })
