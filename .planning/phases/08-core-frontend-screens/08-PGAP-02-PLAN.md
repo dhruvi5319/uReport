@@ -42,6 +42,10 @@ must_haves:
       to: "TicketRepository"
       via: "save() call — creates Ticket record"
       pattern: "ticketRepository\\.save"
+    - from: "PublicTicketController.java"
+      to: "TicketHistoryRepository"
+      via: "save(history) — actionId=null for anonymous submission (no setActionType; field does not exist on entity)"
+      pattern: "ticketHistoryRepository\\.save"
 
 integration_contracts:
   requires: []
@@ -215,9 +219,11 @@ public class PublicTicketController {
         ticket = ticketRepository.save(ticket);
 
         // Create "open" history entry (no actor — anonymous submission)
+        // TicketHistory has no actionType field; actionId is a Long FK (nullable).
+        // Leave actionId=null — valid for anonymous public submissions with no mapped action.
         TicketHistory history = new TicketHistory();
         history.setTicket(ticket);
-        history.setActionType("open");
+        // history.setActionId(null); — omitted; null is the default, no setActionType() exists
         history.setEnteredDate(LocalDateTime.now());
         ticketHistoryRepository.save(history);
 
@@ -287,6 +293,7 @@ cd backend && mvn compile -q 2>&1 | tail -20 && echo "COMPILE OK"
     - POST /api/tickets/public with valid categoryId + description + location returns HTTP 201 with `{ "id": ..., "ticketId": "SR-..." }`
     - POST /api/tickets/public without categoryId returns HTTP 400
     - No JWT/auth required — SecurityConfig permitAll() already covers this path
+    - Photo files are received but not persisted (MediaService.upload() requires PersonDetails — skipped for Phase 8 public endpoint; accepted per UAT scope which only tests submission success, not media storage)
   </done>
 </task>
 
