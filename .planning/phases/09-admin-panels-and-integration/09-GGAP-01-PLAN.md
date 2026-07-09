@@ -7,6 +7,7 @@ depends_on: []
 files_modified:
   - frontend/.env.development
   - frontend/src/pages/LoginPage.tsx
+  - frontend/src/__tests__/LoginPage.test.tsx
 autonomous: true
 gap_closure: true
 
@@ -71,7 +72,7 @@ Enables: None (all downstream tests now unblocked)
 
 <task type="auto">
   <name>Task 1: Add VITE_USE_DEV_LOGIN flag and wire LoginPage to dev endpoint</name>
-  <files>frontend/.env.development, frontend/src/pages/LoginPage.tsx</files>
+  <files>frontend/.env.development, frontend/src/pages/LoginPage.tsx, frontend/src/__tests__/LoginPage.test.tsx</files>
   <action>
 **Step 1 — Create frontend/.env.development:**
 
@@ -105,19 +106,109 @@ const res = await fetch(endpoint, {
 No other changes. The rest of the handler (credentials body, cookie, navigation, error handling) is identical for both endpoints — both accept `{"username", "password"}` JSON and return the same response shape.
 
 **Why:** LoginPage currently hardcodes `/api/auth/ldap` (line ~35). LdapAuthService.authenticate() throws IllegalStateException when ldap.enabled=false → AuthController returns 503. DevLoginController (POST /api/auth/dev-login, @Profile("dev")) validates BCrypt against the seeded devadmin and returns a JWT cookie with 200. Switching the endpoint in dev mode allows authentication to succeed without an LDAP server.
+
+**Step 3 — Add vitest tests for the VITE_USE_DEV_LOGIN branch in frontend/src/__tests__/LoginPage.test.tsx:**
+
+Open the existing `LoginPage.test.tsx` file (it already contains accessibility tests). Add the following `describe` block — do **not** replace or remove any existing tests:
+
+```typescript
+describe('LoginPage — dev login endpoint selection', () => {
+  it('calls /api/auth/dev-login when VITE_USE_DEV_LOGIN is true', async () => {
+    // Arrange: set the build-time env flag
+    const originalEnv = import.meta.env.VITE_USE_DEV_LOGIN;
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = 'true';
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ token: 'tok' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>
+    );
+
+    // Act: fill in credentials and submit
+    await userEvent.type(screen.getByLabelText(/username/i), 'devadmin');
+    await userEvent.type(screen.getByLabelText(/password/i), 'admin123');
+    await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+
+    // Assert: fetch was called with the dev endpoint
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/auth/dev-login',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+
+    // Cleanup
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = originalEnv;
+    vi.restoreAllMocks();
+  });
+
+  it('calls /api/auth/ldap when VITE_USE_DEV_LOGIN is not set', async () => {
+    // Arrange: ensure flag is absent/false
+    const originalEnv = import.meta.env.VITE_USE_DEV_LOGIN;
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = 'false';
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ error: 'bad' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByLabelText(/username/i), 'someone');
+    await userEvent.type(screen.getByLabelText(/password/i), 'wrong');
+    await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith(
+        '/api/auth/ldap',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+
+    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = originalEnv;
+    vi.restoreAllMocks();
+  });
+});
+```
+
+**Ensure these imports are present** at the top of the test file (add only those not already imported):
+```typescript
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
+import { vi } from 'vitest';
+import LoginPage from '../pages/LoginPage';
+```
   </action>
   <verify>
 ```bash
 grep 'VITE_USE_DEV_LOGIN=true' frontend/.env.development && echo ENV_OK
 grep "VITE_USE_DEV_LOGIN" frontend/src/pages/LoginPage.tsx && echo FLAG_OK
 grep "api/auth/dev-login" frontend/src/pages/LoginPage.tsx && echo ENDPOINT_OK
+grep "api/auth/dev-login" frontend/src/__tests__/LoginPage.test.tsx && echo TEST_DEV_ENDPOINT_OK
+cd frontend && npx vitest run src/__tests__/LoginPage.test.tsx --reporter=verbose 2>&1 | tail -20 && echo VITEST_PASSED
 ```
-All three echo statements must print.
+All five echo statements must print.
   </verify>
   <done>
 - frontend/.env.development exists with VITE_USE_DEV_LOGIN=true
 - LoginPage.tsx reads import.meta.env.VITE_USE_DEV_LOGIN and uses /api/auth/dev-login when true, /api/auth/ldap otherwise
 - No other logic changed in LoginPage.tsx
+- LoginPage.test.tsx contains two new vitest tests: one asserting fetch('/api/auth/dev-login') when flag is 'true', one asserting fetch('/api/auth/ldap') when flag is 'false'
+- `npx vitest run src/__tests__/LoginPage.test.tsx` passes with 0 failing tests
   </done>
 </task>
 
@@ -147,7 +238,10 @@ grep 'VITE_USE_DEV_LOGIN=true' frontend/.env.development
 grep 'VITE_USE_DEV_LOGIN' frontend/src/pages/LoginPage.tsx
 grep 'api/auth/dev-login' frontend/src/pages/LoginPage.tsx
 
-# Confirm existing tests still pass (LoginPage accessibility test)
+# Confirm conditional endpoint logic is exercised by vitest (not just grep)
+cd frontend && npx vitest run src/__tests__/LoginPage.test.tsx --reporter=verbose 2>&1 | tail -20 && echo VITEST_PASSED
+
+# Confirm existing accessibility tests still pass
 cd frontend && npx vitest run src/__tests__/accessibility-suite.test.tsx --reporter=verbose 2>&1 | tail -20
 ```
 </verification>

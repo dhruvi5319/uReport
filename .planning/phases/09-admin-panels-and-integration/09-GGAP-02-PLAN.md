@@ -56,6 +56,7 @@ integration_contracts:
       shape: |
         @WebMvcTest(AuthController.class)
         @MockBean LdapAuthService
+        @MockBean com.ureport.security.JwtAuthFilter  // required: security filter chain autowires this @Component
         // when().thenThrow(BadCredentialsException) → expect 401
       verify: "grep -n 'LdapAuthControllerTest' backend/src/test/java/com/ureport/auth/LdapAuthControllerTest.java && echo CONTRACT_OK"
 ---
@@ -227,6 +228,7 @@ Create `backend/src/test/java/com/ureport/auth/LdapAuthControllerTest.java` — 
 package com.ureport.auth;
 
 import com.ureport.repository.PersonRepository;
+import com.ureport.security.JwtAuthFilter;
 import com.ureport.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -263,6 +265,14 @@ class LdapAuthControllerTest {
     PersonRepository personRepository;
 
     /**
+     * Required: @WebMvcTest loads the security filter chain, which autowires JwtAuthFilter
+     * (@Component). Without this mock, the test context will fail to start with a
+     * NoSuchBeanDefinitionException or UnsatisfiedDependencyException.
+     */
+    @MockBean
+    com.ureport.security.JwtAuthFilter jwtAuthFilter;
+
+    /**
      * When LdapAuthService throws BadCredentialsException, AuthController returns 401.
      */
     @Test
@@ -278,7 +288,7 @@ class LdapAuthControllerTest {
 }
 ```
 
-**Note on WebMvcTest security:** `@WebMvcTest` loads the security filter chain. If `SecurityConfig` requires beans that aren't mocked here (e.g., `JwtAuthFilter`), add `@MockBean` for those as well. If the test fails due to missing security beans, add `@MockBean` for `com.ureport.security.JwtAuthFilter` and `com.ureport.security.CustomUserDetailsService`.
+**Why `@MockBean JwtAuthFilter` is required:** `SecurityConfig` injects `JwtAuthFilter` (a `@Component`) into the security filter chain. `@WebMvcTest` loads the security chain in full, which will attempt to autowire `JwtAuthFilter`. Without this `@MockBean`, the application context will fail to start. This is not optional — it must be present in the template exactly as shown above.
   </action>
   <verify>
 ```bash
@@ -292,13 +302,14 @@ grep -n 'SERVICE_UNAVAILABLE' backend/src/test/java/com/ureport/smoke/Applicatio
 # Verify new WebMvcTest exists
 grep -n 'LdapAuthControllerTest' backend/src/test/java/com/ureport/auth/LdapAuthControllerTest.java && echo WEBMVC_TEST_EXISTS
 grep -n 'BadCredentialsException' backend/src/test/java/com/ureport/auth/LdapAuthControllerTest.java && echo BAD_CREDS_MOCKED
+grep -n 'JwtAuthFilter' backend/src/test/java/com/ureport/auth/LdapAuthControllerTest.java && echo JWT_FILTER_MOCKED
 ```
 All echo statements except the first "FAIL" check must print.
   </verify>
   <done>
 - backend/src/test/resources/application-test.yml: spring.datasource block fully removed; remaining properties intact
 - ApplicationSmokeIT.java: method renamed to ldapAuth_whenLdapDisabled_returns503; asserts SERVICE_UNAVAILABLE (503)
-- LdapAuthControllerTest.java created with @WebMvcTest(AuthController.class), mocks LdapAuthService to throw BadCredentialsException, asserts 401
+- LdapAuthControllerTest.java created with @WebMvcTest(AuthController.class), @MockBean JwtAuthFilter (required for filter chain), mocks LdapAuthService to throw BadCredentialsException, asserts 401
 - actuatorHealth_returnsUp test will pass (Zonky DataSource now wins, DB health UP)
 - ldapAuth_whenLdapDisabled_returns503 test passes (asserts correct 503)
 - ldapLogin_badCredentials_returns401 unit test passes (mocked service, no LDAP needed)
