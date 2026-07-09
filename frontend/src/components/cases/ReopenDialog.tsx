@@ -23,7 +23,7 @@ export function ReopenDialog({ ticketId }: ReopenDialogProps) {
       fetch(`/api/tickets/${ticketId}/reopen`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-      }).then(r => r.json()),
+      }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ticket', ticketId] });
       queryClient.invalidateQueries({ queryKey: ['ticket-history', ticketId] });

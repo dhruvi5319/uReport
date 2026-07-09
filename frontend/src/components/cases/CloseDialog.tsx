@@ -36,7 +36,7 @@ export function CloseDialog({ ticketId }: CloseDialogProps) {
   // Fetch substatus options
   const { data: substatuses } = useQuery<Substatus[]>({
     queryKey: ['substatuses'],
-    queryFn: () => fetch('/api/substatus').then(r => r.json()),
+    queryFn: () => fetch('/api/substatus').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
   });
 
   const closeMutation = useMutation({
@@ -45,7 +45,7 @@ export function CloseDialog({ ticketId }: CloseDialogProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ substatusId: Number(substatusId), notes }),
-      }).then(r => r.json()),
+      }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ticket', ticketId] });
       queryClient.invalidateQueries({ queryKey: ['ticket-history', ticketId] });

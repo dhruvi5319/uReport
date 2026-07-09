@@ -28,7 +28,7 @@ export function StepLocation() {
 
   const { data: geocodeResults } = useQuery<{ suggestions: GeocodeSuggestion[] }>({
     queryKey: ['geocode', debouncedAddress],
-    queryFn: () => fetch(`/api/geocode?q=${encodeURIComponent(debouncedAddress)}`).then(r => r.json()),
+    queryFn: () => fetch(`/api/geocode?q=${encodeURIComponent(debouncedAddress)}`).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     enabled: debouncedAddress.length > 2, // only query when 3+ chars
   });
 

@@ -36,6 +36,14 @@ export function StatusDonut({ data, loading }: StatusDonutProps) {
     );
   }
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground text-sm">
+        <p>No case data available</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <ResponsiveContainer width="100%" height={220}>

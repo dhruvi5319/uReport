@@ -29,28 +29,34 @@ interface PaginatedTickets {
   pageSize: number;
 }
 
+async function fetchJson<T>(url: string): Promise<T> {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json() as Promise<T>;
+}
+
 export function DashboardPage() {
   const results = useQueries({
     queries: [
       {
         queryKey: ['dashboard-stats'],
-        queryFn: (): Promise<DashboardStats> =>
-          fetch('/api/dashboard/stats').then((r) => r.json()),
+        queryFn: () => fetchJson<DashboardStats>('/api/dashboard/stats'),
+        retry: false,
       },
       {
         queryKey: ['dashboard-chart'],
-        queryFn: (): Promise<StatusChartItem[]> =>
-          fetch('/api/dashboard/chart').then((r) => r.json()),
+        queryFn: () => fetchJson<StatusChartItem[]>('/api/dashboard/chart'),
+        retry: false,
       },
       {
         queryKey: ['geoclusters', { zoom: 10 }],
-        queryFn: (): Promise<GeoJSON.FeatureCollection> =>
-          fetch('/api/geoclusters?zoom=10').then((r) => r.json()),
+        queryFn: () => fetchJson<GeoJSON.FeatureCollection>('/api/geoclusters?zoom=10'),
+        retry: false,
       },
       {
         queryKey: ['tickets-recent'],
-        queryFn: (): Promise<PaginatedTickets> =>
-          fetch('/api/tickets?page=1&pageSize=10&sort=entered_date,desc').then((r) => r.json()),
+        queryFn: () => fetchJson<PaginatedTickets>('/api/tickets?page=1&pageSize=10&sort=entered_date,desc'),
+        retry: false,
       },
     ],
   });
@@ -59,7 +65,7 @@ export function DashboardPage() {
   const isAnyLoading = results.some((r) => r.isLoading);
 
   const stats = statsResult.data;
-  const chartData = chartResult.data ?? [];
+  const chartData = Array.isArray(chartResult.data) ? chartResult.data : [];
   const clusters = clustersResult.data ?? null;
   const tickets = recentResult.data?.items ?? [];
 

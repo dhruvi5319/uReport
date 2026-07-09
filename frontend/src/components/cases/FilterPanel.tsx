@@ -31,29 +31,33 @@ const SUBSTATUS_OPTIONS = [
 export function FilterPanel({ filterState, onChange }: FilterPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const { data: categories } = useQuery<NamedItem[]>({
+  const { data: categoriesRaw } = useQuery<NamedItem[]>({
     queryKey: ['categories'],
-    queryFn: () => fetch('/api/categories/public').then(r => r.json()),
+    queryFn: () => fetch('/api/categories/public').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     enabled: expanded,
   });
+  const categories = Array.isArray(categoriesRaw) ? categoriesRaw : [];
 
-  const { data: departments } = useQuery<NamedItem[]>({
+  const { data: departmentsRaw } = useQuery<NamedItem[]>({
     queryKey: ['departments'],
-    queryFn: () => fetch('/api/departments').then(r => r.json()),
+    queryFn: () => fetch('/api/departments').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     enabled: expanded,
   });
+  const departments = Array.isArray(departmentsRaw) ? departmentsRaw : [];
 
-  const { data: people } = useQuery<NamedItem[]>({
+  const { data: peopleRaw } = useQuery<NamedItem[]>({
     queryKey: ['people'],
-    queryFn: () => fetch('/api/people').then(r => r.json()),
+    queryFn: () => fetch('/api/people').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     enabled: expanded,
   });
+  const people = Array.isArray(peopleRaw) ? peopleRaw : [];
 
-  const { data: issueTypes } = useQuery<NamedItem[]>({
+  const { data: issueTypesRaw } = useQuery<NamedItem[]>({
     queryKey: ['issue-types'],
-    queryFn: () => fetch('/api/issue-types').then(r => r.json()),
+    queryFn: () => fetch('/api/issue-types').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     enabled: expanded,
   });
+  const issueTypes = Array.isArray(issueTypesRaw) ? issueTypesRaw : [];
 
   function clearAll() {
     onChange({

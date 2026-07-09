@@ -6,6 +6,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
+interface FlatCategory {
+  id: number;
+  name: string;
+  postingPermissionLevel?: string;
+  categoryGroup?: { id: number; name: string };
+}
+
 interface Category {
   id: number;
   name: string;
@@ -18,15 +25,30 @@ interface CategoryGroup {
   categories: Category[];
 }
 
+/** Transform flat category list (API shape) → grouped structure for the wizard */
+function groupCategories(flatCats: FlatCategory[]): CategoryGroup[] {
+  const groupMap = new Map<number, CategoryGroup>();
+  for (const cat of flatCats) {
+    const g = cat.categoryGroup;
+    if (!g) continue;
+    if (!groupMap.has(g.id)) {
+      groupMap.set(g.id, { id: g.id, name: g.name, categories: [] });
+    }
+    groupMap.get(g.id)!.categories.push({ id: cat.id, name: cat.name, postingPermissionLevel: cat.postingPermissionLevel });
+  }
+  return Array.from(groupMap.values());
+}
+
 export function StepCategory() {
   const { formData, updateFormData, goNext, goBack } = useWizard();
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(formData.categoryGroupId ?? null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(formData.categoryId ?? null);
 
-  const { data: groups, isLoading } = useQuery<CategoryGroup[]>({
+  const { data: rawCats, isLoading } = useQuery<FlatCategory[]>({
     queryKey: ['categories-public'],
-    queryFn: () => fetch('/api/categories/public').then(r => r.json()),
+    queryFn: () => fetch('/api/categories/public').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
   });
+  const groups = Array.isArray(rawCats) ? groupCategories(rawCats) : undefined;
 
   const selectedGroup = groups?.find(g => g.id === selectedGroupId);
   const canAdvance = !!selectedCategoryId;

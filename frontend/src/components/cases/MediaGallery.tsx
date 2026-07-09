@@ -27,7 +27,7 @@ export function MediaGallery({ media, ticketId }: MediaGalleryProps) {
       return fetch(`/api/tickets/${ticketId}/media`, {
         method: 'POST',
         body: form,
-      }).then(r => r.json());
+      }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ticket-media', ticketId] });

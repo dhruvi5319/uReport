@@ -69,17 +69,17 @@ export function MetadataPanel({ ticket, media, ticketId }: MetadataPanelProps) {
   // Fetch options for editable select fields
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories-public'],
-    queryFn: () => fetch('/api/categories/public').then(r => r.json()),
+    queryFn: () => fetch('/api/categories/public').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
   });
 
   const { data: issueTypes = [] } = useQuery<IssueType[]>({
     queryKey: ['issue-types'],
-    queryFn: () => fetch('/api/issue-types').then(r => r.json()),
+    queryFn: () => fetch('/api/issue-types').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
   });
 
   const { data: contactMethods = [] } = useQuery<ContactMethod[]>({
     queryKey: ['contact-methods'],
-    queryFn: () => fetch('/api/contact-methods').then(r => r.json()),
+    queryFn: () => fetch('/api/contact-methods').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
   });
 
   // PATCH mutation with optimistic update
@@ -89,7 +89,7 @@ export function MetadataPanel({ ticket, media, ticketId }: MetadataPanelProps) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
-      }).then(r => r.json()),
+      }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     onMutate: async (updates) => {
       await queryClient.cancelQueries({ queryKey: ['ticket', ticketId] });
       const prev = queryClient.getQueryData<Ticket>(['ticket', ticketId]);

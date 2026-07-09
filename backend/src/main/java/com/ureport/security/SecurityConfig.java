@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/categories/public").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/tickets/public").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/geocode").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/actions").permitAll()  // action type reference data (non-sensitive)
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
 

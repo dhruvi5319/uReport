@@ -21,14 +21,16 @@ export function ActionLogForm({ ticketId, departmentId }: ActionLogFormProps) {
   const queryClient = useQueryClient();
 
   // Fetch action types filtered by department
-  const { data: actions = [] } = useQuery<Action[]>({
+  const { data: actionsRaw } = useQuery<Action[]>({
     queryKey: ['actions', departmentId],
     queryFn: () =>
-      fetch(`/api/actions${departmentId ? `?departmentId=${departmentId}` : ''}`).then(r =>
-        r.json()
-      ),
+      fetch(`/api/actions${departmentId ? `?departmentId=${departmentId}` : ''}`).then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }),
     enabled: true,
   });
+  const actions = Array.isArray(actionsRaw) ? actionsRaw : [];
 
   const [selectedActionId, setSelectedActionId] = useState<string>('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
@@ -37,14 +39,16 @@ export function ActionLogForm({ ticketId, departmentId }: ActionLogFormProps) {
   const [notifyReporter, setNotifyReporter] = useState(false);
 
   // Fetch templates when action selected
-  const { data: templates = [] } = useQuery<ActionResponse[]>({
+  const { data: templatesRaw } = useQuery<ActionResponse[]>({
     queryKey: ['action-templates', ticketId, selectedActionId],
     queryFn: () =>
-      fetch(`/api/categories/${ticketId}/action-responses/${selectedActionId}`).then(r =>
-        r.json()
-      ),
+      fetch(`/api/categories/${ticketId}/action-responses/${selectedActionId}`).then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }),
     enabled: !!selectedActionId,
   });
+  const templates = Array.isArray(templatesRaw) ? templatesRaw : [];
 
   // When template selected, populate notes field
   useEffect(() => {
@@ -60,7 +64,7 @@ export function ActionLogForm({ ticketId, departmentId }: ActionLogFormProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      }).then(r => r.json()),
+      }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     // Optimistic update: prepend new entry to history list immediately
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['ticket-history', ticketId] });

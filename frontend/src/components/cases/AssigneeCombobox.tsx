@@ -33,7 +33,7 @@ export function AssigneeCombobox({ value, onChange }: AssigneeComboboxProps) {
 
   const { data: people = [] } = useQuery<Person[]>({
     queryKey: ['people'],
-    queryFn: () => fetch('/api/people').then(r => r.json()),
+    queryFn: () => fetch('/api/people').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
   });
 
   const selectedPerson = people.find(p => p.id === value);
