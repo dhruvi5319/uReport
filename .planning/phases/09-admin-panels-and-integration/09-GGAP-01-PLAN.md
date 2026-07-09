@@ -126,15 +126,15 @@ describe('LoginPage — dev login endpoint selection', () => {
     );
 
     render(
-      <MemoryRouter>
+      <MemoryRouterWrapper>
         <LoginPage />
-      </MemoryRouter>
+      </MemoryRouterWrapper>
     );
 
     // Act: fill in credentials and submit
     await userEvent.type(screen.getByLabelText(/username/i), 'devadmin');
     await userEvent.type(screen.getByLabelText(/password/i), 'admin123');
-    await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     // Assert: fetch was called with the dev endpoint
     await waitFor(() => {
@@ -162,14 +162,14 @@ describe('LoginPage — dev login endpoint selection', () => {
     );
 
     render(
-      <MemoryRouter>
+      <MemoryRouterWrapper>
         <LoginPage />
-      </MemoryRouter>
+      </MemoryRouterWrapper>
     );
 
     await userEvent.type(screen.getByLabelText(/username/i), 'someone');
     await userEvent.type(screen.getByLabelText(/password/i), 'wrong');
-    await userEvent.click(screen.getByRole('button', { name: /log in/i }));
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith(
@@ -188,10 +188,11 @@ describe('LoginPage — dev login endpoint selection', () => {
 ```typescript
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 import LoginPage from '../pages/LoginPage';
 ```
+
+**Note:** The new tests use `MemoryRouterWrapper` — the helper already defined at the top of `LoginPage.test.tsx` (it wraps children in `<MemoryRouter initialEntries={['/login']}>` with both `/login` and `/dashboard` routes). Do **not** re-declare it; just reference it as-is.
   </action>
   <verify>
 ```bash
