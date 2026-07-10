@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-PGAP-02-PLAN.md
-last_updated: "2026-07-09T19:00:04.771Z"
-last_activity: "2026-07-08 — Completed 08-03: Case detail split-pane, optimistic inline-edit, close/reopen dialogs, SLA bar, action log form, timeline, media gallery with drag-drop, 11 Vitest tests passing"
+stopped_at: Completed 09-GGAP-02-PLAN.md
+last_updated: "2026-07-09T23:09:29.320Z"
+last_activity: "2026-07-09 — Completed PGAP-02: POST /api/tickets/public + GET /api/geocode — closes UAT gaps 14, 16, 18"
 progress:
   total_phases: 9
-  completed_phases: 8
-  total_plans: 39
-  completed_plans: 36
+  completed_phases: 9
+  total_plans: 43
+  completed_plans: 43
   percent: 92
 ---
 
@@ -77,6 +77,13 @@ Progress: [█████████░] 92%
 | Phase 08-core-frontend-screens P03 | 12min | 2 tasks | 13 files |
 | Phase 08-core-frontend-screens PPGAP-01 | 1min | 1 tasks | 1 files |
 | Phase 08-core-frontend-screens PPGAP-02 | 2min | 2 tasks | 4 files |
+| Phase 09-admin-panels-and-integration P02 | 5min | 2 tasks | 8 files |
+| Phase 09-admin-panels-and-integration P01 | 9min | 2 tasks | 11 files |
+| Phase 09-admin-panels-and-integration P03 | 3min | 2 tasks | 5 files |
+| Phase 09-admin-panels-and-integration PPGAP-01 | 1min | 1 tasks | 1 files |
+| Phase 09-admin-panels-and-integration PPGAP-02 | 2min | 2 tasks | 4 files |
+| Phase 09-admin-panels-and-integration PGGAP-01 | 1 min | 1 tasks | 3 files |
+| Phase 09-admin-panels-and-integration PGGAP-02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -138,6 +145,19 @@ Recent decisions affecting current work:
 - [Phase 08-core-frontend-screens]: Use -Dspring.profiles.active=dev JVM system property (not SPRING_PROFILES_ACTIVE env var) in start-dev.sh — scoped to Maven invocation only, no env pollution to sibling processes
 - [Phase 08-core-frontend-screens]: Photo upload skipped in public endpoint — MediaService.upload() requires PersonDetails; photos received but not persisted; ticket created successfully per Phase 8 UAT scope
 - [Phase 08-core-frontend-screens]: SR-{id} format for public ticketId (Open311-style); contact fields stored in additionalFields JSON column (write-only from public endpoint, T-08-P2-02); Nominatim calls wrapped in try/catch for graceful sandbox network fallback
+- [Phase 09-admin-panels-and-integration]: LoginPage uses native fetch for POST /api/auth/ldap; navigate(returnTo||'/dashboard') uses react-router (prevents open redirect T-09-07)
+- [Phase 09-admin-panels-and-integration]: Command palette debounce via useEffect+setTimeout 300ms; query enabled when length >= 2; state reset on dialog close
+- [Phase 09-admin-panels-and-integration]: AdminGuard uses user.role === 'admin' (lowercase matching AuthContext UAT_MOCK_USER) not 'ROLE_ADMIN' string
+- [Phase 09-admin-panels-and-integration]: CategoriesPage accordion restructured: expand <button> element separate from action buttons — fixes nested-interactive axe violation
+- [Phase 09-admin-panels-and-integration]: ApplicationSmokeIT uses Zonky embedded PostgreSQL — consistent with project test architecture, no Docker daemon needed
+- [Phase 09-admin-panels-and-integration]: Accessibility suite filterCriticalAndSerious helper — only critical/serious axe violations fail the suite
+- [Phase 09-admin-panels-and-integration]: verify-dockerfiles.sh uses grep structural checks — no docker build needed (sandbox has no Docker daemon)
+- [Phase 09-admin-panels-and-integration]: UAT_MOCK_USER constant removed from AuthContext — was root cause of all write operation 401 failures across admin panels
+- [Phase 09-admin-panels-and-integration]: DevLoginController @Profile("dev") — not registered in production; SecurityConfig permitAll for /api/auth/dev-login is harmless in prod (404 no route)
+- [Phase 09-admin-panels-and-integration]: Issue type names corrected to V1 migration: Comment, Complaint, Question, Report, Request, Violation; category groups: Streets, Sanitation, Other
+- [Phase 09-admin-panels-and-integration]: GGAP-01: VITE_USE_DEV_LOGIN build-time flag switches LoginPage endpoint to /api/auth/dev-login in dev mode; anchored /^sign in$/i selector used in tests to avoid City SSO button ambiguity
+- [Phase 09-admin-panels-and-integration]: Zonky EmbeddedPostgresAutoConfiguration requires blank datasource.url in test-classpath YAML — hardcoded jdbc:postgresql URL overrides Zonky and causes Hikari connection failure to non-existent instance
+- [Phase 09-admin-panels-and-integration]: @WebMvcTest requires @MockBean JwtAuthFilter for security filter chain; ldap.enabled=false → IllegalStateException → 503 (not 401); renamed smoke test to ldapAuth_whenLdapDisabled_returns503
 
 ### Pending Todos
 
@@ -150,6 +170,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-09T19:00:04.769Z
-Stopped at: Completed 08-PGAP-02-PLAN.md
+Last session: 2026-07-09T23:09:29.318Z
+Stopped at: Completed 09-GGAP-02-PLAN.md
 Resume file: None

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+  <service>
+    <service_code>001</service_code>
+    <service_name>Pothole</service_name>
+    <description>Report a pothole in the road surface</description>
+    <metadata>false</metadata>
+    <type>realtime</type>
+    <keywords>pothole, road, pavement</keywords>
+    <group>Infrastructure</group>
+  </service>
+  <service>
+    <service_code>002</service_code>
+    <service_name>Graffiti</service_name>
+    <description>Report graffiti on public property</description>
+    <metadata>false</metadata>
+    <type>realtime</type>
+    <keywords>graffiti, vandalism</keywords>
+    <group>Public Safety</group>
+  </service>
+</services>

@@ -1,0 +1,19 @@
+{
+  "service_request_id": "2024-00001",
+  "status": "open",
+  "status_notes": "",
+  "service_name": "Pothole",
+  "service_code": "001",
+  "description": "Large pothole at Main and 1st",
+  "agency_responsible": "Public Works",
+  "service_notice": "",
+  "requested_datetime": "2024-01-15T10:30:00Z",
+  "updated_datetime": "2024-01-15T10:30:00Z",
+  "expected_datetime": "2024-01-22T10:30:00Z",
+  "address": "100 Main St",
+  "address_id": "",
+  "zipcode": "99001",
+  "lat": 47.6588,
+  "long": -117.4260,
+  "media_url": ""
+}
