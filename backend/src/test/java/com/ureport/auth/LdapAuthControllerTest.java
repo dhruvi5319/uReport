@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -46,6 +47,13 @@ class LdapAuthControllerTest {
     com.ureport.security.JwtAuthFilter jwtAuthFilter;
 
     /**
+     * Required: legacy JwtAuthenticationFilter (@Component) also needs JwtUtil to
+     * construct. Mock it so the @WebMvcTest context can start without JwtUtil available.
+     */
+    @MockBean
+    com.ureport.security.JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    /**
      * When LdapAuthService throws BadCredentialsException, AuthController returns 401.
      */
     @Test
@@ -54,6 +62,7 @@ class LdapAuthControllerTest {
             .thenThrow(new BadCredentialsException("Invalid credentials"));
 
         mockMvc.perform(post("/api/auth/ldap")
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"attacker\",\"password\":\"wrong\"}"))
             .andExpect(status().isUnauthorized());

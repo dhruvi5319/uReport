@@ -25,3 +25,10 @@ ldap:
 
 cas:
   enabled: false
+
+management:
+  health:
+    ldap:
+      enabled: false
+    mail:
+      enabled: false

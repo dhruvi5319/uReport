@@ -13,3 +13,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+management:
+  health:
+    ldap:
+      enabled: false
