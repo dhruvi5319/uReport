@@ -6,7 +6,7 @@ import LoginPage from '@/pages/LoginPage';
 
 // Mock AuthContext to provide unauthenticated state
 vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({ user: null, loading: false, logout: vi.fn() }),
+  useAuth: () => ({ user: null, loading: false, logout: vi.fn(), refreshUser: vi.fn().mockResolvedValue(null) }),
 }));
 
 // Helper wrapper providing MemoryRouter (required for useNavigate / useSearchParams)
@@ -88,7 +88,7 @@ describe('LoginPage — dev login endpoint selection', () => {
   it('calls /api/auth/dev-login when VITE_USE_DEV_LOGIN is true', async () => {
     // Arrange: set the build-time env flag
     const originalEnv = import.meta.env.VITE_USE_DEV_LOGIN;
-    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = 'true';
+    (import.meta.env as Record<string, string | undefined>).VITE_USE_DEV_LOGIN = 'true';
 
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ token: 'tok' }), {
@@ -117,14 +117,14 @@ describe('LoginPage — dev login endpoint selection', () => {
     });
 
     // Cleanup
-    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = originalEnv;
+    (import.meta.env as Record<string, string | undefined>).VITE_USE_DEV_LOGIN = originalEnv;
     vi.restoreAllMocks();
   });
 
   it('calls /api/auth/ldap when VITE_USE_DEV_LOGIN is not set', async () => {
     // Arrange: ensure flag is absent/false
     const originalEnv = import.meta.env.VITE_USE_DEV_LOGIN;
-    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = 'false';
+    (import.meta.env as Record<string, string | undefined>).VITE_USE_DEV_LOGIN = 'false';
 
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ error: 'bad' }), {
@@ -150,7 +150,7 @@ describe('LoginPage — dev login endpoint selection', () => {
       );
     });
 
-    (import.meta.env as Record<string, string>).VITE_USE_DEV_LOGIN = originalEnv;
+    (import.meta.env as Record<string, string | undefined>).VITE_USE_DEV_LOGIN = originalEnv;
     vi.restoreAllMocks();
   });
 });

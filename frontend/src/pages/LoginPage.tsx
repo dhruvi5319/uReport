@@ -16,7 +16,7 @@ export default function LoginPage() {
   const useDevLogin = import.meta.env.VITE_USE_DEV_LOGIN === 'true';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -44,6 +44,10 @@ export default function LoginPage() {
         credentials: 'include', // send/receive cookies
       });
       if (res.ok) {
+        // Cookie is set but AuthContext still holds the pre-login null; refresh
+        // it so the guarded /dashboard route recognises the session instead of
+        // bouncing straight back to /login.
+        await refreshUser();
         const returnTo = searchParams.get('returnTo');
         navigate(returnTo || '/dashboard');
       } else {
