@@ -13,7 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  * Enables the React frontend to render dropdowns, category tiles, etc.
  * during development without requiring a live PostgreSQL database with Flyway migrations.
  *
- * Dev admin credentials: username=devadmin / password=admin123
+ * Dev credentials: username=devadmin / password=admin123 (role "admin")
+ *                  username=devstaff / password=staff123 (role "staff", non-admin)
  * Use POST /api/auth/dev-login to obtain a JWT cookie for testing authenticated endpoints.
  */
 @Configuration
@@ -83,10 +84,13 @@ public class DevDataSeeder {
                 dept = deptRepo.findAll().iterator().next();
             }
 
-            // --- Dev admin Person (for JWT authentication in dev mode) ---
-            // Credentials: devadmin / admin123 (bcrypt hash of "admin123")
+            // --- Dev Persons (for JWT authentication in dev mode) ---
+            // Credentials: devadmin / admin123  (role "admin")
+            //              devstaff / staff123  (role "staff" — non-admin, for
+            //              exercising the AdminGuard redirect: /admin/* -> /dashboard)
             if (personRepo.count() == 0) {
                 BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
                 Person admin = new Person();
                 admin.setUsername("devadmin");
                 admin.setFirstname("Dev");
@@ -95,6 +99,15 @@ public class DevDataSeeder {
                 admin.setPasswordHash(encoder.encode("admin123"));
                 admin.setDepartment(dept);
                 personRepo.save(admin);
+
+                Person staff = new Person();
+                staff.setUsername("devstaff");
+                staff.setFirstname("Dev");
+                staff.setLastname("Staff");
+                staff.setRole("staff");
+                staff.setPasswordHash(encoder.encode("staff123"));
+                staff.setDepartment(dept);
+                personRepo.save(staff);
             }
 
             // --- Category Groups + Categories (for StepCategory wizard and accordion) ---
